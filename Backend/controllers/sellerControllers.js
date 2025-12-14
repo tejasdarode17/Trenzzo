@@ -6,6 +6,9 @@ import slugify from "slugify";
 import Order from "../model/orderModel.js";
 import mongoose from "mongoose";
 import DeliveryPartner from "../model/deliveryPartnerModel.js";
+import Return from "../model/returnModel.js";
+import bcrypt from "bcrypt"
+
 
 export async function addProduct(req, res) {
 
@@ -463,7 +466,7 @@ export async function toggleProductStatus(req, res) {
 export async function fetchSellerOrders(req, res) {
     try {
         const sellerID = req.user.id;
-        const { page = 1, range = "all" } = req.query;
+        const { page = 1, range = "all", search = "" } = req.query;
 
         if (!sellerID) {
             return res.status(403).json({
@@ -471,7 +474,6 @@ export async function fetchSellerOrders(req, res) {
                 message: "You are not authorized"
             });
         }
-
 
         const limit = 10;
         const skip = (page - 1) * limit;
@@ -498,16 +500,16 @@ export async function fetchSellerOrders(req, res) {
         const query = { "items.seller": sellerID, ...dateFilter };
         const totalOrders = await Order.countDocuments(query);
 
-        const orders = await Order.find(query)
-            .populate("customer", "username email addresses")
+        let orders = await Order.find(query)
+            .populate("customer", "username email addresses email")
             .populate("items.product", "name price images")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
+        let formattedOrders = orders.map(order => {
 
-        const formattedOrders = orders.map(order => {
-            const sellerItems = order.items.filter((it) => it.seller.toString() === sellerID.toString());
+            const sellerItems = order.items.filter(it => it.seller.toString() === sellerID.toString());
             const sellerTotalAmount = sellerItems.reduce((sum, it) => sum + it.sellerAmount, 0);
             return {
                 _id: order._id,
@@ -519,8 +521,20 @@ export async function fetchSellerOrders(req, res) {
                 address: order.address,
                 createdAt: order.createdAt,
                 updatedAt: order.updatedAt,
-            };
+            }
+
         });
+
+        if (search.trim()) {
+            const lowerSearch = search.toLowerCase();
+            formattedOrders = formattedOrders.filter(order =>
+                order.customer.username.toLowerCase().includes(lowerSearch) ||
+                order.customer.email.toLowerCase().includes(lowerSearch) ||
+                order.items.some(item =>
+                    item.product?.name?.toLowerCase().includes(lowerSearch)
+                )
+            );
+        }
 
         return res.status(200).json({
             success: true,
@@ -603,43 +617,56 @@ export async function fetchSellerStats(req, res) {
             .sort({ createdAt: -1 });
 
         let totalRevenue = 0;
-        let todayRevenue = 0;
         let monthRevenue = 0;
-
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
+        let yearRevenue = 0;
+        let sellerOrderCount = 0;
 
         const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const monthStart = new Date(currentYear, currentMonth, 1);
+        const monthEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+        const yearStart = new Date(currentYear, 0, 1);
+        const yearEnd = new Date(currentYear, 11, 31, 23, 59, 59);
+
+        const monthlyBreakdown = Array(12).fill(0);
 
         orders.forEach(order => {
-            const sellerItems = order.items.filter(
-                (it) => it.seller.toString() === sellerID.toString()
-            );
+            const sellerItems = order.items.filter(it => it.seller.toString() === sellerID.toString());
+            const validItems = sellerItems.filter(it => it.status !== "cancelled" && it.status !== "returned");
 
-            const sellerTotal = sellerItems.reduce((sum, it) => sum + it.sellerAmount, 0);
+            if (validItems.length > 0) sellerOrderCount++;
+
+            const sellerTotal = validItems.reduce((sum, it) => sum + it.sellerAmount, 0);
 
             totalRevenue += sellerTotal;
 
-            if (order.createdAt >= todayStart && order.createdAt <= todayEnd) {
-                todayRevenue += sellerTotal;
+            const orderMonth = new Date(order.createdAt).getMonth();
+            const orderYear = new Date(order.createdAt).getFullYear();
+
+            // monthly breakdown (regardless of year)
+            if (orderYear === currentYear) {
+                monthlyBreakdown[orderMonth] += sellerTotal;
             }
 
             if (order.createdAt >= monthStart && order.createdAt <= monthEnd) {
                 monthRevenue += sellerTotal;
+            }
+
+            if (order.createdAt >= yearStart && order.createdAt <= yearEnd) {
+                yearRevenue += sellerTotal;
             }
         });
 
         return res.status(200).json({
             success: true,
             totalRevenue,
-            todayRevenue,
             monthRevenue,
-            totalOrders: orders.length
+            yearRevenue,
+            totalOrders: sellerOrderCount,
+            monthlyBreakdown
         });
 
     } catch (error) {
@@ -732,6 +759,7 @@ export async function assignOrderToDeliveryPartner(req, res) {
             orderId: orderID,
             itemId: itemID
         });
+
         await partner.save();
 
         return res.status(200).json({
@@ -782,13 +810,371 @@ export async function fetchAllDeliveryPartners(req, res) {
     }
 }
 
+
+// --------Return Apis----------------------------------------------------------------------------------------------
+export async function fetchAllReturnRequests(req, res) {
+    try {
+        const sellerId = req.user.id;
+        const { filter = "all", page = 1 } = req.query;
+
+        if (!sellerId) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized"
+            });
+        }
+
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+
+        let dateFilter = {};
+        if (filter === "today") {
+            const start = new Date();
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date();
+            end.setHours(23, 59, 59, 999);
+
+            dateFilter.createdAt = { $gte: start, $lte: end };
+        }
+
+        if (filter === "month") {
+            const start = new Date();
+            start.setDate(1);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date();
+            end.setHours(23, 59, 59, 999);
+
+            dateFilter.createdAt = { $gte: start, $lte: end };
+        }
+
+
+        const returnQuery = { seller: sellerId, ...dateFilter };
+        const returns = await Return.find(returnQuery)
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip(skip)
+            .populate("customer", "username email");
+
+        const data = [];
+        for (let returnItem of returns) {
+            const order = await Order.findById(returnItem.orderId)
+                .populate("items.product", "name price images")
+                .populate("customer", "username email");
+
+            if (!order) continue;
+
+            const item = order.items.id(returnItem.itemId);
+            if (!item) continue;
+
+            data.push({
+                returnRequest: returnItem,
+                orderId: order._id,
+                product: item.product,
+                quantity: item.quantity,
+                lockedPrice: item.lockedPrice,
+                subtotal: item.subtotal,
+                returnStatus: item.returnStatus,
+                customer: order.customer,
+                address: order.address
+            });
+        }
+
+
+        const total = await Return.countDocuments(returnQuery)
+        return res.status(200).json({
+            success: true,
+            message: "Return Request Fetched",
+            items: data,
+            total,
+            pages: Math.ceil(total / limit)
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+export async function assignReturnOrderToDeliveryPartner(req, res) {
+    try {
+        const sellerID = req.user.id;
+        const { returnID, orderID, itemID, partnerID } = req.body;
+
+        if (!sellerID) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized"
+            });
+        }
+
+        const returnProduct = await Return.findById(returnID);
+        if (!returnProduct) {
+            return res.status(404).json({
+                success: false,
+                message: "Return product not found"
+            });
+        }
+
+        if (returnProduct.seller.toString() !== sellerID.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized seller"
+            });
+        }
+
+        const partner = await DeliveryPartner.findById(partnerID);
+        if (!partner) {
+            return res.status(404).json({
+                success: false,
+                message: "Partner not found"
+            });
+        }
+
+        const order = await Order.findById(orderID);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        const item = order.items.find(i => i._id.toString() === itemID);
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: "Item not found"
+            });
+        }
+
+        item.returnStatus = "in-transit";
+        returnProduct.returnStatus = "in-transit";
+        returnProduct.deliveryPartner = partnerID;
+
+        partner.returnOrders.push({
+            returnRequestId: returnID,
+            orderId: orderID,
+            itemId: itemID
+        });
+
+        await order.save();
+        await returnProduct.save();
+        await partner.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Return order assigned to delivery partner successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+export async function updateReturnStatusForSeller(req, res) {
+    try {
+        const sellerID = req.user.id;
+        const { returnID, orderID, itemID, nextStatus } = req.body;
+
+        if (!sellerID) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized"
+            });
+        }
+
+        if (!returnID || !orderID || !itemID || !nextStatus) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields"
+            });
+        }
+
+        const allowed = ["received", "approved", "refunded"];
+        if (!allowed.includes(nextStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid next status"
+            });
+        }
+
+        const returnProduct = await Return.findById(returnID);
+        if (!returnProduct) {
+            return res.status(404).json({
+                success: false,
+                message: "Return product not found"
+            });
+        }
+
+        if (returnProduct.seller.toString() !== sellerID.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized seller"
+            });
+        }
+
+        const current = returnProduct.returnStatus;
+        const transitions = {
+            pickedUp: "received",
+            received: "approved",
+            approved: "refunded"
+        };
+
+        if (transitions[current] !== nextStatus) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid transition from ${current} to ${nextStatus}`
+            });
+        }
+
+        const order = await Order.findById(orderID);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        const item = order.items.id(itemID);
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: "Item not found"
+            });
+        }
+
+        if (nextStatus == "refunded") {
+            item.status = "returned"
+        }
+        item.returnStatus = nextStatus;
+        returnProduct.returnStatus = nextStatus;
+
+        if (nextStatus === "refunded") {
+            returnProduct.refundStatus = "processed";
+        }
+
+        await order.save();
+        await returnProduct.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Return status updated successfully",
+            returnProduct
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
 // --------------------------------------------------------------------------
 
 
+//seller Account related Apis 
+
+export async function sellerChangePassword(req, res) {
+
+    try {
+        const { currentPassword, newPassword } = req.body
+        const sellerID = req.user.id
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Current Password or new password not provided"
+            });
+        }
+
+        const seller = await Seller.findById(sellerID)
+        if (!seller) {
+            return res.status(404).json({
+                success: false,
+                message: "Seller not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, seller.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        seller.password = hashedPassword;
+        await seller.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
 
 
 
+export async function sellerPersonalInfoChange(req, res) {
 
+    try {
+
+        const sellerId = req.user.id
+        const { name, email, address } = req.body
+
+        const seller = await Seller.findById(sellerId)
+        if (!seller) {
+            return res.status(404).json({
+                success: false,
+                message: "Seller not found"
+            });
+        }
+
+        if (name) seller.username = name
+        if (email) seller.email = name
+        if (address) seller.businessAddress = address
+        await seller.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile Updated Sucessfully"
+        });
+
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+
+}
 
 
 

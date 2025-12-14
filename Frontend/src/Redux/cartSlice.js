@@ -7,7 +7,6 @@ export const fetchCartThunk = createAsyncThunk("fetch-cart", async (_, { rejectW
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/cart`, {
             withCredentials: true,
         });
-        console.log(response.data);
         return response.data.cart
     } catch (error) {
         console.log(error);
@@ -33,7 +32,37 @@ export const addToCartThunk = createAsyncThunk("add-cart", async ({ productID, q
     }
 })
 
+export const decreaseCartQuantity = createAsyncThunk("decrease-quantity", async ({ productID, attributes }, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/decrease-quantity`,
+            { productID, attributes },
+            { withCredentials: true, }
+        )
+        console.log(response.data);
+        return response.data.cart
+    } catch (error) {
+        console.log(error);
+        return rejectWithValue(
+            error.response?.data?.message || "Something went wrong on server"
+        );
+    }
+})
 
+export const removeItemFromCart = createAsyncThunk("remove-cart", async ({ productID, attributes }, { rejectWithValue }) => {
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/remove-cart`,
+            { productID, attributes },
+            { withCredentials: true, }
+        )
+        console.log(response.data);
+        return response.data.cart
+    } catch (error) {
+        console.log(error);
+        return rejectWithValue(
+            error.response?.data?.message || "Something went wrong on server"
+        );
+    }
+})
 
 
 export const buyNowThunk = createAsyncThunk("buy-now", async ({ productID, quantity, attributes }, { rejectWithValue }) => {
@@ -104,6 +133,30 @@ const cartSllice = createSlice({
                 state.cart = action.payload
             })
             .addCase(addToCartThunk.rejected, (state) => {
+                state.loading = false;
+            })
+
+        builder
+            .addCase(decreaseCartQuantity.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(decreaseCartQuantity.fulfilled, (state, action) => {
+                state.loading = false
+                state.cart = action.payload
+            })
+            .addCase(decreaseCartQuantity.rejected, (state) => {
+                state.loading = false;
+            })
+
+        builder
+            .addCase(removeItemFromCart.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(removeItemFromCart.fulfilled, (state, action) => {
+                state.loading = false
+                state.cart = action.payload
+            })
+            .addCase(removeItemFromCart.rejected, (state) => {
                 state.loading = false;
             })
 

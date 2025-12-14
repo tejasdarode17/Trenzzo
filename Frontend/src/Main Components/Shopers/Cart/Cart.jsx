@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { addToCartThunk, checkOut, clearCart } from "@/Redux/cartSlice";
+import { addToCartThunk, checkOut, clearCart, decreaseCartQuantity, removeItemFromCart } from "@/Redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import EmptyCart from "./EmptyCart";
 import CartFooter from "./CartFooter";
@@ -9,7 +9,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
-  const { cart } = useSelector((store) => store.cart);
+  const { cart, loading } = useSelector((store) => store.cart);
   const { isAuthenticated } = useSelector((store) => store.auth)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -41,8 +41,18 @@ const Cart = () => {
   }
 
 
+
+
+
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col">
+
+      {loading && (
+        <div className="absolute inset-0 bg-white/70 z-50 flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto mt-6 flex flex-col flex-1 lg:flex-row gap-6 px-4">
         {/* Left Side – Cart Items */}
         <div className="flex-1">
@@ -85,10 +95,11 @@ const Cart = () => {
                       {/* Quantity Controls */}
                       <div className="flex items-center justify-center gap-3 mt-4">
                         <Button
-                          // onClick={() => dispatch(decreaseQuantity({ id: p.?.product?._id }))}
+                          disabled={p?.quantity === 1}
+                          onClick={() => dispatch(decreaseCartQuantity({ productID: p.product._id, attributes: p.product.attributes }))}
                           variant="outline"
                           size="sm"
-                          disabled={p?.quantity <= 1}
+                          // disabled={p?.quantity <= 1}
                           className="h-9 w-9 rounded-full border-2 hover:border-amber-500 transition-colors"
                         >
                           <Minus className="w-4 h-4" />
@@ -164,7 +175,7 @@ const Cart = () => {
                             </p>
                           )}
                           <Button
-                            // onClick={() => dispatch(removeCartItems({ id: p?._id }))}
+                            onClick={() => dispatch(removeItemFromCart({ productID: p.product._id, attributes: p.product.attributes }))}
                             variant="ghost"
                             size="sm"
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 mt-2"
@@ -222,32 +233,12 @@ const Cart = () => {
                 <p className="font-medium">₹{cart?.itemTotal?.toLocaleString("en-IN")}</p>
               </div>
 
-              {/* <div className="flex justify-between items-center py-2">
-                <p className="text-gray-600">Discount</p>
-                <p className="text-green-600 font-medium">- ₹0</p>
-              </div> */}
 
               <div className="flex justify-between items-center py-2">
                 <p className="text-gray-600">Platform Fee</p>
                 <p className="font-medium">₹{cart?.platformFees.toLocaleString("en-IN")}</p>
               </div>
 
-              <div className="flex justify-between items-center py-2 border-b border-gray-200 pb-4">
-                <p className="text-gray-600">Delivery Charges</p>
-                {
-                  cart.deliveryFees > 0 ? (
-                    <p className="text-green-600 font-medium flex items-center gap-1">
-                      <Truck className="w-4 h-4" />
-                      {cart?.deliveryFees}
-                    </p>
-                  ) : (
-                    <p className="text-green-600 font-medium flex items-center gap-1">
-                      <Truck className="w-4 h-4" />
-                      Free
-                    </p>
-                  )
-                }
-              </div>
 
               <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                 <p className="text-lg font-bold text-gray-900">Total Amount</p>
@@ -282,13 +273,5 @@ const Cart = () => {
   );
 };
 
-
-
-
 export default Cart;
 
-
-
-
-
-// jaisa login karta hu waisa fetchCartThunk() call karna padega

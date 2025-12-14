@@ -235,6 +235,8 @@ export async function loginSeller(req, res) {
 
 }
 
+
+//delivery partner
 export async function registerDeliveryPartner(req, res) {
     try {
         const { name, email, password, phone, vehicle } = req.body;
@@ -293,7 +295,6 @@ export async function registerDeliveryPartner(req, res) {
         });
     }
 }
-
 
 export async function loginDeliveryPartner(req, res) {
     try {
@@ -365,3 +366,5 @@ export async function logout(req, res) {
     });
     return res.status(200).json({ success: false, message: "Logged out successfully" });
 }
+
+

@@ -8,6 +8,7 @@ import bannersSlice from "./bannersSlice"
 import cartSlice from "./cartSlice"
 import userSlice from "./userSlice"
 import deliverySlice from "./deliverySlice"
+import reviewSlice from "./reviewSlice"
 
 const store = configureStore({
     reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
         banners: bannersSlice,
         cart: cartSlice,
         user: userSlice,
-        delivery: deliverySlice
+        delivery: deliverySlice,
+        review: reviewSlice
     }
 })
 

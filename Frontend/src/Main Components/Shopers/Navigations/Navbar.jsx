@@ -12,7 +12,7 @@ function Navbar() {
 
   const { isAuthenticated } = useSelector((store) => store.auth);
   const { cart } = useSelector((store) => store.cart);
-  
+
   return (
     <nav className="bg-[#ffff] shadow sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-5 py-5 flex justify-between items-center">
@@ -64,6 +64,7 @@ const DropDownMenu = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { userData } = useSelector((store) => store.auth);
+
   async function handleLogout() {
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, {
@@ -86,11 +87,10 @@ const DropDownMenu = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 p-2" align="end">
-        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
         <DropdownMenuGroup>
           <DropdownMenuItem className="p-2" asChild>
-            <Link to="/profile" className="flex items-center gap-4">
-              <User size={16} /> Profile
+            <Link to="/account" className="flex items-center gap-4">
+              <User size={16} /> Account
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="p-2" asChild>

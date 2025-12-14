@@ -1,5 +1,5 @@
 import DeliveryPartnerSidebar from '@/Main Components/DeliveryPartner/DeliverySidebar'
-import { fetchAllDeliveryOrders, fetchOngoingDeliveryOrders } from '@/Redux/deliverySlice'
+import { fetchAllDeliveryOrders, fetchOngoingDeliveryOrders, fetchReturnOrders } from '@/Redux/deliverySlice'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { Outlet } from 'react-router-dom'
@@ -11,6 +11,7 @@ const DeliveryLayout = () => {
     useEffect(() => {
         dispatch(fetchOngoingDeliveryOrders())
         dispatch(fetchAllDeliveryOrders())
+        dispatch(fetchReturnOrders())
     }, [])
 
 

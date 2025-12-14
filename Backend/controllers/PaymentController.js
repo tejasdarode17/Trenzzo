@@ -42,7 +42,7 @@ export async function createOrder(req, res) {
             recalculatedItemTotal += price * item.quantity;
         }
 
-        const backendFinalPayable = recalculatedItemTotal + cart.deliveryFees + cart.platformFees;
+        const backendFinalPayable = recalculatedItemTotal + cart.platformFees;
 
         // Comparing with cart.finalPayable stored earlier
         if (backendFinalPayable !== cart.finalPayable) {
@@ -55,7 +55,7 @@ export async function createOrder(req, res) {
         const receipt = `ord_${Date.now().toString().slice(-8)}`;
 
         const options = {
-            amount: cart.finalPayable * 100, // in paise
+            amount: cart.finalPayable * 100,
             currency: "INR",
             receipt,
         };
@@ -128,6 +128,7 @@ export async function verifyPayment(req, res) {
                 paymentId: razorpay_payment_id,
                 signature: razorpay_signature
             },
+            platformFees: cart.platformFees,
             address,
             paymentStatus: "paid",
             paymentMode: "prepaid",
@@ -141,7 +142,6 @@ export async function verifyPayment(req, res) {
 
         cart.items = [];
         cart.itemTotal = 0;
-        cart.deliveryFees = 0;
         cart.platformFees = 0;
         cart.totalAmmount = 0;
         cart.finalPayable = 0;

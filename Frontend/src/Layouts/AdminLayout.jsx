@@ -1,5 +1,5 @@
 import AdminSidebar from "@/Main Components/Admin/Admin Navigation/AdminSidebar"
-import { fetchAllSellers } from "@/Redux/adminSlice"
+import { getAdminStats } from "@/Redux/adminSlice"
 import { fetchAllBanners, fetchAllCarousels } from "@/Redux/bannersSlice"
 import { fetchAllCategories } from "@/Redux/categoriesSlice"
 import { useEffect } from "react"
@@ -10,8 +10,7 @@ const AdminLayout = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(fetchAllSellers({ status: "all", page: 1, limit: 20 }));
-        dispatch(fetchAllSellers({ status: "pending", page: 1, limit: 20 }));
+        dispatch(getAdminStats())
         dispatch(fetchAllCategories())
         dispatch(fetchAllCarousels())
         dispatch(fetchAllBanners())

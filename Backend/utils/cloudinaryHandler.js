@@ -3,6 +3,7 @@ import { v2 as cloudinary } from "cloudinary"
 export async function uploadImage(buffer) {
     try {
         const result = await new Promise((resolve, reject) => {
+            
             cloudinary.uploader.upload_stream(
                 {
                     folder: "Ecom",

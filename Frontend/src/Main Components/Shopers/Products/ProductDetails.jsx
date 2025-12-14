@@ -1,18 +1,31 @@
 import { addToCartThunk, buyNowThunk } from "@/Redux/cartSlice";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, ShoppingCart, Zap, Truck, Calendar, FileText, User } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, ShoppingCart, Zap, Truck, Calendar, FileText, User, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-//this info should also come from api 
+import { Badge } from "@/components/ui/badge";
+import { fetchReviews } from "@/Redux/reviewSlice";
+import { fetchProductDetails } from "@/Redux/productsSlice";
+import { formatDate } from "@/utils/formatDate";
 
 const ProductDetails = () => {
-    const { product } = useSelector((store) => store?.product);
-    const [mainImage, setMainImage] = useState(product?.images?.[0]?.url);
+    const { product, productLoading } = useSelector((store) => store?.product);
+    const [mainImage, setMainImage] = useState(null)
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const { slug } = useParams()
+
+    useEffect(() => {
+        dispatch(fetchProductDetails({ slug }))
+    }, [slug])
+
+
+    useEffect(() => {
+        setMainImage(product?.images?.[0]?.url)
+    }, [product])
+
 
     function addToCart() {
         dispatch(addToCartThunk({
@@ -32,8 +45,7 @@ const ProductDetails = () => {
         navigate("/checkout?mode=buynow");
     }
 
-
-    const getDeliveryDate = () => {
+    function getDeliveryDate() {
         const date = new Date();
         date.setDate(date.getDate() + 3);
         return date.toLocaleDateString('en-IN', {
@@ -43,7 +55,7 @@ const ProductDetails = () => {
         });
     };
 
-    if (!product) return <p className="p-6">Product not found</p>;
+    if (productLoading) return <p className="p-6">Product not found</p>;
 
     return (
         <div className="w-full bg-white">
@@ -250,7 +262,7 @@ const ProductDetails = () => {
                 </div>
 
                 {/* FULL DESCRIPTION */}
-                <div className="border-t border-gray-200 mt-6">
+                <div className="border-t border-gray-200 pb-6 border-b">
                     <div className="p-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <FileText className="w-4 h-4 text-amber-500" />
@@ -264,71 +276,226 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
-                {/* Reviews Section */}
-                <div className="border-t border-gray-200">
-                    <div className="p-4">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Star className="w-4 h-4 text-amber-500" />
-                            Customer Reviews
-                        </h2>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* Rating Summary */}
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <div className="text-center mb-4">
-                                    <div className="text-2xl font-bold text-gray-900 mb-1">4.5</div>
-                                    <div className="flex justify-center gap-0.5 mb-1">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <Star
-                                                key={star}
-                                                className={`w-3 h-3 ${star <= 4 ? 'text-amber-500 fill-current' : 'text-gray-300'
-                                                    }`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <p className="text-gray-600 text-xs">1,200 Ratings & 320 Reviews</p>
-                                </div>
-                            </div>
-
-                            {/* Reviews List */}
-                            <div className="space-y-3">
-                                {/* Sample Review */}
-                                <div className="border border-gray-200 rounded-lg p-3 text-sm">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                                            <User className="w-3 h-3 text-amber-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-xs">Rahul Sharma</p>
-                                            <div className="flex items-center gap-1">
-                                                <div className="flex gap-0.5">
-                                                    {[1, 2, 3, 4, 5].map((star) => (
-                                                        <Star
-                                                            key={star}
-                                                            className={`w-3 h-3 ${star <= 5 ? 'text-amber-500 fill-current' : 'text-gray-300'
-                                                                }`}
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <span className="text-gray-500 text-xs">2 days ago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p className="text-gray-700 text-sm">
-                                        Excellent product! The quality is amazing and delivery was super fast.
-                                        Highly recommended!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* Enhanced Reviews Section */}
+                <ProductReview  ></ProductReview>
             </div>
         </div>
     );
 };
 
+
+export const ProductReview = () => {
+
+    const { reviews, loading } = useSelector((store) => store?.review)
+    const { slug } = useParams();
+    const id = slug?.split("-").pop();
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(fetchReviews({ productID: id }))
+    }, [id])
+
+    console.log(reviews);
+
+
+    function calculateRatingStats() {
+        if (!reviews || reviews.length === 0) return null;
+
+        const totalReviews = reviews.length;
+        const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+
+        const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        reviews.forEach(review => {
+            ratingDistribution[review.rating]++;
+        });
+
+        return {
+            averageRating: averageRating.toFixed(1),
+            totalReviews,
+            ratingDistribution
+        };
+    };
+
+    const ratingStats = calculateRatingStats();
+
+
+
+    return (
+        <div className="border-gray-200">
+            <div className="p-4">
+                {
+                    reviews.length > 0 &&
+                    <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <Star className="w-4 h-4 text-amber-500" />
+                        Customer Reviews
+                    </h2>
+                }
+                <div className="space-y-8">
+                    {/* Rating Overview Card */}
+                    {ratingStats && (
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-6">
+                            <div className="flex flex-col md:flex-row items-center gap-6">
+                                {/* Overall Rating */}
+                                <div className="text-center">
+                                    <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center shadow-sm border border-amber-200">
+                                        <div className="text-center">
+                                            <div className="text-2xl font-bold text-gray-900">
+                                                {ratingStats.averageRating}
+                                            </div>
+                                            <div className="flex justify-center gap-0.5 mt-1">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <Star
+                                                        key={star}
+                                                        className={`w-3 h-3 ${star <= Math.round(ratingStats.averageRating)
+                                                            ? "text-amber-500 fill-current"
+                                                            : "text-gray-300"
+                                                            }`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mt-2">
+                                        {ratingStats.totalReviews} reviews
+                                    </p>
+                                </div>
+
+                                {/* Rating Distribution */}
+                                <div className="flex-1 space-y-2">
+                                    {[5, 4, 3, 2, 1].map((rating) => {
+                                        const percentage = ratingStats.totalReviews > 0
+                                            ? (ratingStats.ratingDistribution[rating] / ratingStats.totalReviews) * 100
+                                            : 0;
+                                        return (
+                                            <div key={rating} className="flex items-center gap-3 text-sm">
+                                                <div className="flex items-center gap-1 w-12">
+                                                    <span className="text-gray-600">{rating}</span>
+                                                    <Star className="w-3 h-3 text-amber-500 fill-current" />
+                                                </div>
+                                                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className="bg-amber-500 h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${percentage}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-gray-600 text-xs w-10">
+                                                    {ratingStats.ratingDistribution[rating]}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Review Summary */}
+                                <div className="text-center md:text-right">
+                                    <div className="flex items-center justify-center md:justify-end gap-1 mb-2">
+                                        <ThumbsUp className="w-4 h-4 text-green-500" />
+                                        <span className="text-sm font-medium text-gray-900">
+                                            {Math.round((ratingStats.ratingDistribution[5] + ratingStats.ratingDistribution[4]) / ratingStats.totalReviews * 100)}%
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-600">Positive reviews</p>
+                                    <p className="text-xs text-gray-500 mt-1">Based on customer feedback</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Customer Reviews List */}
+                    <div>
+
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Customer Reviews ({reviews?.length || 0})
+                        </h3>
+
+                        {!reviews || reviews.length === 0 ? (
+                            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                                <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h4>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4">
+                                {reviews.map((review) => (
+                                    <div
+                                        key={review._id}
+                                        className="border border-gray-200 rounded-lg p-5 bg-white hover:shadow-md transition-shadow duration-200"
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            {/* User Avatar */}
+                                            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 font-semibold text-lg shadow-inner border border-amber-200">
+                                                {review?.user?.username
+                                                    ?.charAt(0)
+                                                    ?.toUpperCase() || "U"}
+                                            </div>
+
+                                            <div className="flex-1">
+                                                {/* User Info and Rating */}
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                                                    <div>
+                                                        <p className="font-semibold text-gray-900">
+                                                            {review?.user?.username || "Anonymous User"}
+                                                        </p>
+                                                        <span className="text-gray-500 text-sm">
+                                                            {formatDate(review.createdAt)}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Rating Stars */}
+                                                    <div className="flex items-center gap-1">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <Star
+                                                                key={star}
+                                                                className={`w-4 h-4 ${star <= review?.rating ? "text-amber-500 fill-current" : "text-gray-300"}`}
+                                                            />
+                                                        ))}
+                                                        <span className="text-sm font-medium text-gray-700 ml-1">
+                                                            {review.rating}.0
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Review Text */}
+                                                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                                    {review.comment}
+                                                </p>
+
+                                                {/* Review Image */}
+                                                {review?.image?.url && (
+                                                    <div className="mt-3">
+                                                        <img
+                                                            src={review.image.url}
+                                                            alt="Review attachment"
+                                                            className="w-32 h-32 rounded-lg object-cover border border-gray-200 shadow-sm"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export default ProductDetails;
 
 
 
-//this information will come from api later

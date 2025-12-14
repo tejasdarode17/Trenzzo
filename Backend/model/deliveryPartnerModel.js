@@ -53,11 +53,25 @@ const deliveryPartnerSchema = new mongoose.Schema({
             },
             itemId: {
                 type: mongoose.Schema.Types.ObjectId
-
             }
         }
-    ]
+    ],
 
+    returnOrders: [
+        {
+            returnRequestId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Return"
+            },
+            orderId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Order"
+            },
+            itemId: {
+                type: mongoose.Schema.Types.ObjectId
+            }
+        }
+    ],
 
 }, { timestamps: true });
 

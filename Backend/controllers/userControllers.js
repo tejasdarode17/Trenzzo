@@ -1,7 +1,11 @@
 import Cart from "../model/cartModel.js";
 import Order from "../model/orderModel.js";
 import Product from "../model/productModel.js";
+import Return from "../model/returnModel.js";
+import Review from "../model/reviewModel.js";
 import User from "../model/userModel.js";
+import bcrypt from "bcrypt"
+import { deleteImage } from "../utils/cloudinaryHandler.js";
 
 export async function fetchSearchSuggestions(req, res) {
     try {
@@ -26,8 +30,6 @@ export async function fetchSearchSuggestions(req, res) {
         });
     }
 }
-
-
 
 export async function fetchSearchProducts(req, res) {
     try {
@@ -91,17 +93,63 @@ export async function fetchSearchProducts(req, res) {
     }
 }
 
+export async function fetchProductDetails(req, res) {
+    try {
+        const userID = req?.user?.id
+        const slug = req.params.slug;
+
+        if (!userID) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized request"
+            });
+        }
+
+        if (!slug) {
+            return res.status(400).json({
+                success: false,
+                message: "Slug is required"
+            });
+        }
+
+        const product = await Product.findOne({ slug })
+            .populate("seller")
+            .populate("category");
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Product details fetched",
+            product
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
 
 export async function addAddress(req, res) {
 
     try {
-        const useID = req.user.id
+        const userID = req.user.id
         const { name, phoneNumber, pinCode, locality, address, city, state, landmark, label, isDefault } = req.body
 
-        const user = await User.findById(useID)
+        const user = await User.findById(userID)
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found." });
+            return res.status(404).json({ success: false, message: "Unauthorized request" })
         }
 
         if (!name || !phoneNumber || !pinCode || !address || !city || !state) {
@@ -149,14 +197,13 @@ export async function addAddress(req, res) {
     }
 }
 
-
 export async function editAddress(req, res) {
     try {
-        const userID = req.user.id
+        const userId = req.user.id
         const addressId = req.params.id
         const { name, phoneNumber, pinCode, locality, address, city, state, landmark, label, isDefault } = req.body
 
-        const user = await User.findById(userID)
+        const user = await User.findById(userId)
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found." });
         }
@@ -212,12 +259,14 @@ export async function editAddress(req, res) {
 }
 
 
+// --------Cart and checkOut -----------------------------------
+
 export async function addCart(req, res) {
     try {
-        const userID = req.user.id
+        const userId = req.user.id
         const { productID, quantity = 1, attributes } = req.body
 
-        const user = await User.findById(userID);
+        const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const product = await Product.findById(productID);
@@ -229,10 +278,10 @@ export async function addCart(req, res) {
 
         const priceAtTheTime = product.salePrice > 0 ? product.salePrice : product.price;
 
-        let cart = await Cart.findOne({ user: userID })
+        let cart = await Cart.findOne({ user: userId })
 
         if (!cart) {
-            cart = await Cart.create({ user: userID, items: [] });
+            cart = await Cart.create({ user: userId, items: [] });
         }
 
         const existingItem = cart.items.find((item) => item.product == productID && JSON.stringify(item.attributes) === JSON.stringify(attributes || {}))
@@ -250,12 +299,10 @@ export async function addCart(req, res) {
 
         let itemTotalAmmount = cart.items.reduce((sum, item) => sum + item.quantity * item?.priceAtTheTime, 0);
         let platformFees = 100
-        let deliveryFees = itemTotalAmmount > 500 ? 0 : 50
 
         cart.itemTotal = itemTotalAmmount
         cart.platformFees = platformFees
-        cart.deliveryFees = deliveryFees
-        cart.totalAmmount = itemTotalAmmount + platformFees + deliveryFees
+        cart.totalAmmount = itemTotalAmmount + platformFees
 
         await cart.save()
         const populatedCart = await cart.populate("items.product");
@@ -276,11 +323,105 @@ export async function addCart(req, res) {
 }
 
 
+export async function decreaseCartQuantity(req, res) {
+
+    try {
+        const userId = req.user.id
+        const { productID, attributes } = req.body
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const product = await Product.findById(productID);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        let cart = await Cart.findOne({ user: userId })
+        if (!cart) return res.status(404).json({ message: "Cart Not found. Please add any item in cart" });
+
+        const item = cart.items.find((item) => item.product == productID && JSON.stringify(item.attributes) === JSON.stringify(attributes || {}))
+        if (!item) return res.status(404).json({ message: "This Item is no more exist in cart" });
+
+        if (item.quantity > 1) {
+            item.quantity -= 1
+        } else {
+            return res.status(404).json({ message: "Please use another button for removing this item" });
+        }
+
+        let itemTotalAmmount = cart.items.reduce((sum, item) => sum + item.quantity * item?.priceAtTheTime, 0);
+        cart.itemTotal = itemTotalAmmount
+        cart.totalAmmount = itemTotalAmmount + cart.platformFees
+
+        await cart.save()
+        const populatedCart = await cart.populate("items.product");
+
+        return res.status(200).json({
+            success: true,
+            message: "Quantity Decrease",
+            cart: populatedCart
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+export async function removeItemFromCart(req, res) {
+
+    try {
+        const userId = req.user.id
+        const { productID, attributes } = req.body
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const product = await Product.findById(productID);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        let cart = await Cart.findOne({ user: userId })
+        if (!cart) return res.status(404).json({ message: "Cart Not found. Please add any item in cart" });
+
+        const item = cart.items.find((item) => item.product == productID && JSON.stringify(item.attributes) === JSON.stringify(attributes || {}))
+        if (!item) return res.status(404).json({ message: "This Item is no more exist in cart" });
+
+        if (item) cart.items = cart.items.filter((item) => item.product.toString() !== productID.toString())
+
+        let itemTotalAmmount = cart.items.reduce((sum, item) => sum + item.quantity * item?.priceAtTheTime, 0);
+        cart.itemTotal = itemTotalAmmount
+        cart.totalAmmount = itemTotalAmmount + cart.platformFees
+
+        await cart.save()
+        const populatedCart = await cart.populate("items.product");
+
+        return res.status(200).json({
+            success: true,
+            message: "Item Removed",
+            cart: populatedCart
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+
+
+
+
 export async function deleteCart(req, res) {
     try {
-        const userID = req.user.id;
+        const userId = req.user.id;
 
-        const cart = await Cart.findOne({ user: userID });
+        const cart = await Cart.findOne({ user: userId });
 
         if (!cart) {
             return res.status(404).json({
@@ -305,12 +446,11 @@ export async function deleteCart(req, res) {
     }
 }
 
-
 export async function fetchCart(req, res) {
     try {
-        const userID = req.user.id;
+        const userId = req.user.id;
 
-        const cart = await Cart.findOne({ user: userID })
+        const cart = await Cart.findOne({ user: userId })
             .populate({
                 path: "items.product",
                 options: { strictPopulate: false }
@@ -354,7 +494,7 @@ export async function fetchCart(req, res) {
         }, 0);
 
         cart.itemTotal = itemTotal
-        cart.totalAmmount = itemTotal + cart.platformFees + cart.deliveryFees;
+        cart.totalAmmount = itemTotal + cart.platformFees
         cart.save()
 
         return res.status(200).json({
@@ -374,11 +514,11 @@ export async function fetchCart(req, res) {
 
 export async function checkOut(req, res) {
     try {
-        const userID = req.user.id;
-        const user = await User.findById(userID);
+        const userId = req.user.id;
+        const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        const cart = await Cart.findOne({ user: userID }).populate("items.product");
+        const cart = await Cart.findOne({ user: userId }).populate("items.product");
         if (!cart) return res.status(404).json({ message: "Cart not found" });
 
         let hasIssues = false;
@@ -420,10 +560,9 @@ export async function checkOut(req, res) {
         let total = cart.items.reduce((sum, item) => sum + item.lockedPrice * item.quantity, 0);
         cart.itemTotal = total
 
-        cart.deliveryFees = total > 500 ? 0 : 50
         cart.platformFees = 100
 
-        const finalAmount = total + cart.deliveryFees + cart.platformFees
+        const finalAmount = total + cart.platformFees
         cart.totalAmmount = finalAmount
         cart.finalPayable = finalAmount
         await cart.save();
@@ -445,10 +584,10 @@ export async function checkOut(req, res) {
 
 export async function buyNow(req, res) {
     try {
-        const userID = req.user.id
+        const userId = req.user.id
         const { productID, quantity = 1, attributes } = req.body
 
-        const user = await User.findById(userID);
+        const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const product = await Product.findById(productID);
@@ -461,8 +600,7 @@ export async function buyNow(req, res) {
         const lockedPrice = product.salePrice > 0 ? product.salePrice : product.price;
         const total = lockedPrice * quantity
         let platformFees = 100
-        let deliveryFees = total > 500 ? 0 : 50
-        let finalPayable = total + platformFees + deliveryFees
+        let finalPayable = total + platformFees
 
         const buyNowItem = {
             productID: product._id,
@@ -472,7 +610,6 @@ export async function buyNow(req, res) {
             brand: product.brand,
             attributes,
             itemTotal: lockedPrice,
-            deliveryFees,
             platformFees,
             quantity,
             finalPayable
@@ -493,31 +630,359 @@ export async function buyNow(req, res) {
     }
 }
 
-
 export async function getAllOrders(req, res) {
+    try {
+        const userId = req.user.id;
+        let { search = "", page = 1 } = req.query;
+
+        page = Number(page);
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        const baseQuery = { customer: userId };
+
+        let productFilter = {};
+        if (search.trim()) {
+            const matchingProducts = await Product.find({ name: { $regex: search, $options: "i" } }).select("_id");
+            const productIDs = matchingProducts.map(p => p._id);
+            productFilter = { "items.product": { $in: productIDs } };
+        }
+
+        const finalQuery = search.trim() ? { ...baseQuery, ...productFilter } : baseQuery;
+
+        const orders = await Order.find(finalQuery)
+            .populate("items.product")
+            .populate("items.seller", "username")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const filteredTotal = await Order.countDocuments(finalQuery);
+        const totalOrders = await Order.countDocuments(baseQuery);
+
+        res.status(200).json({
+            success: true,
+            orders,
+            totalOrders,
+            filteredTotal,
+            page,
+            pages: Math.ceil(filteredTotal / limit),
+            limit,
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+
+// ---return and review  ----------------
+export async function userReturnRequest(req, res) {
+    try {
+        const userId = req.user.id;
+        const { itemId, orderId, reason } = req.body;
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.customer.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: "You are not authorized" });
+        }
+
+        const item = order.items.find(i => i._id.toString() === itemId);
+        if (!item) {
+            return res.status(404).json({ success: false, message: "Order item not found" });
+        }
+
+        if (item.deliveryStatus !== "delivered") {
+            return res.status(400).json({ success: false, message: "Item is not delivered yet" });
+        }
+
+
+        const existing = await Return.findOne({ orderId, itemId });
+        if (existing) {
+            return res.status(400).json({ success: false, message: "Return already requested" });
+        }
+
+
+        const returnReq = await Return.create({
+            orderId,
+            itemId,
+            seller: item.seller,
+            customer: order.customer,
+            reason,
+            refundAmount: item.lockedPrice,
+        });
+
+        item.returnStatus = "requested"
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Return request submitted successfully",
+            returnReq
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+export async function addProductReview(req, res) {
+    try {
+        const { productID, review, rating, image } = req.body
+        const userId = req.user.id
+
+        const product = await Product.findById(productID)
+            .populate("reviews")
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product Not Found" });
+        }
+
+        const existingReview = product.reviews.find((r) => r.user.toString() === userId.toString())
+
+        if (existingReview) {
+            return res.status(400).json({ success: false, message: "You alrady reviewd you can edit that review only" });
+        }
+
+
+        const newReview = await Review.create({
+            product: productID,
+            user: userId,
+            rating: rating,
+            comment: review,
+            image: image
+        })
+
+        product.reviews.push(newReview._id)
+
+        product.totalReviews = product.reviews.length;
+
+        const allRatings = await Review.find({ product: productID });
+        const avg = allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length;
+
+        //toFixed format number to only one decimal place 4.1666 = 4.2 but it returns string.
+        product.avgRating = Number(avg.toFixed(1));
+        await product.save()
+
+        res.status(200).json({
+            success: true,
+            message: "Review Posted Successfully",
+            review: newReview
+        });
+
+    } catch (error) {
+        await deleteImage(req?.body?.image?.public_id)
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+export async function deleteReview(req, res) {
 
     try {
-        const userID = req.user.id
 
-        const orders = await Order.find({ customer: userID })
-            .populate("items.product")
-            .sort({ createdAt: -1 });
+        const userID = req.user.id;
+        const reviewID = req.params.id;
+        const { productID } = req.body;
+
+        if (!userID || !reviewID || !productID) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields",
+            });
+        }
+
+        const review = await Review.findById(reviewID);
+
+        if (!review) {
+            return res.status(404).json({ success: false, message: "Review not found" });
+        }
+
+        if (review.user.toString() !== userID.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "This review was not posted by you",
+            });
+        }
+
+
+        if (review.image?.public_id) {
+            await deleteImage(review.image.public_id);
+        }
+
+        await Product.findByIdAndUpdate(productID, { $pull: { reviews: reviewID } });
+        await Review.findByIdAndDelete(reviewID);
 
         return res.status(200).json({
             success: true,
-            message: "orders fetched",
-            orders
+            message: "Review deleted successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+}
+
+export async function getUserReviews(req, res) {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: UserID missing"
+            });
+        }
+
+        const userReviews = await Review.find({ user: userId })
+            .populate("product", "name images slug")
+            .lean();
+
+        if (!userReviews || userReviews.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No reviews found",
+                reviews: []
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            count: userReviews.length,
+            reviews: userReviews
         });
 
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Server error",
-            error: error.message,
+            message: "Server Error",
         });
     }
+}
+
+// ----password and personal information ------------------
 
 
+export async function userChangePassword(req, res) {
+
+    try {
+        const { currentPassword, newPassword } = req.body
+        const userID = req.user.id
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Current Password or new password not provided"
+            });
+        }
+
+        const user = await User.findById(userID)
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Seller not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+export async function userPersonalInfoChange(req, res) {
+
+    try {
+
+        const userID = req.user.id
+        const { username, email, } = req.body
+
+        const user = await User.findById(userID)
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Seller not found"
+            });
+        }
+
+        if (username) user.username = username
+        if (email) user.email = email
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile Updated Sucessfully. Please Refresh"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
 }
 
 
+
+
+
+// ------------------------------------------------------------------
+//this api used by seller as well as user 
+export async function fetchReviewsForProduct(req, res) {
+    try {
+        const userID = req.user.id;
+        const { productID } = req.query;
+
+        if (!userID || !productID) {
+            return res.status(400).json({ success: false, message: "Something is missing" });
+        }
+
+        const reviews = await Review.find({ product: productID })
+            .populate("user", "username")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            message: "Reviews fetched successfully",
+            reviews
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+}

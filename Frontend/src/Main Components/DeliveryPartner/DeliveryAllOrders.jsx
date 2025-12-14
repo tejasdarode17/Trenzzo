@@ -20,6 +20,8 @@ const DeliveryAllOrders = () => {
     });
 
 
+
+
     function handleOpenMaps(order) {
         const address = `${order.address.address}, ${order.address.locality}, ${order.address.city}, ${order.address.pinCode}`;
         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
@@ -88,7 +90,7 @@ const DeliveryAllOrders = () => {
                                 </p>
                             </div>
 
-                            {order.paymentMode === "cod" && (
+                            {order?.paymentMode === "cod" && (
                                 <div className="w-50 text-center mt-2 inline-block px-3 py-1 text-white font-bold text-sm rounded-full bg-orange-500 shadow-lg">
                                     Collect ₹{order?.item?.lockedPrice?.toLocaleString("en-IN")}
                                 </div>
@@ -135,3 +137,5 @@ const DeliveryAllOrders = () => {
 };
 
 export default DeliveryAllOrders;
+
+

@@ -21,12 +21,8 @@ const CheckOut = () => {
     const [visibleSection, setVisibleSection] = useState(selectedAddress ? "summary" : "address")
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    if (!isAuthenticated) { return <Navigate to="/user/auth/login" replace /> }
-    if (!chekOut) return <Navigate to="/cart" replace />
 
-    console.log(selectedAddress);
 
-    //react error will fix later 
     useEffect(() => {
         const def = userAddresses?.find(a => a.isDefault);
         if (def) {
@@ -34,8 +30,27 @@ const CheckOut = () => {
         }
     }, [userAddresses]);
 
+    //this is razorpay thing i dont know about this will learn later deep in payment intigration
+    //this is dynamic loader which i earlier wrote as a cdn in index.html 
+    useEffect(() => {
+        if (window.Razorpay) return;
+
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+
+        script.onload = () => console.log("Razorpay SDK loaded");
+        script.onerror = () => toast.error("Failed to load Razorpay SDK");
+
+        document.body.appendChild(script);
+    }, []);
 
     async function handlePayment() {
+
+        if (!window.Razorpay) {
+            toast.error("Payment system is still loading. Please wait...");
+            return;
+        }
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/create-order`, {}, {
@@ -95,6 +110,9 @@ const CheckOut = () => {
         }
     }
 
+
+    if (!isAuthenticated) { return <Navigate to="/user/auth/login" replace /> }
+    if (!chekOut) return <Navigate to="/cart" replace />
 
     return (
         <div className="min-h-screen max-w-6xl mx-auto px-4 py-8">
@@ -344,17 +362,7 @@ const RightOrderSummaryInCheckout = ({ handlePayment }) => {
                     <p>₹{chekOut?.itemTotal?.toLocaleString("en-IN")}</p>
                 </div>
 
-                {/* Delivery */}
-                <div className="flex justify-between text-gray-700 text-sm">
-                    <p>Delivery Charges</p>
-                    <p>
-                        {CheckOut?.deliveryFees == 0 ? (
-                            <span className="text-green-600 font-medium">Free</span>
-                        ) : (
-                            `₹${chekOut.deliveryFees}`
-                        )}
-                    </p>
-                </div>
+
 
                 <div className="flex justify-between text-gray-700 text-sm">
                     <p>Platform Fees</p>

@@ -7,9 +7,7 @@ export const fetchAllCategories = createAsyncThunk("categories/fetch", async (_,
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/category`, {
             withCredentials: true,
         });
-        console.log(response.data);
         return response.data.categories
-
     } catch (error) {
         console.log(error);
         return rejectWithValue(

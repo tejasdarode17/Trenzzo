@@ -51,7 +51,7 @@ export const AddNewProduct = () => {
         <div className="p-6 min-h-screen">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold text-gray-800">Add New Product</h1>
-                <Button onClick={() => navigate('/seller/products')} variant="outline">
+                <Button onClick={() => navigate(-1)} variant="outline">
                     <StepBack></StepBack>Back
                 </Button>
             </div>

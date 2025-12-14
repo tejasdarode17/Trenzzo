@@ -1,18 +1,18 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { useEffect } from "react"
+import { useDispatch } from "react-redux"
 import AuthLayout from "./Layouts/AuthLayout"
 import AdminLayout from "./Layouts/AdminLayout"
 import ShopersLayout from "./Layouts/ShopersLayout"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Login from "./Main Components/Shopers/User Auth/UserLogin"
 import Register from "./Main Components/Shopers/User Auth/UserRegister"
 import Home from "./Main Components/Shopers/Home"
-import { useDispatch } from "react-redux"
 import SellerAuthLayout from "./Layouts/SellerAuthLayout"
 import SellerRegister from "./Main Components/Seller/Seller Auth/SellerRegister"
 import SellerLogin from "./Main Components/Seller/Seller Auth/SellerLogin"
 import SellerDashboard from "./Main Components/Seller/Seller Dashboard/SellerDashboard"
 import SellerLayout from "./Layouts/SellerLayout"
 import ProtectedRoutes from "./Main Components/Other/ProtectedRoutes"
-import { useEffect } from "react"
 import { checkAuth } from "./Redux/authSlice"
 import ErrorPage from "./Main Components/Other/ErrorPage"
 import { AddNewProduct } from "./Main Components/Seller/Seller Products/AddNewProduct"
@@ -23,8 +23,6 @@ import AdminDashboard from "./Main Components/Admin/Admin Dashboard/AdminDashboa
 import AdminCategory from "./Main Components/Admin/Admin Categories/AdminCategory"
 import AdminSellers from "./Main Components/Admin/Manage Sellers/AdminSeller"
 import SelectedSeller from "./Main Components/Admin/Manage Sellers/SelectedSeller"
-import AdminProductDetail from "./Main Components/Admin/Manage Sellers/AdminProductDetail"
-import PendingSeller from "./Main Components/Admin/Manage Sellers/PendingSeller"
 import AdminBanners from "./Main Components/Admin/Banners/AdminBanners"
 import ProductsLayout from "./Main Components/Shopers/Products/ProductsLayout"
 import ProductDetails from "./Main Components/Shopers/Products/ProductDetails"
@@ -44,6 +42,14 @@ import DeliveryLayout from "./Layouts/DeliveryLayout"
 import DeliveryDashboard from "./Main Components/DeliveryPartner/DeliveryDashboard"
 import OngoingDeliveryOrders from "./Main Components/DeliveryPartner/OngoingDeliveryOrders"
 import DeliveryAllOrders from "./Main Components/DeliveryPartner/DeliveryAllOrders"
+import SellerReturnRequests from "./Main Components/Seller/Seller Orders/SellerReturnRequests"
+import DeliveryReturnOrders from "./Main Components/DeliveryPartner/DeliveryReturnOrders"
+import UserProfile from "./Main Components/Shopers/User Profile/UserProfileLayout"
+import UserProfileLayout from "./Main Components/Shopers/User Profile/UserProfileLayout"
+import UserProfilePersonalInformation from "./Main Components/Shopers/User Profile/UserProfilePersonalInformation"
+import UserAddress from "./Main Components/Shopers/User Profile/UserAddress"
+import AccountSettings from "./Main Components/Shopers/User Profile/AccountSetting"
+import SellerAccount from "./Main Components/Seller/Seller Profile/SellerAccount"
 
 
 const appRouter = createBrowserRouter([
@@ -139,7 +145,25 @@ const appRouter = createBrowserRouter([
       {
         path: "/order/:id",
         element: <OrderDetails></OrderDetails>
-      }
+      },
+      {
+        path: "/account",
+        element: <UserProfileLayout></UserProfileLayout>,
+        children: [
+          {
+            index: true,
+            element: <UserProfilePersonalInformation></UserProfilePersonalInformation>
+          },
+          {
+            path: "/account/address",
+            element: <UserAddress></UserAddress>
+          },
+          {
+            path: "/account/settings",
+            element: <AccountSettings></AccountSettings>
+          },
+        ]
+      },
     ]
   },
 
@@ -176,8 +200,16 @@ const appRouter = createBrowserRouter([
         element: <SellerOrders></SellerOrders>
       },
       {
+        path: "returns",
+        element: <SellerReturnRequests></SellerReturnRequests>
+      },
+      {
         path: "order/:id",
         element: <SellerOrderDetails></SellerOrderDetails>
+      },
+      {
+        path: "settings",
+        element: <SellerAccount></SellerAccount>
       }
     ]
   },
@@ -215,19 +247,11 @@ const appRouter = createBrowserRouter([
         element: <SelectedSeller></SelectedSeller>
       },
       {
-        path: "seller/pending",
-        element: <PendingSeller></PendingSeller>
-      },
-      {
-        path: "product/:id",
-        element: <AdminProductDetail></AdminProductDetail>
-      },
-      {
         path: "banners",
         element: <AdminBanners></AdminBanners>
       },
       {
-        path: "orders",
+        path: "reports",
         element: <AdminOrders></AdminOrders>
       }
     ]
@@ -248,6 +272,10 @@ const appRouter = createBrowserRouter([
       {
         path: "ongoing-orders",
         element: <OngoingDeliveryOrders></OngoingDeliveryOrders>
+      },
+      {
+        path: "return-orders",
+        element: <DeliveryReturnOrders></DeliveryReturnOrders>
       },
       {
         path: "all-orders",
@@ -279,6 +307,7 @@ function App() {
 export default App
 
 
-
-
-
+//uske bad notifications websocketets banana hai
+// uske bad AI
+//CANCEL order ki button banegi jab order shipped nahi hua hoga tab visible hogi
+//one star wale review product admin dekhega

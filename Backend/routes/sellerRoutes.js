@@ -1,5 +1,5 @@
 import express from "express"
-import { addProduct, assignOrderToDeliveryPartner, changeOrderStatus, deleteProduct, editProduct, fetchAllDeliveryPartners, fetchRecetTenOrders, fetchSellerOrders, fetchSellerStats, getAllSellerProducts, getSellerSingleProduct, toggleProductStatus } from "../controllers/sellerControllers.js"
+import { addProduct, assignOrderToDeliveryPartner, assignReturnOrderToDeliveryPartner, changeOrderStatus, deleteProduct, editProduct, fetchAllDeliveryPartners, fetchAllReturnRequests, fetchRecetTenOrders, fetchSellerOrders, fetchSellerStats, getAllSellerProducts, getSellerSingleProduct, sellerChangePassword, sellerPersonalInfoChange, toggleProductStatus, updateReturnStatusForSeller } from "../controllers/sellerControllers.js"
 import { verifyUser } from "../middlewares/auth.js"
 
 const route = express.Router()
@@ -19,5 +19,16 @@ route.post("/seller/order/status", verifyUser, changeOrderStatus)
 
 route.get("/delivery/all", verifyUser, fetchAllDeliveryPartners)
 route.post("/seller/assign/order", verifyUser, assignOrderToDeliveryPartner)
+
+
+route.get("/seller/returns", verifyUser, fetchAllReturnRequests)
+route.post("/seller/order/return", verifyUser, assignReturnOrderToDeliveryPartner)
+
+route.post("/seller/return/update-status", verifyUser, updateReturnStatusForSeller)
+
+
+
+route.post("/seller/change-password", verifyUser, sellerChangePassword)
+route.post("/seller/info", verifyUser, sellerPersonalInfoChange)
 
 export default route

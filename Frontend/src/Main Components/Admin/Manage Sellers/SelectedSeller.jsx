@@ -4,29 +4,30 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setSeller } from "@/Redux/adminSlice";
 import { formatDate } from "@/utils/formatDate";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+
 import { SellerVerificationBadge } from "./VerificationBadge";
 import SellerManagement from "./SellerManagement";
 import { ApproveRejectButton } from "./ApproveRejectButton";
-import ProductsTable from "@/Main Components/Seller/Seller Products/ProductsTable";
 
 const SelectedSeller = () => {
     const { id } = useParams();
+    const dispatch = useDispatch();
+
     const [loading, setLoading] = useState(false);
     const { seller } = useSelector((store) => store.admin);
-    const { userData } = useSelector((store) => store.auth)
-    const dispatch = useDispatch();
 
     async function fetchSelectedSeller() {
         try {
-            setLoading(true)
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/seller/${id}`,
+            setLoading(true);
+            const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/seller/${id}`,
                 { withCredentials: true }
             );
-            dispatch(setSeller(response?.data?.seller));
-        } catch (error) {
-            console.log(error);
+            dispatch(setSeller(res.data?.seller));
+        } catch (err) {
+            console.log(err);
         } finally {
             setLoading(false);
         }
@@ -36,109 +37,76 @@ const SelectedSeller = () => {
         fetchSelectedSeller();
     }, [id]);
 
-
     if (loading) return <p className="p-6">Loading seller...</p>;
     if (!seller) return <p className="p-6">Seller not found</p>;
 
     return (
         <div className="p-6 space-y-6">
+
+            {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-bold text-gray-800">{seller.username}</h1>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-slate-800">{seller.username}</h1>
                     <SellerVerificationBadge seller={seller} />
                 </div>
-                <ApproveRejectButton seller={seller}></ApproveRejectButton>
+
+                <ApproveRejectButton seller={seller} />
             </div>
 
-            <Tabs defaultValue="overview" className="w-full">
-                <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="products">Products</TabsTrigger>
-                    <TabsTrigger value="profile">Profile</TabsTrigger>
-                    <TabsTrigger value="management">Management</TabsTrigger>
-                </TabsList>
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+                {/* Profile Info */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Profile Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm text-slate-700">
+                        <Info label="Email" value={seller.email} />
+                        <Info label="Phone" value={seller.phone || "N/A"} />
+                        <Info label="Address" value={seller.businessAddress || "N/A"} />
+                        <Info label="Joined" value={formatDate(seller.createdAt)} />
+                        <Info label="Status">
+                            <Badge className={seller.status === "approved" ? "bg-green-500" : seller.status === "pending" ? "bg-yellow-500" : "bg-red-500"}>
+                                {seller.status}
+                            </Badge>
+                        </Info>
+                    </CardContent>
+                </Card>
 
-                <TabsContent value="overview">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Overview</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid gap-3">
-                            <p>
-                                <strong>Registered:</strong> {formatDate(seller?.createdAt)}
-                            </p>
-                            <p>
-                                <strong>Email:</strong> {seller?.email}
-                            </p>
-                            <p>
-                                <strong>Status:</strong> {seller?.status}
-                            </p>
-                            <p>
-                                <strong>Products:</strong> {seller?.products?.length ?? 0}
-                            </p>
-                            <p>
-                                <strong>Rating:</strong> {seller?.rating ?? "0"}
-                            </p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                {/* Platform Insights */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Platform Insights</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm text-slate-700">
+                        <Info label="Total Products" value={seller.products?.length ?? 0} />
+                        <Info label="Rating" value={seller.rating || "0"} />
+                        <Info
+                            label="Total Sales"
+                            value={seller.sales || "0"}
+                        />
+                        <Info
+                            label="Reports"
+                            value={seller.reportCount || "0"}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
 
+            <div>
+                <SellerManagement seller={seller} />
+            </div>
 
-                <TabsContent value="products">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Products</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {seller?.products?.length > 0 ? (
-                                //this is reusbale component same used for seller fetching his products
-                                <ProductsTable products={seller?.products} role={userData?.role}></ProductsTable>
-                            ) : (
-                                <p>No products listed by this seller.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-
-                <TabsContent value="profile">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Seller Profile</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid gap-3">
-                            <p>
-                                <strong>Full Name:</strong> {seller?.username ?? "N/A"}
-                            </p>
-                            <p>
-                                <strong>Phone:</strong> {seller?.phone ?? "N/A"}
-                            </p>
-                            <p>
-                                <strong>Address:</strong> {seller?.businessAddress ?? "N/A"}
-                            </p>
-                            <p>
-                                <strong>KYC:</strong> {seller?.kycStatus ?? "Not Submitted"}
-                            </p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="management">
-                    <SellerManagement seller={seller} />
-                </TabsContent>
-            </Tabs>
         </div>
     );
 };
 
-
-//fetchSelectedSeller is unnessary we can show seller information from where all the seller information is coming.
-//  we can use router state or we can dispatch setSeller from seller table using onClick 
-//we have to make the api like fetchSellerProduct with the admin  
-
-
-
-
+const Info = ({ label, value, children }) => (
+    <div className="flex items-center justify-between">
+        <span className="text-slate-500">{label}</span>
+        {children ? <div>{children}</div> : <span>{value}</span>}
+    </div>
+);
 
 export default SelectedSeller;

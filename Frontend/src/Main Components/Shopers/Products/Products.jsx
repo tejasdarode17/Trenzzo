@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { fetchSearchProducts, setSingleProduct } from "@/Redux/productsSlice";
+import { fetchSearchProducts } from "@/Redux/productsSlice";
 import { ChevronLeft, ChevronRight, Shield, Truck } from "lucide-react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Products = () => {
-    const { products, loading, total, currentPage, totalPages } = useSelector((store) => store.product);
+    const { products, loading, currentPage, totalPages } = useSelector((store) => store.product);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get("search");
     const dispatch = useDispatch()
     const navigate = useNavigate()
-
 
     if (loading) {
         return (
@@ -36,7 +35,6 @@ const Products = () => {
                 {products.map((product) => (
                     <div
                         onClick={() => {
-                            dispatch(setSingleProduct(product));
                             navigate(`/product/${product?.slug}`);
                         }}
                         key={product?._id}
@@ -99,7 +97,6 @@ const Products = () => {
                         >
                             <ChevronLeft className="w-4 h-4 mr-1" /> Prev
                         </Button>
-
 
                         {
                             Array.from({ length: totalPages }).map((_, index) => (

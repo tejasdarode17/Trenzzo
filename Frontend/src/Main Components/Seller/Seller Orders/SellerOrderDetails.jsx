@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Download, Printer, StepBack, Check, Truck, PackageCheck, ArrowRightCircle, MapPin, CreditCard, Package, Box, CheckCircle, Loader2 } from "lucide-react";
+import { Download, Printer, StepBack, Truck, PackageCheck, MapPin, CreditCard, Package, Box, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { setOrderDeliveryPartner, updateOrderPacked } from "@/Redux/sellerSlice";
@@ -134,8 +134,6 @@ const SellerOrderDetails = () => {
 
 const OrderItemsWithStatus = ({ order }) => {
 
-    const allDelivered = order.items.every((item) => item.status === "delivered")
-
     return (
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 mt-4">
             <div className="flex items-center justify-between mb-6">
@@ -160,25 +158,6 @@ const OrderItemsWithStatus = ({ order }) => {
                 ))}
             </div>
 
-            {allDelivered && (
-                <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 rounded-full">
-                                <Check className="w-4 h-4 text-green-600" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-green-800">All items delivered</p>
-                                <p className="text-green-600 text-sm">You can now request payout</p>
-                            </div>
-                        </div>
-                        <Button className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg">
-                            <ArrowRightCircle size={18} className="mr-2" />
-                            Request Payout
-                        </Button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
@@ -195,6 +174,7 @@ const OrderItemCard = ({ item, order }) => {
         shipped: { label: "Shipped", color: "bg-yellow-100 text-yellow-700", icon: Box },
         "out-for-delivery": { label: "Out for Delivery", color: "bg-orange-100 text-orange-700", icon: Truck },
         delivered: { label: "Delivered", color: "bg-green-100 text-green-700", icon: CheckCircle },
+        returned: { label: "returned", color: "bg-red-400 text-red-700", icon: CheckCircle },
     };
 
     const cfg = statusConfig[item.status] || statusConfig.ordered;
@@ -237,9 +217,11 @@ const OrderItemCard = ({ item, order }) => {
                     </div>
 
                     <div className="flex justify-between items-center">
+
                         <Badge className={`${cfg.color} border font-medium capitalize flex items-center gap-2`}>
                             <Icon size={14} />
                             {cfg.label}
+
                         </Badge>
 
                         {/* Show "Mark as Packed" button only if item is ordered */}
@@ -269,6 +251,7 @@ const OrderItemCard = ({ item, order }) => {
                                 </DialogContent>
                             </Dialog>
                         )}
+
                     </div>
                 </div>
             </div>

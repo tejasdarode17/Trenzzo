@@ -1,11 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { formatDate } from "@/utils/formatDate"
 import { useNavigate } from "react-router-dom"
 import { SellerVerificationBadge } from "./VerificationBadge"
 import { ApproveRejectButton } from "./ApproveRejectButton"
+import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
-const SellersTable = ({ sellers, showActions = false }) => {
+const SellersTable = ({ sellers = [], loading, pages, page, onPageChange }) => {
     const navigate = useNavigate()
 
     return (
@@ -13,6 +15,7 @@ const SellersTable = ({ sellers, showActions = false }) => {
             <CardHeader>
                 <CardTitle>Seller List</CardTitle>
             </CardHeader>
+
             <CardContent>
                 <Table>
                     <TableHeader>
@@ -23,34 +26,34 @@ const SellersTable = ({ sellers, showActions = false }) => {
                             <TableHead>Products</TableHead>
                             <TableHead>Rating</TableHead>
                             <TableHead>Registered</TableHead>
-                            {showActions && <TableHead>Actions</TableHead>}
                         </TableRow>
                     </TableHeader>
+
                     <TableBody>
-                        {sellers.length > 0 ? (
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="py-10 text-center">
+                                    <Loader2 className="animate-spin mx-auto" size={28} />
+                                </TableCell>
+                            </TableRow>
+                        ) : sellers.length > 0 ? (
                             sellers.map((s) => (
-                                // here we can dispatch setSeller(s) right now we are fetching seller information using api 
-                                <TableRow className="pointer" key={s._id} onClick={() => navigate(`/admin/seller/${s._id}`)}>
-                                    <TableCell>
-                                        {s?.username || "N/A"}
-                                    </TableCell>
-                                    <TableCell>{s?.email || "N/A"}</TableCell>
-                                    <TableCell>
-                                        <SellerVerificationBadge seller={s} />
-                                    </TableCell>
-                                    <TableCell>{s?.productsCount ?? 0}</TableCell>
+                                <TableRow
+                                    key={s._id}
+                                    className="cursor-pointer"
+                                    onClick={() => navigate(`/admin/seller/${s._id}`)}
+                                >
+                                    <TableCell>{s.username || "N/A"}</TableCell>
+                                    <TableCell>{s.email || "N/A"}</TableCell>
+                                    <TableCell><SellerVerificationBadge seller={s} /></TableCell>
+                                    <TableCell>{s?.products?.length ?? 0}</TableCell>
                                     <TableCell>{s?.rating ?? "—"}</TableCell>
                                     <TableCell>{formatDate(s.createdAt)}</TableCell>
-                                    {showActions && (
-                                        <TableCell>
-                                            <ApproveRejectButton seller={s} />
-                                        </TableCell>
-                                    )}
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={showActions ? 7 : 6} className="text-center py-6 text-gray-500 italic">
+                                <TableCell colSpan={7} className="py-10 text-center text-gray-500 italic">
                                     🚫 No sellers found
                                 </TableCell>
                             </TableRow>
@@ -58,6 +61,32 @@ const SellersTable = ({ sellers, showActions = false }) => {
                     </TableBody>
                 </Table>
             </CardContent>
+
+            {pages > 1 && (
+                <CardFooter className="flex justify-center py-4">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            disabled={page === 1}
+                            onClick={() => onPageChange(prev => Math.max(prev - 1, 1))}
+                        >
+                            Previous
+                        </Button>
+
+                        <span className="px-4 py-1 border rounded-lg bg-white shadow-sm font-medium">
+                            Page {page} of {pages}
+                        </span>
+
+                        <Button
+                            variant="outline"
+                            disabled={page === pages}
+                            onClick={() => onPageChange(prev => prev + 1)}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </CardFooter>
+            )}
         </Card>
     )
 }

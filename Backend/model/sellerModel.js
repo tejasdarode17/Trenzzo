@@ -53,11 +53,12 @@ const sellerSchema = new mongoose.Schema({
         enum: ["created", "active", "inactive", "suspended", "closed"],
         default: "created"
     },
-
-
 }, { timestamps: true })
 
 
 const Seller = mongoose.model('Seller', sellerSchema)
 
 export default Seller
+
+
+

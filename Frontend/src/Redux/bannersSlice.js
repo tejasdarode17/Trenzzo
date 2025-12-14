@@ -7,7 +7,6 @@ export const fetchAllCarousels = createAsyncThunk("fetch/carousels", async (_, {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/carousels`, {
             withCredentials: true,
         });
-        console.log(response.data);
         return response.data.carousels
     } catch (error) {
         console.log(error);
@@ -22,7 +21,6 @@ export const fetchAllBanners = createAsyncThunk("fetch/banners", async (_, { rej
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/banners`, {
             withCredentials: true,
         });
-        console.log(response.data);
         return response.data.banners
     } catch (error) {
         console.log(error);

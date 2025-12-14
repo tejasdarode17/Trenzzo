@@ -5,14 +5,11 @@ import axios from "axios";
 export const fetchAllSellerProducts = createAsyncThunk("seller/products", async ({ category, page, status, search }, { rejectWithValue }) => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/seller/products`,
-
             {
                 params: { category, page, status, search },
                 withCredentials: true
             }
         );
-        console.log(response.data);
-
         return response.data
     } catch (error) {
         return rejectWithValue(
@@ -21,7 +18,7 @@ export const fetchAllSellerProducts = createAsyncThunk("seller/products", async 
     }
 });
 
-export const fetchAllSellerOrders = createAsyncThunk("seller/orders", async ({ range, page }, { rejectWithValue }) => {
+export const fetchAllSellerOrders = createAsyncThunk("seller/orders", async ({ range = "today", page }, { rejectWithValue }) => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/seller/all-orders`,
             {
@@ -60,21 +57,33 @@ export const fetchRecentSellerOrders = createAsyncThunk("seller/recent-orders", 
 export const fetchSellerStats = createAsyncThunk("seller/stats", async (_, { rejectWithValue }) => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/seller/stats`,
-            {
-                withCredentials: true
-            }
+            { withCredentials: true }
         );
-        return {
-            totalRevenue: response.data.totalRevenue,
-            todayRevenue: response.data.todayRevenue,
-            monthlyRevenue: response.data.monthRevenue
-        }
+        return response.data
     } catch (error) {
         return rejectWithValue(
             error.response?.data?.message || "Something went wrong on server"
         );
     }
 });
+
+export const fetchSellerReturns = createAsyncThunk("seller/returns", async ({ filter = "today", page = 1 }, { rejectWithValue }) => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/seller/returns`,
+            {
+                params: { filter, page },
+                withCredentials: true
+            }
+        );
+        console.log(response.data);
+
+        return response.data
+    } catch (error) {
+        return rejectWithValue(
+            error.response?.data?.message || "Something went wrong on server"
+        );
+    }
+})
 
 
 const sellerSlice = createSlice({
@@ -93,21 +102,30 @@ const sellerSlice = createSlice({
             allOrders: [],
             recentOrdersLoading: "false",
             recentOrders: [],
-            page: "",
-            totalPages: "",
-            totalOrders: "",
+            page: 1,
+            totalPages: 1,
+            totalOrders: 0,
             ordersLoading: false
         },
         revenue: {
             statsLoading: false,
-            totalRevenue: "",
-            monthlyRevenue: "",
-            todayRevenue: ""
+            totalRevenue: 0,
+            monthlyRevenue: 0,
+            yearlyRevenue: 0,
+            monthlyBreakdown: [],
+            totalOrdersDelivered: 0
         },
         orderDetails: {
             order: {},
             orderLoading: false,
         },
+        returns: {
+            loading: false,
+            data: [],
+            totalItems: 0,
+            pages: 1
+        }
+
     },
     reducers: {
         clearAllProducts(state) {
@@ -161,6 +179,25 @@ const sellerSlice = createSlice({
             if (item) {
                 item.deliveryPartner = partnerID
             }
+        },
+
+        setReturnDeliveryPartner(state, action) {
+            const { partnerID, returnID } = action.payload
+            const item = state.returns.data.find((i) => i.returnRequest._id === returnID)
+            if (item) {
+                item.returnStatus = "in-transit"
+                item.deliveryPartner = partnerID
+            }
+        },
+
+        updateReturnStatus(state, action) {
+            const { returnID, status } = action.payload;
+            console.log(state);
+            const item = state.returns.data.find((i) => i.returnRequest._id === returnID);
+            console.log(item);
+            if (item) {
+                item.returnRequest.returnStatus = status;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -211,16 +248,36 @@ const sellerSlice = createSlice({
                 state.revenue.statsLoading = true;
             })
             .addCase(fetchSellerStats.fulfilled, (state, action) => {
+                const { totalRevenue, monthRevenue, yearRevenue, totalOrders, monthlyBreakdown } = action.payload
                 state.revenue.statsLoading = false;
-                state.revenue.totalRevenue = action.payload.totalRevenue
-                state.revenue.todayRevenue = action.payload.todayRevenue
-                state.revenue.monthlyRevenue = action.payload.monthlyRevenue
+                state.revenue.totalRevenue = totalRevenue
+                state.revenue.yearlyRevenue = yearRevenue
+                state.revenue.monthlyRevenue = monthRevenue
+                state.revenue.monthlyBreakdown = monthlyBreakdown
+                state.revenue.totalOrdersDelivered = totalOrders
             })
             .addCase(fetchSellerStats.rejected, (state) => {
                 state.orders.recentOrders = false;
             });
+        builder
+            .addCase(fetchSellerReturns.pending, (state) => {
+                state.returns.loading = true;
+            })
+            .addCase(fetchSellerReturns.fulfilled, (state, action) => {
+                const { items, total, pages } = action.payload
+                state.returns.loading = false;
+                state.returns.data = items
+                state.returns.totalItems = total
+                state.returns.pages = pages
+            })
+            .addCase(fetchSellerReturns.rejected, (state) => {
+                state.returns.loading = false;
+            });
     },
 });
 
-export const { clearAllProducts, updateProductStatus, addProduct, deleteProduct, updateProduct, setSellerSingleProduct, setSellerSingleOrder, updateOrderPacked, setOrderDeliveryPartner } = sellerSlice.actions
+export const { clearAllProducts, updateProductStatus, addProduct, deleteProduct, updateProduct, setSellerSingleProduct, setSellerSingleOrder, updateOrderPacked, setOrderDeliveryPartner, setReturnDeliveryPartner, updateReturnStatus } = sellerSlice.actions
 export default sellerSlice.reducer;
+
+
+

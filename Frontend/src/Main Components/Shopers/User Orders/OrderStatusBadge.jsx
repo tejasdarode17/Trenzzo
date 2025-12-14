@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 const OrderStatusBadge = ({ order }) => {
     return (
         <div>
-            {order.orderStatus === "ordered" && (
+            {order?.items?.status === "ordered" && (
                 <Badge className="bg-yellow-500 text-white">Ordered</Badge>
             )}
             {order.orderStatus === "shipped" && (

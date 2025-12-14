@@ -27,7 +27,7 @@ const SellerLayout = () => {
 
     return (
         <div className="flex min-h-screen w-full">
-            <div className="">
+            <div>
                 <SellerSidebar />
             </div>
             <div className="flex-1 p-4 lg:p-10 overflow-x-hidden">

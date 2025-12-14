@@ -30,6 +30,20 @@ export const fetchAllDeliveryOrders = createAsyncThunk("fetch-all-orders", async
     }
 })
 
+export const fetchReturnOrders = createAsyncThunk("fetch-return-orders", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/all-returns`,
+            { withCredentials: true }
+        );
+        console.log(response?.data);
+        return response.data.items
+    } catch (error) {
+        return rejectWithValue(
+            error.response?.data?.message || "Something went wrong on server"
+        );
+    }
+})
+
 
 const deliverySlice = createSlice({
     name: "delivery",
@@ -37,7 +51,9 @@ const deliverySlice = createSlice({
         ongoingLoading: false,
         ongingOrders: [],
         AllLoading: false,
-        allDeliveryOrders: []
+        allDeliveryOrders: [],
+        returnLoading: false,
+        allReturns: []
     },
     reducers: {
         updateStatusOfOrder(state, action) {
@@ -46,6 +62,13 @@ const deliverySlice = createSlice({
             if (orderIndex !== -1) {
                 state.ongingOrders[orderIndex].item.deliveryStatus = updatedItem.deliveryStatus;
                 state.ongingOrders[orderIndex].item.status = updatedItem.status;
+            }
+        },
+        updateReturnStatus(state, action) {
+            const { returnId } = action.payload;
+            const idx = state.allReturns.findIndex(r => r.returnRequest?._id === returnId);
+            if (idx !== -1) {
+                state.allReturns[idx].returnRequest.returnStatus = "pickedUp";
             }
         }
     },
@@ -73,11 +96,22 @@ const deliverySlice = createSlice({
             .addCase(fetchAllDeliveryOrders.rejected, (state, action) => {
                 state.AllLoading = false
             })
+        builder
+            .addCase(fetchReturnOrders.pending, (state, action) => {
+                state.returnLoading = true
+            })
+            .addCase(fetchReturnOrders.fulfilled, (state, action) => {
+                state.allReturns = action.payload
+                state.returnLoading = false
+            })
+            .addCase(fetchReturnOrders.rejected, (state, action) => {
+                state.returnLoading = false
+            })
     }
 })
 
 
-export const { updateStatusOfOrder } = deliverySlice.actions
+export const { updateStatusOfOrder, updateReturnStatus } = deliverySlice.actions
 export default deliverySlice.reducer
 
 

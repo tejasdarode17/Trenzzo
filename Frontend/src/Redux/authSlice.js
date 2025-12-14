@@ -15,6 +15,8 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
     }
 })
 
+
+
 const authSlice = createSlice({
     name: "auth",
     initialState: {

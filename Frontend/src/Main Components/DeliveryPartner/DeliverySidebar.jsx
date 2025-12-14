@@ -72,6 +72,7 @@ const SideBarMenu = ({ setOpenSheet }) => {
     const items = [
         { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/delivery" },
         { id: 2, name: "Ongoing Deliveries", icon: <ClipboardList />, path: "/delivery/ongoing-orders" },
+        { id: 2, name: "Rerurn Deliveries", icon: <ClipboardList />, path: "/delivery/return-orders" },
         { id: 2, name: "All Orders", icon: <ClipboardList />, path: "/delivery/all-orders" },
     ];
 

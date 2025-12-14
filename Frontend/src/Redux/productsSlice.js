@@ -20,6 +20,20 @@ export const fetchSearchProducts = createAsyncThunk("fetch/products", async ({ p
             error.response?.data?.message || "Something went wrong on server"
         );
     }
+
+})
+
+export const fetchProductDetails = createAsyncThunk("fetch/product-details", async ({ slug }, { rejectWithValue }) => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/product-details/${slug}`,
+            { withCredentials: true }
+        );
+        return response?.data?.product
+    } catch (error) {
+        return rejectWithValue(
+            error.response?.data?.message || "Something went wrong on server"
+        );
+    }
 })
 
 const productsSlice = createSlice({
@@ -28,37 +42,44 @@ const productsSlice = createSlice({
         loading: false,
         products: [],
         product: {},
+        productLoading: false,
         total: 0,
         totalPages: 0,
         currentPage: 1,
         error: null,
     },
-    reducers: {
-        setSingleProduct(state, action) {
-            state.product = action.payload
-        },
-        clearSingleProduct(state) {
-            state.product = {}
-        },
-    }, extraReducers: (builder) => {
-        builder.addCase(fetchSearchProducts.pending, (state, action) => {
-            state.loading = true
-        })
-        builder.addCase(fetchSearchProducts.fulfilled, (state, action) => {
-            state.loading = false;
-            state.products = action.payload.products || [];
-            state.total = action.payload.total || 0;
-            state.totalPages = action.payload.totalPages || 0;
-            state.currentPage = action.payload.currentPage || 1;
-            state.error = null;
-        });
-        builder.addCase(fetchSearchProducts.rejected, (state, action) => {
-            state.loading = false
-            state.error = action.payload || "Failed to fetch products"
-        })
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchSearchProducts.pending, (state, action) => {
+                state.loading = true
+            })
+            .addCase(fetchSearchProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products = action.payload.products || [];
+                state.total = action.payload.total || 0;
+                state.totalPages = action.payload.totalPages || 0;
+                state.currentPage = action.payload.currentPage || 1;
+                state.error = null;
+            })
+            .addCase(fetchSearchProducts.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload || "Failed to fetch products"
+            })
+        builder
+            .addCase(fetchProductDetails.pending, (state, action) => {
+                state.productLoading = true
+            })
+            .addCase(fetchProductDetails.fulfilled, (state, action) => {
+                state.productLoading = false
+                state.product = action.payload
+            })
+            .addCase(fetchProductDetails.rejected, (state, action) => {
+                state.productLoading = false
+            })
     }
 })
 
 
-export const { setSingleProduct, clearSingleProduct } = productsSlice.actions
+export const { } = productsSlice.actions
 export default productsSlice.reducer

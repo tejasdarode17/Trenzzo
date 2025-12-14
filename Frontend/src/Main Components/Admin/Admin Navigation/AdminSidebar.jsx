@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { ChartNoAxesCombined, LayoutDashboard, LogOut, Menu, } from "lucide-react";
+import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings, Settings2, Tag, Users, } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { clearUser } from "@/Redux/authSlice";
@@ -73,16 +73,12 @@ const SideBarMenu = ({ setOpenSheet }) => {
 
     const items = [
         { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/admin" },
-        { id: 4, name: "Orders", icon: <FaClipboardList />, path: "/admin/orders" },
-        { id: 6, name: "Sellers", icon: <FaClipboardList />, path: "/admin/sellers" },
-        { id: 3, name: "Categories", icon: <FaClipboardList />, path: "/admin/category" },
-        { id: 7, name: "Banners", icon: <FaClipboardList />, path: "/admin/banners" },
-        // { id: 2, name: "Products", icon: <FaBoxOpen />, path: "/admin/products" },
-        // { id: 5, name: "Users", icon: <FaClipboardList />, path: "/admin/users" },
-        // { id: 8, name: "Reports", icon: <FaClipboardList />, path: "/admin/reports" },
-        // { id: 9, name: "Settings", icon: <Settings />, path: "/admin/settings" },
+        { id: 4, name: "Reports", icon: <FileText />, path: "/admin/reports" },
+        { id: 6, name: "Sellers", icon: <Users />, path: "/admin/sellers" },
+        { id: 3, name: "Categories", icon: <Tag />, path: "/admin/category" },
+        { id: 7, name: "Banners", icon: <ImageIcon />, path: "/admin/banners" },
+        { id: 9, name: "Settings", icon: <Settings2 />, path: "/admin/settings" },
     ];
-
     return (
         <div className="flex flex-col gap-1 px-2 py-4">
             {items.map((item) => (

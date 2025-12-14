@@ -9,7 +9,6 @@ import { ChartNoAxesCombined, LayoutDashboard, LogOut, Menu, Settings } from "lu
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { clearAllProducts } from "@/Redux/sellerSlice";
-import { clearSingleProduct } from "@/Redux/productsSlice";
 
 const SellerSidebar = () => {
 
@@ -66,7 +65,6 @@ const SideBarMenu = ({ setOpenSheet }) => {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, { withCredentials: true });
             dispatch(clearUser());
             dispatch(clearAllProducts())
-            dispatch(clearSingleProduct())
             navigate("/seller/auth/login");
         } catch (error) {
             console.log(error);
@@ -78,7 +76,8 @@ const SideBarMenu = ({ setOpenSheet }) => {
         { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/seller" },
         { id: 2, name: "Products", icon: <FaBoxOpen />, path: "/seller/products" },
         { id: 3, name: "Orders", icon: <FaClipboardList />, path: "/seller/orders" },
-        { id: 4, name: "Settings", icon: <Settings />, path: "/seller/settings" },
+        { id: 5, name: "Return Requests", icon: <FaBoxOpen />, path: "/seller/returns" },
+        { id: 4, name: "Account Settings", icon: <Settings />, path: "/seller/settings" },
     ];
 
     return (

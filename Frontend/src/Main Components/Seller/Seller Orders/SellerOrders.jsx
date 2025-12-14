@@ -7,12 +7,12 @@ import { fetchAllSellerOrders, setSellerSingleOrder } from "@/Redux/sellerSlice"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { User } from "lucide-react";
 
 
 export default function SellerOrders() {
     const { orders } = useSelector((store) => store.seller);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectRange, setSelectRange] = useState("all")
+    const [selectRange, setSelectRange] = useState("today")
     const [page, setPage] = useState(1);
 
     const dispatch = useDispatch();
@@ -27,17 +27,10 @@ export default function SellerOrders() {
         dispatch(fetchAllSellerOrders({ range: selectRange, page }));
     }, [selectRange, page]);
 
-    const filteredOrders = orders?.allOrders?.filter(order =>
-        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.address?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
 
     function checkDeliveryStatusPerItem(order) {
         return order.items.every((i) => i.status === "delivered")
     }
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6">
@@ -51,28 +44,11 @@ export default function SellerOrders() {
                 </div>
 
 
-                {/* Search and Filters */}
-                <div className="mb-6">
-                    <div className="relative flex-1 max-w-md">
-                        <input
-                            type="text"
-                            placeholder="Search orders by ID, customer, or city..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        />
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
 
                 <div className="my-5">
                     <Select value={selectRange} onValueChange={(value) => setSelectRange(value)}>
                         <SelectTrigger className="w-[180px]">
-                            <SelectValue />
+                            <SelectValue placeholder="Time" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
@@ -83,7 +59,6 @@ export default function SellerOrders() {
                         </SelectContent>
                     </Select>
                 </div>
-
 
 
                 {orders?.orderLoading && (
@@ -108,7 +83,7 @@ export default function SellerOrders() {
                 )}
 
                 {/* Orders List */}
-                {filteredOrders.length === 0 ? (
+                {orders.length === 0 ? (
                     <div className="text-center py-16">
                         <div className="w-24 h-24 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                             <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,7 +97,7 @@ export default function SellerOrders() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {filteredOrders.map((order) => (
+                        {orders.allOrders.map((order) => (
                             <Card
                                 key={order._id}
                                 className="
@@ -160,7 +135,8 @@ export default function SellerOrders() {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                             <div className="space-y-1">
                                                 <p className="text-slate-500 text-xs font-medium">CUSTOMER</p>
-                                                <p className="font-medium text-slate-800">
+                                                <p className=" flex items-center gap-2 font-medium text-slate-800">
+                                                    <User size={14} className="text-slate-500" />
                                                     {order.customer?.username || "N/A"}
                                                 </p>
                                             </div>
@@ -218,34 +194,37 @@ export default function SellerOrders() {
                 )}
 
 
-                <div className="flex justify-center mt-8 gap-3">
+                {
+                    orders.totalPages > 1 && (
+                        <div className="flex justify-center mt-8 gap-3">
+                            <Button
+                                className="w-24"
+                                variant="outline"
+                                disabled={page === 1}
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                Previous
+                            </Button>
 
-                    <Button
-                        className="w-24"
-                        variant="outline"
-                        disabled={page === 1}
-                        onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                    >
-                        Previous
-                    </Button>
+                            <div className="px-5 py-2 rounded-xl bg-white shadow-sm border border-slate-300 font-semibold text-slate-700">
+                                Page {page}
+                            </div>
 
-                    <div className="px-5 py-2 rounded-xl bg-white shadow-sm border border-slate-300 font-semibold text-slate-700">
-                        Page {page}
-                    </div>
-
-                    <Button
-                        className="w-24"
-                        variant="outline"
-                        disabled={page === orders.totalPages}
-                        onClick={() => setPage(prev => prev + 1)}
-                    >
-                        Next
-                    </Button>
-                </div>
-
+                            <Button
+                                className="w-24"
+                                variant="outline"
+                                disabled={page === orders.totalPages}
+                                onClick={() => setPage(prev => prev + 1)}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    )
+                }
             </div>
         </div>
     );
 }
+
 
 

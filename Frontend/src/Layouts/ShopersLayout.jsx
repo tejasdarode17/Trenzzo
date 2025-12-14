@@ -21,7 +21,6 @@ const ShopersLayout = () => {
     }, [])
 
 
-
     return (
         <div className="min-h-screen flex flex-col bg-[#F1F3F6]">
             <Navbar />

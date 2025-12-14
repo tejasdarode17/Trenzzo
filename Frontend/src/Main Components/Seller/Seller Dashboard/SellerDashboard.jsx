@@ -1,155 +1,130 @@
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, } from "recharts";
+import { useNavigate } from "react-router-dom";
 
-const SellerDashboard = () => {
-    const { products, orders, revenue } = useSelector((store) => store.seller);
-    const { recentOrders, recentOrdersLoading } = orders;
-    const { statsLoading, totalRevenue, todayRevenue, monthlyRevenue } = revenue;
-    const { userData } = useSelector((store) => store.auth);
+
+export default function SellerDashboard() {
+    const seller = useSelector((s) => s.seller || {});
+    const auth = useSelector((s) => s.auth || {});
+
+    const products = seller.products || {};
+    const revenue = seller.revenue || {};
+
+    const username = auth.userData?.username || "Seller"
+    const statsLoading = !!revenue.statsLoading;
+    const totalRevenue = revenue.totalRevenue ?? 0;
+    const monthlyRevenue = revenue.monthlyRevenue ?? 0;
+    const yearlyRevenue = revenue.yearlyRevenue ?? 0;
+
+    const totalProducts = products.totalProducts ?? products.total ?? 0;
+    const totalOrders = revenue.totalOrdersDelivered ?? 0
+
+
+    const navigate = useNavigate()
+
+    const revenueTrend = useMemo(() => {
+        const breakdown = revenue.monthlyBreakdown || [];
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        return monthNames.map((name, index) => ({
+            month: name,
+            revenue: breakdown[index] || 0
+        }));
+
+    }, [revenue.monthlyBreakdown]);
 
 
     return (
-        <div className="space-y-10">
-
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                    Welcome, {userData?.username} 👋
-                </h1>
-                <p className="text-gray-600 mt-1">
-                    Here's an overview of your store performance.
-                </p>
-            </div>
-
-            {/* Account Warning */}
-            {userData?.status !== "approved" && (
-                <div className="border border-yellow-400 bg-yellow-50 px-4 py-3 rounded-xl">
-                    <p className="font-semibold text-yellow-800">
-                        Your account status: {userData?.status?.toUpperCase()}
-                    </p>
-                    <p className="text-sm text-yellow-700">
-                        Some features may be limited until approval.
-                    </p>
+        <div className="space-y-8 p-6">
+            {/* header */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-semibold text-slate-900">Welcome back, {username}</h1>
+                    <p className="text-sm text-slate-500 mt-1">Store overview & performance</p>
                 </div>
-            )}
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
-                {/* Total Products */}
-                <div className="bg-white shadow-sm border rounded-xl p-6 hover:shadow-md transition">
-                    <h2 className="text-sm font-medium text-gray-500">Products</h2>
-                    <p className="text-4xl font-bold text-blue-600 mt-2">
-                        {products?.totalProducts}
-                    </p>
-                </div>
-
-                {/* Total Orders */}
-                <div className="bg-white shadow-sm border rounded-xl p-6 hover:shadow-md transition">
-                    <h2 className="text-sm font-medium text-gray-500">Total Orders</h2>
-                    <p className="text-4xl font-bold text-green-600 mt-2">
-                        {orders?.totalOrders || 0}
-                    </p>
-                </div>
-
-                {/* Today's Revenue */}
-                <div className="bg-white shadow-sm border rounded-xl p-6 hover:shadow-md transition">
-                    <h2 className="text-sm font-medium text-gray-500">Today's Revenue</h2>
-                    {statsLoading ? (
-                        <p className="text-gray-400 mt-2 animate-pulse">Loading…</p>
-                    ) : (
-                        <p className="text-4xl font-bold text-indigo-600 mt-2">₹{todayRevenue}</p>
-                    )}
-                </div>
-
-                {/* Monthly Revenue */}
-                <div className="bg-white shadow-sm border rounded-xl p-6 hover:shadow-md transition">
-                    <h2 className="text-sm font-medium text-gray-500">This Month</h2>
-                    {statsLoading ? (
-                        <p className="text-gray-400 mt-2 animate-pulse">Loading…</p>
-                    ) : (
-                        <p className="text-4xl font-bold text-purple-600 mt-2">₹{monthlyRevenue}</p>
-                    )}
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={() => navigate("/seller/add-product")}>New product</Button>
                 </div>
             </div>
 
-            {/* Lifetime Revenue Card */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl p-6 shadow-md">
-                <h2 className="text-lg font-semibold tracking-wide">Lifetime Revenue</h2>
-                {statsLoading ? (
-                    <p className="text-white/70 mt-2 animate-pulse">Loading…</p>
-                ) : (
-                    <p className="text-5xl font-bold mt-3">₹{totalRevenue}</p>
-                )}
+            {/* top KPI row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                    <CardContent>
+                        <div className="text-sm text-slate-500">Products</div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <div className="text-3xl font-bold text-sky-600">{totalProducts}</div>
+                            <Badge className="bg-sky-100 text-sky-800">Live</Badge>
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">Total products in your store</div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent>
+                        <div className="text-sm text-slate-500">Total Orders</div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <div className="text-3xl font-bold text-emerald-600">{totalOrders ?? 0}</div>
+                            <Badge className="bg-emerald-100 text-emerald-800">Orders</Badge>
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">Orders received till date</div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent>
+                        <div className="text-sm text-slate-500">Total Revenue</div>
+                        <div className="mt-2">
+                            {statsLoading ? (
+                                <div className="text-gray-400 animate-pulse">Loading…</div>
+                            ) : (
+                                <div className="text-3xl font-bold text-indigo-600">₹{totalRevenue}</div>
+                            )}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">Revenue captured today</div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent>
+                        <div className="text-sm text-slate-500">Monthly Revenue</div>
+                        <div className="mt-2">
+                            {statsLoading ? (
+                                <div className="text-gray-400 animate-pulse">Loading…</div>
+                            ) : (
+                                <div className="text-3xl font-bold text-purple-600">₹{monthlyRevenue}</div>
+                            )}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">Revenue this month</div>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Recent Orders */}
-            <div className="bg-white shadow-sm border rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-800">Recent Orders</h2>
-                </div>
-
-                {/* Loading */}
-                {recentOrdersLoading && (
-                    <div className="py-6 text-center text-gray-500">
-                        Loading recent orders...
-                    </div>
-                )}
-
-                {/* Empty */}
-                {!recentOrdersLoading && recentOrders.length === 0 && (
-                    <div className="py-6 text-center text-gray-500">
-                        No recent orders.
-                    </div>
-                )}
-
-                {/* Table */}
-                {!recentOrdersLoading && recentOrders.length > 0 && (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full border-separate border-spacing-y-2">
-                            <thead className="text-gray-600 text-sm">
-                                <tr>
-                                    <th className="py-2 px-4 text-left">Order</th>
-                                    <th className="py-2 px-4 text-left">Items</th>
-                                    <th className="py-2 px-4 text-left">Revenue</th>
-                                    <th className="py-2 px-4 text-left">Payment</th>
-                                    <th className="py-2 px-4 text-left">Delivery</th>
-                                    <th className="py-2 px-4 text-left">Date</th>
-                                </tr>
-                            </thead>
-
-                            <tbody className="text-sm text-gray-800">
-                                {recentOrders.map((order) => (
-                                    <tr
-                                        key={order._id}
-                                        className="bg-gray-50 hover:bg-gray-100 transition rounded-lg"
-                                    >
-                                        <td className="py-3 px-4 font-medium">
-                                            #{order._id.slice(-6)}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {order.items.length} item(s)
-                                        </td>
-                                        <td className="py-3 px-4 font-semibold text-gray-900">
-                                            ₹{order.sellerTotalAmount}
-                                        </td>
-                                        <td className="py-3 px-4 capitalize">
-                                            {order.paymentStatus}
-                                        </td>
-                                        <td className="py-3 px-4 capitalize">
-                                            {order.items[0]?.deliveryStatus || "-"}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {new Date(order.createdAt).toLocaleDateString()}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+            {/* revenue area + top products */}
+            <div className="">
+                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Revenue (last 12 months)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={revenueTrend} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip />
+                                <Line type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={2} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                    <CardFooter className="text-xs text-slate-500">Revenue shows gross value — net payouts will differ.</CardFooter>
+                </Card>
             </div>
         </div>
     );
-};
-
-export default SellerDashboard;
+}

@@ -201,8 +201,10 @@ export async function deleteCatogery(req, res) {
 export async function getAllSellers(req, res) {
     try {
         const adminID = req.user.id;
-        const { status, page, limit } = req.query;
+        const { status, page = 1, search } = req.query;
 
+        const limit = 10
+        Number(page)
         const admin = await Admin.findById(adminID);
         if (!admin || admin.role !== "admin") {
             return res.status(403).json({ success: false, message: "You are not authorized" });
@@ -213,11 +215,16 @@ export async function getAllSellers(req, res) {
             query.status = status;
         }
 
+        if (search.trim() !== "") {
+            query.username = { $regex: search, $options: "i" };
+        }
+
         const sellers = await Seller.find(query)
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(Number(limit));
 
+        const filtredTotal = await Seller.countDocuments();
         const total = await Seller.countDocuments(query);
 
         return res.status(200).json({
@@ -225,8 +232,11 @@ export async function getAllSellers(req, res) {
             message: "Sellers fetched successfully",
             sellers,
             total,
+            filtredTotal,
             page: Number(page),
-        });
+            pages: Math.ceil(total / limit)
+        })
+
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -235,6 +245,41 @@ export async function getAllSellers(req, res) {
         });
     }
 }
+
+export async function getAdminDashboardStats(req, res) {
+
+    try {
+        const adminID = req.user.id;
+        const admin = await Admin.findById(adminID);
+
+        if (!admin || admin.role !== "admin") {
+            return res.status(403).json({ success: false, message: "You are not authorized" });
+        }
+
+        const [all, pending, approved, suspended, banned] = await Promise.all([
+            Seller.countDocuments(),
+            Seller.countDocuments({ status: "pending" }),
+            Seller.countDocuments({ status: "approved" }),
+            Seller.countDocuments({ status: "suspended" }),
+            Seller.countDocuments({ status: "banned" }),
+        ]);
+
+        const recentSellers = await Seller.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select("username status createdAt");
+
+        res.status(200).json({
+            success: true,
+            totals: { all, pending, approved, suspended, banned },
+            recentSellers
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+
+}
+
 
 export async function getSelectedSeller(req, res) {
 
@@ -582,7 +627,6 @@ export async function deleteBanner(req, res) {
         });
     }
 }
-
 
 
 //-----------------Admin Manage Orders----------------------------

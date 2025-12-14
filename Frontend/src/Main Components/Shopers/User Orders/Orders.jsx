@@ -1,144 +1,190 @@
-import { fetchOrders, setOrder } from '@/Redux/userSlice';
+import { fetchOrders, setOrder, } from '@/Redux/userSlice';
 import { formatDate } from '@/utils/formatDate';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import OrderStatusBadge from './OrderStatusBadge';
-import { useNavigate } from 'react-router-dom';
-import { Search } from "lucide-react";
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Search, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const Orders = () => {
-
-    const { orders } = useSelector((store) => store.user);
-    const [filteredOrders, setFiltredOrders] = useState(orders)
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [query, setQuery] = useState("");
+    const { ordersData } = useSelector((store) => store.user);
+    const { isAuthenticated } = useSelector((store) => store.auth);
+
+    const { orders = [], pages, ordersLoading } = ordersData;
+
+    const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
-        dispatch(fetchOrders());
-    }, []);
+        dispatch(fetchOrders({ search: searchText, page }));
+    }, [page]);
 
-    function orderDetails(order) {
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            dispatch(fetchOrders({ search: searchText, page }))
+        }
+    };
+
+    if (!isAuthenticated) return <Navigate to="/" replace />;
+
+    const orderDetails = (order) => {
         dispatch(setOrder(order));
-        navigate(`/order/${order?._id}`);
-    }
+        navigate(`/order/${order._id}`);
+    };
 
-    useEffect(() => {
-        const text = query.toLowerCase();
-        const result = orders.filter(order => {
-            return (
-                order.items.some(item =>
-                    item.product?.name?.toLowerCase().includes(text)
-                )
-            );
-        });
-        setFiltredOrders(result)
-    }, [orders, query])
-
-
+    const getStatusBadge = (status) => {
+        const colors = {
+            ordered: "bg-orange-100 text-orange-800 border-orange-200",
+            packed: "bg-yellow-100 text-yellow-800 border-yellow-200",
+            shipped: "bg-amber-100 text-amber-800 border-amber-200",
+            "out-for-delivery": "bg-amber-100 text-amber-800 border-amber-200",
+            delivered: "bg-green-100 text-green-800 border-green-200",
+            cancelled: "bg-red-100 text-red-800 border-red-200",
+            returned: "bg-red-100 text-red-800 border-red-200",
+        };
+        return <Badge variant="outline" className={`${colors[status]} uppercase text-xs`}>{status}</Badge>;
+    };
 
     return (
-        <div className="min-h-screen py-5">
+        <div className="min-h-screen bg-gray-50 py-8">
+            <div className="max-w-4xl mx-auto px-4">
 
-            <div className="flex justify-center mb-6">
-                <div className="flex items-center bg-white shadow-md rounded px-5 py-2 w-[60%]">
-                    <Search className="text-gray-500 w-5 h-5" />
-                    <input
-                        type="text"
-                        placeholder="Search yours orders here"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="ml-3 w-full outline-none text-sm"
-                    />
+                {/* Search Bar */}
+                <div className="flex justify-center mb-8">
+                    <div className="flex items-center bg-white shadow-sm border border-gray-300 rounded-lg px-4 py-3 w-full max-w-xl hover:border-gray-400 transition-colors">
+                        <Search className="text-gray-500 w-5 h-5" />
+                        <input
+                            type="text"
+                            placeholder="Search your orders..."
+                            value={searchText}
+                            onChange={(e) => { setPage(1); setSearchText(e.target.value) }}
+                            onKeyDown={(e) => handleKeyDown(e)}
+                            className="ml-3 w-full outline-none text-sm bg-transparent"
+                        />
+                    </div>
                 </div>
+
+                {/* Loader */}
+                {ordersLoading && (
+                    <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto"></div>
+                        <p className="text-gray-500 mt-3">Loading orders...</p>
+                    </div>
+                )}
+
+                {/* No Orders */}
+                {orders.length === 0 && (
+                    <div className="text-center py-16 rounded-xl">
+                        <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
+                        <Button
+                            onClick={() => navigate('/')}
+                            className="bg-amber-500 hover:bg-amber-600 text-white"
+                        >
+                            Start Shopping
+                        </Button>
+                    </div>
+                )}
+
+                {/* Orders List */}
+                <div className="space-y-6">
+                    {orders.map((order) => (
+                        <div
+                            key={order._id}
+                            onClick={() => orderDetails(order)}
+                            className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200 cursor-pointer overflow-hidden"
+                        >
+                            {/* Header */}
+                            <div className="bg-gray-50 px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                                <div className="space-y-1">
+                                    <p className="text-xs text-gray-600 font-medium">ORDER PLACED</p>
+                                    <p className="text-sm font-semibold text-gray-900">{formatDate(order.createdAt)}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-gray-600 font-medium">TOTAL</p>
+                                    <p className="text-lg font-bold text-gray-900">
+                                        ₹{order.amount.toLocaleString("en-IN")}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Items */}
+                            <div className="px-6 py-5 space-y-5">
+                                {order.items.map((item) => (
+                                    <div key={item._id} className="flex gap-4 group">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                            <img
+                                                src={item.product?.images?.[0]?.url}
+                                                className="w-16 h-16 object-contain"
+                                                alt={item.product?.name}
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-2">
+                                                {item.product?.name}
+                                            </p>
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Qty: {item.quantity} • ₹{item.lockedPrice.toLocaleString("en-IN")}
+                                            </p>
+                                            <div className="mt-3">
+                                                {getStatusBadge(item.status)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Pagination */}
+                {pages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-12">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={page === 1}
+                            onClick={() => setPage((p) => p - 1)}
+                            className="border-gray-300 hover:bg-gray-50"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            Previous
+                        </Button>
+
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: pages }).map((_, index) => (
+                                <Button
+                                    key={index}
+                                    variant={page === index + 1 ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setPage(index + 1)}
+                                    className={`w-10 h-10 p-0 ${page === index + 1
+                                        ? 'bg-amber-500 hover:bg-amber-600'
+                                        : 'border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {index + 1}
+                                </Button>
+                            ))}
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={page === pages}
+                            onClick={() => setPage((p) => p + 1)}
+                            className="border-gray-300 hover:bg-gray-50"
+                        >
+                            Next
+                            <ChevronRight className="w-4 h-4" />
+                        </Button>
+                    </div>
+                )}
             </div>
-
-            {filteredOrders.length === 0 && (
-                <p className="text-center text-gray-500 mt-10">
-                    No orders found 🫠
-                </p>
-            )}
-
-            {filteredOrders.map((order) => (
-                <div
-                    onClick={() => orderDetails(order)}
-                    key={order._id}
-                    className="bg-white w-[60%] mx-auto shadow rounded-lg my-6 border overflow-hidden cursor-pointer hover:shadow-lg transition"
-                >
-                    {/* ---------- HEADER ---------- */}
-                    <div className="bg-[#F7F9F9] px-6 py-3 flex justify-between items-center border-b">
-                        <div className="flex gap-10 text-sm">
-                            <div>
-                                <p className="text-gray-600">ORDER PLACED</p>
-                                <p className="font-semibold">
-                                    {formatDate(order.createdAt)}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-gray-600">TOTAL</p>
-                                <p className="font-semibold">
-                                    {order.amount.toLocaleString("en-IN", {
-                                        style: "currency",
-                                        currency: "INR",
-                                    })}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-gray-600">PAYMENT</p>
-                                <p className="font-semibold capitalize">
-                                    {order.paymentMode}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="text-sm">
-                            <p className="text-gray-600">ORDER ID</p>
-                            <p className="font-semibold">{order._id}</p>
-                        </div>
-                    </div>
-
-                    {/* ---------- ORDER ITEMS ---------- */}
-                    <div className="px-6 py-4 space-y-6">
-                        {order.items.map((item) => (
-                            <div
-                                key={item._id}
-                                className="flex justify-between items-start rounded-md p-4"
-                            >
-                                {/* LEFT SIDE */}
-                                <div className="flex gap-4">
-                                    <div className="w-24 h-24">
-                                        <img
-                                            src={item.product?.images?.[0]?.url}
-                                            className="w-full h-full object-contain rounded"
-                                            alt={item.product?.name}
-                                        />
-                                    </div>
-
-                                    <div className="mt-1">
-                                        <p className="font-semibold text-gray-800">
-                                            {item.product?.name}
-                                        </p>
-                                        <p className="text-gray-500 text-sm mt-1">
-                                            Qty: {item.quantity} • Price: ₹{item.lockedPrice}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* RIGHT SIDE */}
-                                <div className="">
-                                    <p className="text-gray-500 text-sm">ORDER STATUS</p>
-                                    <div className='flex justify-center'>
-                                        <OrderStatusBadge order={order} />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
         </div>
     );
 };
