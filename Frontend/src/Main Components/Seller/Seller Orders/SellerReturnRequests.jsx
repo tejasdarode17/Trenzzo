@@ -1,25 +1,32 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSellerReturns, setReturnDeliveryPartner, updateReturnStatus } from "@/Redux/sellerSlice";
+import { markSellerReturnNotificationsRead, } from "@/Redux/sellerSlice";
 import { Card } from "@/components/ui/card";
 import { Package, User, MapPin, } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialogHeader } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSellerReturn } from "@/hooks/seller/useSellerReturn";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSellerDeliveryPartner } from "@/hooks/seller/useSellerDeliveryPartner";
+import { sellerAssingDeliveryPartnerToReturnAPI, sellerUpdateReturnStatusAPI } from "@/api/seller.api";
+
 
 export default function SellerReturnRequests() {
     const [page, setPage] = useState(1)
-    const [dateFilter, setDateFilter] = useState("today")
-    const { returns } = useSelector((store) => store.seller)
-    const { data, loading, totalItems, pages } = returns
+    const [dateFilter, setDateFilter] = useState("")
+    const { returnNotification } = useSelector((store) => store.seller)
 
     const dispatch = useDispatch()
+    const { data, isLoading: loading, } = useSellerReturn({ filter: dateFilter, page })
+
+    const returns = data?.items
+    const pages = data?.pages
 
     useEffect(() => {
-        dispatch(fetchSellerReturns({ filter: dateFilter, page }))
-    }, [page, dateFilter])
+        dispatch(markSellerReturnNotificationsRead())
+    }, [page, dateFilter, returnNotification?.data])
 
 
     return (
@@ -39,8 +46,6 @@ export default function SellerReturnRequests() {
                 </div>
 
                 {/* Search */}
-
-
                 <div className="my-5">
                     <Select value={dateFilter} onValueChange={(value) => setDateFilter(value)}>
                         <SelectTrigger className="w-[180px]">
@@ -80,7 +85,7 @@ export default function SellerReturnRequests() {
 
                 {/* Returns List */}
                 <div className="space-y-4">
-                    {data.length === 0 ? (
+                    {returns?.length === 0 ? (
                         <div className="text-center my-15">
                             <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                                 <Package className="w-10 h-10 text-slate-400" />
@@ -89,7 +94,7 @@ export default function SellerReturnRequests() {
                             <p className="text-slate-500 text-sm mt-1">Return requests will appear here</p>
                         </div>
                     ) : (
-                        data.map((R) => (
+                        (returns || []).map((R) => (
                             <ReturnRequestCard key={R.returnRequest._id} returnData={R} />
                         ))
                     )}
@@ -213,6 +218,7 @@ const ReturnRequestCard = ({ returnData }) => {
             </div>
 
 
+
             {
                 returnData?.returnRequest?.returnStatus == "requested" &&
                 <div className="flex gap-3 mt-4 pt-4 border-t border-slate-200">
@@ -241,121 +247,23 @@ const ReturnRequestCard = ({ returnData }) => {
     );
 };
 
-const AssignDeliveryPartnerForReturn = ({ returnID, orderID, itemID }) => {
-    const [partners, setPartners] = useState([]);
-    const [selectedPartner, setSelectedPartner] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        async function fetchPartners() {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/all`, { withCredentials: true });
-                setPartners(response.data.partners || [])
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchPartners();
-    }, []);
-
-    async function handleAssign() {
-        if (!selectedPartner) return;
-        setLoading(true);
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/order/return`,
-                { returnID, orderID, itemID, partnerID: selectedPartner },
-                { withCredentials: true }
-            );
-            console.log(response.data);
-            if (response.data.success) dispatch(setReturnDeliveryPartner({ partnerID: selectedPartner, returnID }));
-            setOpen(false)
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
-    if (loading) return <p>Loading...</p>;
-
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    Assign Delivery Partner
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <AlertDialogHeader>
-                    <DialogTitle>Select a Delivery Partner</DialogTitle>
-                </AlertDialogHeader>
-                <div className="space-y-2">
-                    {partners.map((p) => (
-                        <div
-                            key={p._id}
-                            className={`border p-2 rounded-lg flex justify-between items-center cursor-pointer ${selectedPartner === p._id ? "border-blue-600 bg-blue-50" : "border-slate-300"}`}
-                            onClick={() => setSelectedPartner(p._id)}
-                        >
-                            <div>
-                                <p className="font-semibold">{p.username}</p>
-                                <p className="text-sm text-slate-600">📞 {p.phone}</p>
-                            </div>
-                            {selectedPartner === p._id && <span className="text-blue-600 font-bold">Selected</span>}
-                        </div>
-                    ))}
-
-                    <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={!selectedPartner}
-                        onClick={handleAssign}
-                    >
-                        Assign
-                    </Button>
-                </div>
-            </DialogContent>
-        </Dialog>
-    )
-}
 
 const ReturnStatusActions = ({ status, returnID, orderID, itemID }) => {
-    const [loading, setLoading] = useState(false);
 
-    const dispatch = useDispatch()
+    const queryClient = useQueryClient()
 
-    async function handleNext(nextStatus) {
-        try {
-            setLoading(true);
-
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/return/update-status`,
-                {
-                    returnID,
-                    orderID,
-                    itemID,
-                    nextStatus
-                },
-                { withCredentials: true }
-            );
-
-            console.log(response.data);
-            if (response?.data?.success) {
-                dispatch(updateReturnStatus({ returnID, status: nextStatus }))
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
+    const { mutate: handleReturnStatus, isPending: loading } = useMutation({
+        mutationFn: sellerUpdateReturnStatusAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerReturns"])
         }
+    })
+
+    function handleNext(nextStatus) {
+        handleReturnStatus({ returnID, orderID, itemID, nextStatus })
     }
 
     let action = null;
-
     if (status === "pickedUp") {
         action = (
             <Button
@@ -395,6 +303,72 @@ const ReturnStatusActions = ({ status, returnID, orderID, itemID }) => {
     return <>{action}</>;
 };
 
+
+
+const AssignDeliveryPartnerForReturn = ({ returnID, orderID, itemID }) => {
+    const [partners, setPartners] = useState([]);
+    const [selectedPartner, setSelectedPartner] = useState(null);
+    const [open, setOpen] = useState(false);
+
+    const queryClient = useQueryClient()
+    const { data } = useSellerDeliveryPartner()
+    useEffect(() => {
+        setPartners(data?.partners)
+    }, [data])
+
+    const { mutate: handleAssignDeliveryPartner, isPending: loading } = useMutation({
+        mutationFn: sellerAssingDeliveryPartnerToReturnAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerReturns"])
+        }
+    })
+
+    async function handleAssign() {
+        if (!selectedPartner) return;
+        handleAssignDeliveryPartner({ returnID, orderID, itemID, partnerID: selectedPartner })
+        setOpen(false)
+    }
+
+    if (loading) return <p>Loading...</p>
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-green-600 hover:bg-green-700 text-white">
+                    Assign Delivery Partner
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <AlertDialogHeader>
+                    <DialogTitle>Select a Delivery Partner</DialogTitle>
+                </AlertDialogHeader>
+                <div className="space-y-2">
+                    {partners?.map((p) => (
+                        <div
+                            key={p?._id}
+                            className={`border p-2 rounded-lg flex justify-between items-center cursor-pointer ${selectedPartner === p._id ? "border-blue-600 bg-blue-50" : "border-slate-300"}`}
+                            onClick={() => setSelectedPartner(p._id)}
+                        >
+                            <div>
+                                <p className="font-semibold">{p.username}</p>
+                                <p className="text-sm text-slate-600">📞 {p.phone}</p>
+                            </div>
+                            {selectedPartner === p._id && <span className="text-blue-600 font-bold">Selected</span>}
+                        </div>
+                    ))}
+
+                    <Button
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={!selectedPartner}
+                        onClick={handleAssign}
+                    >
+                        Assign
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
 
 

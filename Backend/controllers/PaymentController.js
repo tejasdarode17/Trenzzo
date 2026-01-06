@@ -2,6 +2,7 @@ import razorpay from "../config/razorpay.js";
 import Cart from "../model/cartModel.js";
 import Order from "../model/orderModel.js";
 import crypto from "crypto";
+import { getIO } from "../socket/socket.js";
 
 
 export async function createOrder(req, res) {
@@ -140,12 +141,21 @@ export async function verifyPayment(req, res) {
             await item.product.save();
         }
 
+
         cart.items = [];
         cart.itemTotal = 0;
         cart.platformFees = 0;
         cart.totalAmmount = 0;
         cart.finalPayable = 0;
         await cart.save();
+
+        //socket.io live notification
+        const io = getIO()
+        //only one notification should be sent if oder has two product from same seller 
+        const sellerIds = [...new Set(items.map(item => item.seller.toString()))]
+        sellerIds.forEach((sellerId) => {
+            io.to(`seller_${sellerId.toString()}`).emit("new-order", { newOrder })
+        });
 
         return res.status(200).json({
             success: true,
@@ -155,7 +165,6 @@ export async function verifyPayment(req, res) {
 
     } catch (err) {
         console.error("VERIFY PAYMENT ERROR:", err);
-
         res.status(500).json({
             message: "Server error",
             error: err.message

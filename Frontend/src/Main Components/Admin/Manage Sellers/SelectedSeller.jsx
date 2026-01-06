@@ -1,41 +1,18 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { setSeller } from "@/Redux/adminSlice";
 import { formatDate } from "@/utils/formatDate";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
 import { SellerVerificationBadge } from "./VerificationBadge";
 import SellerManagement from "./SellerManagement";
 import { ApproveRejectButton } from "./ApproveRejectButton";
+import { useSeller } from "@/hooks/admin/useSeller";
 
 const SelectedSeller = () => {
     const { id } = useParams();
-    const dispatch = useDispatch();
 
-    const [loading, setLoading] = useState(false);
-    const { seller } = useSelector((store) => store.admin);
+    const { data, isLoading: loading } = useSeller(id)
+    const seller = data?.seller
 
-    async function fetchSelectedSeller() {
-        try {
-            setLoading(true);
-            const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/seller/${id}`,
-                { withCredentials: true }
-            );
-            dispatch(setSeller(res.data?.seller));
-        } catch (err) {
-            console.log(err);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        fetchSelectedSeller();
-    }, [id]);
 
     if (loading) return <p className="p-6">Loading seller...</p>;
     if (!seller) return <p className="p-6">Seller not found</p>;

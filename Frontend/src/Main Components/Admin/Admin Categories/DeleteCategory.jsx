@@ -1,20 +1,35 @@
+import { deleteCategoryAPI } from "@/api/admin.api"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import axios from "axios"
-import { Trash } from "lucide-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Loader2, Trash } from "lucide-react"
 
 const DeleteCategory = ({ cat }) => {
 
-    const id = cat._id
-    async function handleDeleteCategory() {
-        try {
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-category/${id}`, {
-                withCredentials: true,
-            });
-            console.log(response.data)
-        } catch (error) {
-            console.log(error);
-        }
+    const queryClient = useQueryClient()
+    const { mutate: deleteCategory, isPending: loading, isError: error } = useMutation({
+        mutationFn: deleteCategoryAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["category"])
+        },
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ["category"] })
+            const previousCategories = queryClient.getQueryData(["category"])
+            queryClient.setQueryData(["category"], (old) => old?.filter((c) => c?._id !== id))
+            return { previousCategories }
+        },
+        onError: (err, _, context) => {
+            console.log(err);
+            queryClient.setQueryData(["category"], context.previousCategories)
+            toast.error("Failed to delete category")
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries(["category"])
+        },
+    })
+
+    function handleDeleteCategory() {
+        deleteCategory(cat?._id)
     }
 
     return (
@@ -34,9 +49,14 @@ const DeleteCategory = ({ cat }) => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteCategory} className="bg-red-500 hover:bg-red-600">
-                        Delete
+                    <AlertDialogAction
+                        onClick={handleDeleteCategory}
+                        disabled={loading}
+                        className="bg-red-500 hover:bg-red-600 flex items-center gap-2"
+                    >
+                        {loading ? <Loader2 className="animate-spin" /> : "Delete"}
                     </AlertDialogAction>
+
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

@@ -3,13 +3,13 @@ import axios from "axios";
 const useUploadImage = () => {
 
     async function uploadImageToServer(file) {
-        const formData = new FormData();
 
+        const formData = new FormData();
         formData.append("image", file);
+
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/upload-image`,
-                formData,
+                `${import.meta.env.VITE_BACKEND_URL}/upload-image`, formData,
                 {
                     withCredentials: true,
                     headers: {

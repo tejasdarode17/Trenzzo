@@ -1,15 +1,27 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, } from "@/components/ui/carousel"
 import Autoplay from 'embla-carousel-autoplay';
-import { useSelector } from "react-redux";
 import EditCarousal from "./EditCarousel";
 import DeleteCarousel from "./DeleteCarousel";
+import { useCarousels } from "@/hooks/admin/useCarousels";
+import { Loader2 } from "lucide-react";
 
 const Carousels = () => {
-    const { carousels } = useSelector((store) => store.banners)
+
+    const { data, isLoading } = useCarousels()
+    const carousels = data?.carousels
+
+    if (isLoading) {
+        return (
+            <div className="w-full h-100 flex my-10 justify-center items-center">
+                <Loader2 className="animate-spin"></Loader2>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col gap-5">
-            {carousels.map((c, i) => (
+            {carousels?.map((c, i) => (
                 <CarouselCard key={i} carousel={c} />
             ))}
         </div>

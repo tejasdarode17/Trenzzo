@@ -1,39 +1,22 @@
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProductForm from './ProductForm';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateProduct } from '@/Redux/sellerSlice';
-import useUploadImages from '@/Custom Hooks/useUploadImages';
 import { StepBack } from 'lucide-react';
+import { useSellerEditProduct } from '@/hooks/seller/useSellerEditProduct';
+import { useProductDetail } from '@/hooks/shopper/useProductDetail';
 
 const EditProduct = () => {
 
-    const [loading, setLoading] = useState(false)
-    const { product } = useSelector((store) => store.seller)
     const navigate = useNavigate()
-    const dispatch = useDispatch()
     const { slug } = useParams();
     const id = slug?.split("-").pop();
 
-    const { uploadImagesToServer } = useUploadImages()
+    const { data, } = useProductDetail({ slug })
+    const product = data?.product
 
-    async function handleSubmit(formData, setFormData, productImages, setProductImages) {
+    const { mutateAsync: editProduct, isPending: loading } = useSellerEditProduct(id)
+    async function handleSubmit(formData, productImages,) {
         try {
-            setLoading(true)
-
-            let uploadedImages = []
-            let imagesToUpload = productImages?.filter((i) => i instanceof File)
-            let existingImages = productImages?.filter((i) => i.url)
-
-            if (imagesToUpload.length > 0) {
-                const uploaded = await uploadImagesToServer(imagesToUpload)
-                uploadedImages = [...uploaded, ...existingImages]
-            } else {
-                uploadedImages = existingImages
-            }
-
             const productData = {
                 name: formData.name,
                 price: Number(formData.price),
@@ -42,24 +25,11 @@ const EditProduct = () => {
                 highlights: formData.highlights,
                 description: formData.description,
                 attributes: formData.attributes,
-                images: uploadedImages,
             };
-
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/edit/product/${id}`, productData, {
-                withCredentials: true,
-            });
-
-            const data = response.data
-            dispatch(updateProduct({ id, product: data.product }))
-            console.log(data);
-
-            setFormData({ name: "", price: "", salePrice: "", brand: "", category: "", stock: "", description: "", });
-            setProductImages([])
-            navigate(`/seller/product/${id}`)
+            await editProduct({ productData, productImages })
+            navigate(`/seller/product/${slug}`)
         } catch (err) {
             console.log(err);
-        } finally {
-            setLoading(false)
         }
     }
 

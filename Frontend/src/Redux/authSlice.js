@@ -6,7 +6,7 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/check-auth`, {
             withCredentials: true,
         });
-        console.log(response?.data?.user);
+        console.log(response.data);
         return response?.data?.user
     } catch (error) {
         return rejectWithValue(
@@ -14,8 +14,6 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
         );
     }
 })
-
-
 
 const authSlice = createSlice({
     name: "auth",

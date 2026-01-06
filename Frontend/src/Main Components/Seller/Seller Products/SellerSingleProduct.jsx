@@ -1,38 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
 import { Button } from '@/components/ui/button'
 import { ProductReview } from '@/Main Components/Shopers/Products/ProductDetails'
-import { setSellerSingleProduct } from '@/Redux/sellerSlice'
-import { StepBack, Edit, Tag, Package, Star, BarChart3 } from 'lucide-react'
+import { StepBack, Edit, Tag, Package, Star, BarChart3, Loader2 } from 'lucide-react'
+import { useProductDetail } from '@/hooks/shopper/useProductDetail'
 
 const SellerSingleProduct = () => {
-    const { product } = useSelector((store) => store.seller)
-    const [loading, setLoading] = useState(false)
-    const { slug } = useParams();
-    const id = slug?.split("-").pop();
 
-    const dispatch = useDispatch()
+    const { slug } = useParams();
+    const { data, isLoading: loading } = useProductDetail({ slug })
+    const product = data?.product
+
     const navigate = useNavigate()
 
-    async function getSingleProduct() {
-        try {
-            setLoading(true)
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/seller/product/${id}`,
-                { withCredentials: true }
-            )
-            dispatch(setSellerSingleProduct(response?.data?.product))
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        getSingleProduct()
-    }, [slug])
 
     if (loading) {
         return (
@@ -41,7 +20,8 @@ const SellerSingleProduct = () => {
                     <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                         <Package className="w-10 h-10 text-slate-400" />
                     </div>
-                    <p className="text-slate-600 text-lg font-medium">Loading product details...</p>
+                    <p className="text-slate-600 text-lg font-medium">Loading product details... </p>
+                    <Loader2></Loader2>
                 </div>
             </div>
         );
@@ -106,15 +86,15 @@ const SellerSingleProduct = () => {
 
                             {/* Name, Category & Brand */}
                             <div>
-                                <h2 className="text-2xl font-bold text-slate-800">{product.name}</h2>
+                                <h2 className="text-2xl font-bold text-slate-800">{product?.name}</h2>
                                 <div className="flex items-center gap-3 text-slate-600 mt-2">
                                     <Tag size={16} />
                                     <span>{product?.category?.name}</span>
 
-                                    {product.brand && (
+                                    {product?.brand && (
                                         <>
                                             <span>•</span>
-                                            <span className="font-medium">{product.brand}</span>
+                                            <span className="font-medium">{product?.brand}</span>
                                         </>
                                     )}
                                 </div>
@@ -130,14 +110,14 @@ const SellerSingleProduct = () => {
                                 </div>
 
                                 <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 font-semibold
-                                    ${product.stock > 10
+                                    ${product?.stock > 10
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                        : product.stock > 0
+                                        : product?.stock > 0
                                             ? "bg-amber-50 text-amber-700 border-amber-200"
                                             : "bg-rose-50 text-rose-700 border-rose-200"
                                     }`}>
                                     <Package size={16} />
-                                    Stock: {product.stock}
+                                    Stock: {product?.stock}
                                 </div>
 
                             </div>
@@ -150,7 +130,7 @@ const SellerSingleProduct = () => {
                                 </h3>
 
                                 <div className="space-y-2">
-                                    {product.highlights?.map((line, index) => (
+                                    {product?.highlights?.map((line, index) => (
                                         <div key={index} className="flex items-start gap-3">
                                             <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                                             <p className="text-slate-700">{line}</p>
@@ -200,7 +180,7 @@ const SellerSingleProduct = () => {
                     </div>
 
                     <p className="text-slate-700 leading-relaxed">
-                        {product.description || "No description available."}
+                        {product?.description || "No description available."}
                     </p>
                 </div>
 

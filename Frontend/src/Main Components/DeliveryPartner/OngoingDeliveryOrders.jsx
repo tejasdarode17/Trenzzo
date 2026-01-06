@@ -64,8 +64,7 @@ const OngoingDeliveryOrders = () => {
             else if (current === "out-for-delivery") status = "delivered";
             if (!status) return;
 
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/delivery/status`,
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/delivery/status`,
                 { orderId, itemId, status },
                 { withCredentials: true }
             );

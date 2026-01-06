@@ -1,38 +1,35 @@
-import { fetchOrders, setOrder, } from '@/Redux/userSlice';
-import { formatDate } from '@/utils/formatDate';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { formatDate } from '@/utils/formatDate';
 import { Search, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useUserOrders } from '@/hooks/shopper/useUserOrder';
 
 const Orders = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const { ordersData } = useSelector((store) => store.user);
     const { isAuthenticated } = useSelector((store) => store.auth);
-
-    const { orders = [], pages, ordersLoading } = ordersData;
-
-    const [searchText, setSearchText] = useState("");
     const [page, setPage] = useState(1);
+    const [searchText, setSearchText] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
-    useEffect(() => {
-        dispatch(fetchOrders({ search: searchText, page }));
-    }, [page]);
-
-    function handleKeyDown(e) {
-        if (e.key === "Enter") {
-            dispatch(fetchOrders({ search: searchText, page }))
-        }
-    };
+    const navigate = useNavigate()
 
     if (!isAuthenticated) return <Navigate to="/" replace />;
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchText);
+            setPage(1)
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchText]);
+
+    const { data, isLoading, isError, error, isFetching } = useUserOrders({ search: debouncedSearch, page })
+    const orders = data?.orders || [];
+    const pages = data?.pages || 1;
+
     const orderDetails = (order) => {
-        dispatch(setOrder(order));
         navigate(`/order/${order._id}`);
     };
 
@@ -61,20 +58,24 @@ const Orders = () => {
                             type="text"
                             placeholder="Search your orders..."
                             value={searchText}
-                            onChange={(e) => { setPage(1); setSearchText(e.target.value) }}
-                            onKeyDown={(e) => handleKeyDown(e)}
+                            onChange={(e) => { setSearchText(e.target.value) }}
+                            // onKeyDown={(e) => handleKeyDown(e)}
                             className="ml-3 w-full outline-none text-sm bg-transparent"
                         />
                     </div>
                 </div>
 
                 {/* Loader */}
-                {ordersLoading && (
+                {isLoading && (
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto"></div>
                         <p className="text-gray-500 mt-3">Loading orders...</p>
                     </div>
                 )}
+
+                {isFetching && !isLoading && <p className="text-center text-gray-500 mt-2">Updating...</p>}
+                {isError && <p className="text-red-500 text-center mt-4">{error.message || "Failed to load orders"}</p>}
+
 
                 {/* No Orders */}
                 {orders.length === 0 && (
@@ -162,11 +163,7 @@ const Orders = () => {
                                     variant={page === index + 1 ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => setPage(index + 1)}
-                                    className={`w-10 h-10 p-0 ${page === index + 1
-                                        ? 'bg-amber-500 hover:bg-amber-600'
-                                        : 'border-gray-300 hover:bg-gray-50'
-                                        }`}
-                                >
+                                    className={`w-10 h-10 p-0 ${page === index + 1 ? 'bg-amber-500 hover:bg-amber-600' : 'border-gray-300 hover:bg-gray-50'}`}>
                                     {index + 1}
                                 </Button>
                             ))}

@@ -1,13 +1,13 @@
-import { useSelector } from "react-redux";
+import { useCatogery } from "@/hooks/admin/useCategory";
 
 const Categories = () => {
 
-    const { categories } = useSelector((store) => store.categories)
+    const { data: categories, isLoading: loading } = useCatogery()
 
     return (
         <div className="w-full mx-auto my-2 bg-white shadow-md p-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-6">
-                {categories.map((cat, idx) => (
+                {categories?.map((cat, idx) => (
                     <div
                         key={idx}
                         className="flex flex-col items-center text-center p-3 rounded-xl border hover:shadow-lg transition-shadow cursor-pointer"

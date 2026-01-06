@@ -1,48 +1,32 @@
-import { useState } from "react";
-import useUploadImage from "@/Custom Hooks/useUploadImage";
-import axios from "axios";
 import CategoryForm from "./CategoryForm";
-import { useLocation, useNavigate, } from "react-router-dom";
+import { useLocation, useNavigate, useParams, } from "react-router-dom";
 import { StepBack } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { editCategoryAPI } from "@/api/admin.api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const EditCategory = () => {
 
-    const [editLoading, setLoading] = useState(false)
-    const { uploadImageToServer } = useUploadImage()
     const location = useLocation();
-    const cat = location.state?.cat;
+    const cat = location?.state?.cat;
     const navigate = useNavigate()
+    const { id } = useParams()
+    const queryClient = useQueryClient()
 
-    async function editCategory(formData, setformData, id) {
-        try {
-            setLoading(true)
-
-            //only upload if the image is file 
-            let uploadedImage = formData.image;
-            if (formData.image && formData.image instanceof File) {
-                uploadedImage = await uploadImageToServer(formData.image);
-            }
-
-            const payload = {
-                name: formData.name,
-                description: formData.description,
-                image: uploadedImage,
-                attributes: formData.attributes
-            }
-
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/edit-category/${id}`, payload, {
-                withCredentials: true,
-            });
-            console.log(response?.data);
-            setformData({ name: "", description: "", image: null, attributes: [] })
-            setLoading(false)
+    const { mutate: editCategory, isPending: editLoading, isError: error } = useMutation({
+        mutationFn: editCategoryAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["category"])
             navigate("/admin/category")
-        } catch (error) {
+        },
+        onError: (error) => {
             console.log(error);
-        } finally {
-            setLoading(false)
+            toast.error(error?.response?.data?.message || "Something went wrong on server")
         }
+    })
+
+    async function handleSubmit(formData) {
+        editCategory({ formData, id })
     }
 
     return (
@@ -54,7 +38,7 @@ const EditCategory = () => {
 
 
             <div className="mt-10">
-                <CategoryForm initialData={cat} loading={editLoading} onSubmit={editCategory} />
+                <CategoryForm initialData={cat} loading={editLoading} onSubmit={handleSubmit} />
             </div>
         </div>
     )

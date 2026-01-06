@@ -1,21 +1,24 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Download, Printer, StepBack, Truck, PackageCheck, MapPin, CreditCard, Package, Box, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { setOrderDeliveryPartner, updateOrderPacked } from "@/Redux/sellerSlice";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { DialogTitle } from "@radix-ui/react-dialog";
-
+import { useSellerOrderDetails } from "@/hooks/seller/useSellerOrderDetails";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useSellerDeliveryPartner } from "@/hooks/seller/useSellerDeliveryPartner";
+import { sellerAssignDeliveryPartnerAPI, sellerUpdateDeliveryStatusAPI, } from "@/api/seller.api";
 
 
 const SellerOrderDetails = () => {
     const navigate = useNavigate();
-    const { orderDetails } = useSelector((store) => store.seller || {});
 
-    const { order } = orderDetails
+    const { id: orderId, } = useParams()
+    const { data, isLoading: orderLoading } = useSellerOrderDetails(orderId)
+    const order = data?.order
+
 
     if (!order) {
         return (
@@ -101,7 +104,7 @@ const SellerOrderDetails = () => {
                         </div>
 
                         {/* Order Items + Status (interactive) */}
-                        <OrderItemsWithStatus order={order} />
+                        <OrderItemsWithStatus order={order} orderLoading={orderLoading} />
                     </div>
 
                     {/* Right: Summary */}
@@ -132,8 +135,7 @@ const SellerOrderDetails = () => {
 };
 
 
-const OrderItemsWithStatus = ({ order }) => {
-
+const OrderItemsWithStatus = ({ order, orderLoading }) => {
     return (
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 mt-4">
             <div className="flex items-center justify-between mb-6">
@@ -148,13 +150,13 @@ const OrderItemsWithStatus = ({ order }) => {
                 </div>
 
                 <Badge className="bg-slate-100 text-slate-700">
-                    {order?.items?.length} {order.items.length === 1 ? "item" : "items"}
+                    {order?.items?.length} {order?.items?.length === 1 ? "item" : "items"}
                 </Badge>
             </div>
 
             <div className="space-y-4">
                 {order?.items?.map((item) => (
-                    <OrderItemCard key={item._id} item={item} order={order} />
+                    <OrderItemCard key={item?._id} item={item} order={order} orderLoading={orderLoading} />
                 ))}
             </div>
 
@@ -163,10 +165,8 @@ const OrderItemsWithStatus = ({ order }) => {
 };
 
 
-const OrderItemCard = ({ item, order }) => {
+const OrderItemCard = ({ item, order, orderLoading }) => {
     const [open, setOpen] = useState(false);
-    const dispatch = useDispatch();
-    const { orderLoading } = useSelector((store) => store.seller)
 
     const statusConfig = {
         ordered: { label: "Order Confirmed", color: "bg-slate-100 text-slate-700", icon: PackageCheck },
@@ -181,20 +181,19 @@ const OrderItemCard = ({ item, order }) => {
     const Icon = cfg.icon;
 
 
-    async function handleMarkPacked() {
-        try {
-            const orderID = order._id
-            const itemID = item._id
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/order/status`,
-                { orderID, itemID, newStatus: "packed" },
-                { withCredentials: true }
-            );
-            console.log(response.data);
-            if (response.data.success) dispatch(updateOrderPacked({ itemID, newStatus: "packed" }))
-        } catch (error) {
-            console.log(error);
-
+    const queryClient = useQueryClient()
+    const { mutate: handleSellerUpdateStatus } = useMutation({
+        mutationFn: sellerUpdateDeliveryStatusAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerOrderDetails"])
+        },
+        onError: (err) => {
+            toast.error(err?.response?.data?.message || "Something went wrong!");
         }
+    })
+
+    function handleMarkPacked() {
+        handleSellerUpdateStatus({ orderID: order._id, itemID: item._id })
     }
 
     return (
@@ -225,7 +224,7 @@ const OrderItemCard = ({ item, order }) => {
                         </Badge>
 
                         {/* Show "Mark as Packed" button only if item is ordered */}
-                        {item.status === "ordered" && (
+                        {item?.status === "ordered" && (
                             <Button
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={handleMarkPacked}
@@ -236,7 +235,7 @@ const OrderItemCard = ({ item, order }) => {
                         )}
 
                         {/* Show Assign Delivery Partner button only if packed and not assigned */}
-                        {item.status === "packed" && !item.deliveryPartner && (
+                        {item?.status === "packed" && !item?.deliveryPartner && (
                             <Dialog open={open} onOpenChange={setOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="bg-green-600 hover:bg-green-700 text-white">
@@ -263,55 +262,43 @@ const OrderItemCard = ({ item, order }) => {
 const DeliveryPartnerPicker = ({ order, item, onClose }) => {
     const [partners, setPartners] = useState([]);
     const [selectedPartner, setSelectedPartner] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch();
+    const queryClient = useQueryClient()
 
+    const { data } = useSellerDeliveryPartner()
     useEffect(() => {
-        async function fetchPartners() {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/all`, { withCredentials: true });
-                setPartners(response.data.partners || []);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchPartners();
-    }, []);
+        setPartners(data?.partners)
+    }, [data])
 
-    async function handleAssign() {
+    const { mutate: handleAssignDeliveryPartner, isPending: loading } = useMutation({
+        mutationFn: sellerAssignDeliveryPartnerAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerOrderDetails"])
+        },
+        onError: (error) => {
+            console.log(error);
+            toast.error(error?.response?.data?.message || "Something went Wrong on server")
+        }
+    })
+
+    function handleAssign() {
         if (!selectedPartner) return;
-        setLoading(true);
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/assign/order`,
-                { orderID: order._id, itemID: item._id, partnerID: selectedPartner },
-                { withCredentials: true }
-            );
-            if (response.data.success) dispatch(setOrderDeliveryPartner({ itemID: item._id, partnerID: selectedPartner }));
-            onClose();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+        handleAssignDeliveryPartner({ orderID: order?._id, itemID: item?._id, partnerID: selectedPartner })
+        onClose()
+    }
 
     if (loading) return <p>Loading...</p>;
 
     return (
         <div className="space-y-2">
-            {partners.map((p) => (
+            {partners?.map((p) => (
                 <div
                     key={p._id}
-                    className={`border p-2 rounded-lg flex justify-between items-center cursor-pointer ${selectedPartner === p._id ? "border-blue-600 bg-blue-50" : "border-slate-300"}`}
-                    onClick={() => setSelectedPartner(p._id)}
+                    className={`border p-2 rounded-lg flex justify-between items-center cursor-pointer ${selectedPartner === p?._id ? "border-blue-600 bg-blue-50" : "border-slate-300"}`}
+                    onClick={() => setSelectedPartner(p?._id)}
                 >
                     <div>
-                        <p className="font-semibold">{p.username}</p>
-                        <p className="text-sm text-slate-600">📞 {p.phone}</p>
+                        <p className="font-semibold">{p?.username}</p>
+                        <p className="text-sm text-slate-600">📞 {p?.phone}</p>
                     </div>
                     {selectedPartner === p._id && <span className="text-blue-600 font-bold">Selected</span>}
                 </div>

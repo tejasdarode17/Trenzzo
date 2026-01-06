@@ -1,45 +1,30 @@
-import { useState } from "react";
-import useUploadImage from "@/Custom Hooks/useUploadImage";
-import axios from "axios";
 import CategoryForm from "./CategoryForm";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StepBack } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { addCategory } from "@/Redux/categoriesSlice";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addCategoryAPI, } from "@/api/admin.api";
 
 
 const AddCategory = () => {
-    const [loading, setLoading] = useState(false);
-    const { uploadImageToServer } = useUploadImage();
+
     const navigate = useNavigate()
-    const dispatch = useDispatch()
+    const queryClient = useQueryClient()
 
-    async function handleSubmit(formData, setFormData) {
-        try {
-            setLoading(true);
-            const uploadedImage = await uploadImageToServer(formData.image);
-
-            const payload = {
-                name: formData.name,
-                description: formData.description,
-                image: uploadedImage,
-                attributes: formData.attributes
-            };
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/add-category`,
-                payload,
-                {
-                    withCredentials: true,
-                }
-            );
-            dispatch(addCategory(response?.data?.category))
-            setFormData({ name: "", description: "", image: null, attributes: [] });
+    const { mutate: addCategory, isPending: loading, isError: error } = useMutation({
+        mutationFn: addCategoryAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["category"])
             navigate("/admin/category")
-        } catch (error) {
+        },
+        onError: (error) => {
             console.log(error);
-        } finally {
-            setLoading(false);
+            toast.error(error?.response?.data?.message || "Something went wrong on server")
         }
+    })
+
+    function handleSubmit(formData) {
+        addCategory(formData)
     }
 
     return (

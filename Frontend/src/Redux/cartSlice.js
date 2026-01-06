@@ -64,7 +64,6 @@ export const removeItemFromCart = createAsyncThunk("remove-cart", async ({ produ
     }
 })
 
-
 export const buyNowThunk = createAsyncThunk("buy-now", async ({ productID, quantity, attributes }, { rejectWithValue }) => {
     try {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/buy-now`,

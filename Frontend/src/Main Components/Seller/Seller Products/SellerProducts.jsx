@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import ProductsTable from "./ProductsTable";
 import AccessDenied from "../AccessDenied";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { fetchAllSellerProducts } from "@/Redux/sellerSlice";
 import { useNavigate } from "react-router-dom";
+import { useSellerProduct } from "@/hooks/seller/useSellerProduct";
+import { useCatogery } from "@/hooks/admin/useCategory";
 
 const SellerProducts = () => {
-    const { categories } = useSelector((store) => store.categories);
     const { userData } = useSelector((store) => store.auth);
-    const { allProducts, pages, productsLoading, } = useSelector((store) => store.seller.products);
+    const { data: categories } = useCatogery()
 
     const [selectedCategory, setSelectedCategory] = useState("");
     const [productStatus, setProductStatus] = useState("");
@@ -19,7 +19,6 @@ const SellerProducts = () => {
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
     const [page, setPage] = useState(1);
 
-    const dispatch = useDispatch();
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -31,24 +30,16 @@ const SellerProducts = () => {
         return () => clearTimeout(timer);
     }, [searchText]);
 
-    useEffect(() => {
-        dispatch(
-            fetchAllSellerProducts({
-                category: selectedCategory,
-                page,
-                status: productStatus,
-                search: debouncedSearchText,
-            })
-        );
-    }, [page, selectedCategory, productStatus, debouncedSearchText]);
-
-
     const handleSearchEnter = (e) => {
         if (e.key === "Enter") {
             setDebouncedSearchText(searchText);
             setPage(1);
         }
     };
+
+    const { data, isLoading: productsLoading } = useSellerProduct({ category: selectedCategory, page, status: productStatus, search: debouncedSearchText })
+    const products = data?.products
+    const pages = data?.pages
 
 
     if (["pending", "banned", "rejected", "suspended"].includes(userData?.status)) {
@@ -96,7 +87,7 @@ const SellerProducts = () => {
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectItem value="all">All</SelectItem>
-                                    {categories.map((cat) => (
+                                    {categories?.map((cat) => (
                                         <SelectItem key={cat._id} value={cat._id}>
                                             {cat.name}
                                         </SelectItem>
@@ -109,11 +100,11 @@ const SellerProducts = () => {
             </div>
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <ProductsTable products={allProducts} productsLoading={productsLoading} />
+                <ProductsTable products={products} productsLoading={productsLoading} />
 
                 <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 text-sm text-gray-600">
                     <span>
-                        Showing {allProducts.length} items
+                        Showing {products?.length} items
                     </span>
 
                     <div className="flex items-center gap-2">

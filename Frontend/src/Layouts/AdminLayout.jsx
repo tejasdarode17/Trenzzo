@@ -1,21 +1,7 @@
-import AdminSidebar from "@/Main Components/Admin/Admin Navigation/AdminSidebar"
-import { getAdminStats } from "@/Redux/adminSlice"
-import { fetchAllBanners, fetchAllCarousels } from "@/Redux/bannersSlice"
-import { fetchAllCategories } from "@/Redux/categoriesSlice"
-import { useEffect } from "react"
-import { useDispatch } from "react-redux"
 import { Outlet } from "react-router-dom"
+import AdminSidebar from "@/Main Components/Admin/Admin Navigation/AdminSidebar"
+
 const AdminLayout = () => {
-
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(getAdminStats())
-        dispatch(fetchAllCategories())
-        dispatch(fetchAllCarousels())
-        dispatch(fetchAllBanners())
-    }, []);
-
     return (
         <div className="flex min-h-screen w-full">
             <div >

@@ -53,7 +53,7 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
 
     function submitHandler(e) {
         e.preventDefault();
-        onSubmit(formData, setFormData, id);
+        onSubmit(formData);
     }
 
     return (

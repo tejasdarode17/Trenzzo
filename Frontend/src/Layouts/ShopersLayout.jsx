@@ -1,8 +1,6 @@
 import Footer from "@/Main Components/Shopers/Footer"
 import Navbar from "@/Main Components/Shopers/Navigations/Navbar"
-import { fetchAllBanners, fetchAllCarousels } from "@/Redux/bannersSlice"
 import { fetchCartThunk } from "@/Redux/cartSlice"
-import { fetchAllCategories } from "@/Redux/categoriesSlice"
 import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Outlet, useLocation } from "react-router-dom"
@@ -14,9 +12,6 @@ const ShopersLayout = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(fetchAllCategories())
-        dispatch(fetchAllCarousels())
-        dispatch(fetchAllBanners())
         dispatch(fetchCartThunk())
     }, [])
 

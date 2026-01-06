@@ -1,14 +1,25 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { useSelector } from "react-redux";
 import DeleteBanner from "./DeleteBanner";
+import { useBanners } from "@/hooks/admin/useBanners";
+import { Loader2 } from "lucide-react";
 
 
 const FixedBanners = () => {
-    const { banners } = useSelector((store) => store.banners)
+
+    const { data, isLoading } = useBanners()
+    const banners = data?.banners
+
+    if (isLoading) {
+        return (
+            <div className="w-full h-100 flex my-10 justify-center items-center">
+                <Loader2 className="animate-spin"></Loader2>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col gap-5">
-            {banners.map((banner, i) => (
+            {banners?.map((banner, i) => (
                 <FixedBannersCard key={i} banner={banner} />
             ))}
         </div>
@@ -16,7 +27,6 @@ const FixedBanners = () => {
 }
 
 const FixedBannersCard = ({ banner }) => {
-    console.log(banner);
 
     return (
         <Card className="my-10">

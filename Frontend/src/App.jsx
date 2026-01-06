@@ -1,55 +1,70 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import { useEffect } from "react"
+import { Suspense, lazy, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import AuthLayout from "./Layouts/AuthLayout"
-import AdminLayout from "./Layouts/AdminLayout"
-import ShopersLayout from "./Layouts/ShopersLayout"
-import Login from "./Main Components/Shopers/User Auth/UserLogin"
-import Register from "./Main Components/Shopers/User Auth/UserRegister"
-import Home from "./Main Components/Shopers/Home"
-import SellerAuthLayout from "./Layouts/SellerAuthLayout"
-import SellerRegister from "./Main Components/Seller/Seller Auth/SellerRegister"
-import SellerLogin from "./Main Components/Seller/Seller Auth/SellerLogin"
-import SellerDashboard from "./Main Components/Seller/Seller Dashboard/SellerDashboard"
-import SellerLayout from "./Layouts/SellerLayout"
 import ProtectedRoutes from "./Main Components/Other/ProtectedRoutes"
 import { checkAuth } from "./Redux/authSlice"
-import ErrorPage from "./Main Components/Other/ErrorPage"
-import { AddNewProduct } from "./Main Components/Seller/Seller Products/AddNewProduct"
-import EditProduct from "./Main Components/Seller/Seller Products/EditProduct"
-import SellerProducts from "./Main Components/Seller/Seller Products/SellerProducts"
-import SellerSingleProduct from "./Main Components/Seller/Seller Products/SellerSingleProduct"
-import AdminDashboard from "./Main Components/Admin/Admin Dashboard/AdminDashboard"
-import AdminCategory from "./Main Components/Admin/Admin Categories/AdminCategory"
-import AdminSellers from "./Main Components/Admin/Manage Sellers/AdminSeller"
-import SelectedSeller from "./Main Components/Admin/Manage Sellers/SelectedSeller"
-import AdminBanners from "./Main Components/Admin/Banners/AdminBanners"
-import ProductsLayout from "./Main Components/Shopers/Products/ProductsLayout"
-import ProductDetails from "./Main Components/Shopers/Products/ProductDetails"
-import AddCategory from "./Main Components/Admin/Admin Categories/AddCategory"
-import EditCategory from "./Main Components/Admin/Admin Categories/EditCategory"
-import Cart from "./Main Components/Shopers/Cart/Cart"
-import CheckOut from "./Main Components/Shopers/Cart/CheckOut"
-import SellerOrders from "./Main Components/Seller/Seller Orders/SellerOrders"
-import Orders from "./Main Components/Shopers/User Orders/Orders"
-import SellerOrderDetails from "./Main Components/Seller/Seller Orders/SellerOrderDetails"
-import OrderDetails from "./Main Components/Shopers/User Orders/OrderDetails"
-import AdminOrders from "./Main Components/Admin/Admin Orders/AdminOrders"
-import DeliveryAuthLayout from "./Layouts/DeliveryAuthLayout"
-import DeliveryLogin from "./Main Components/DeliveryPartner/Delivery Auth/DeliveryLogin"
-import DeliveryRegistration from "./Main Components/DeliveryPartner/Delivery Auth/DeliveryRegistration"
-import DeliveryLayout from "./Layouts/DeliveryLayout"
-import DeliveryDashboard from "./Main Components/DeliveryPartner/DeliveryDashboard"
-import OngoingDeliveryOrders from "./Main Components/DeliveryPartner/OngoingDeliveryOrders"
-import DeliveryAllOrders from "./Main Components/DeliveryPartner/DeliveryAllOrders"
-import SellerReturnRequests from "./Main Components/Seller/Seller Orders/SellerReturnRequests"
-import DeliveryReturnOrders from "./Main Components/DeliveryPartner/DeliveryReturnOrders"
-import UserProfile from "./Main Components/Shopers/User Profile/UserProfileLayout"
-import UserProfileLayout from "./Main Components/Shopers/User Profile/UserProfileLayout"
-import UserProfilePersonalInformation from "./Main Components/Shopers/User Profile/UserProfilePersonalInformation"
-import UserAddress from "./Main Components/Shopers/User Profile/UserAddress"
-import AccountSettings from "./Main Components/Shopers/User Profile/AccountSetting"
-import SellerAccount from "./Main Components/Seller/Seller Profile/SellerAccount"
+import { Loader2 } from "lucide-react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
+//ALl layouts 
+const AuthLayout = lazy(() => import("./Layouts/AuthLayout"))
+const ShopersLayout = lazy(() => import("./Layouts/ShopersLayout"))
+const SellerAuthLayout = lazy(() => import("./Layouts/SellerAuthLayout"))
+const SellerLayout = lazy(() => import("./Layouts/SellerLayout"))
+const AdminLayout = lazy(() => import("./Layouts/AdminLayout"))
+const DeliveryAuthLayout = lazy(() => import("./Layouts/DeliveryAuthLayout"))
+const DeliveryLayout = lazy(() => import("./Layouts/DeliveryLayout"))
+
+//  Shopper Pages
+const Login = lazy(() => import("./Main Components/Shopers/User Auth/UserLogin"))
+const Register = lazy(() => import("./Main Components/Shopers/User Auth/UserRegister"))
+const Home = lazy(() => import("./Main Components/Shopers/Home"))
+const ProductsLayout = lazy(() => import("./Main Components/Shopers/Products/ProductsLayout"))
+const ProductDetails = lazy(() => import("./Main Components/Shopers/Products/ProductDetails"))
+const Cart = lazy(() => import("./Main Components/Shopers/Cart/Cart"))
+const CheckOut = lazy(() => import("./Main Components/Shopers/Cart/CheckOut"))
+const Orders = lazy(() => import("./Main Components/Shopers/User Orders/Orders"))
+const OrderDetails = lazy(() => import("./Main Components/Shopers/User Orders/OrderDetails"))
+const Wishlist = lazy(() => import("./Main Components/Shopers/Wishlist/Wishlist"))
+
+//  User Profile
+const UserProfileLayout = lazy(() => import("./Main Components/Shopers/User Profile/UserProfileLayout"))
+const UserProfilePersonalInformation = lazy(() => import("./Main Components/Shopers/User Profile/UserProfilePersonalInformation"))
+const UserAddress = lazy(() => import("./Main Components/Shopers/User Profile/UserAddress"))
+const AccountSettings = lazy(() => import("./Main Components/Shopers/User Profile/AccountSetting"))
+
+//  Seller Pages
+const SellerRegister = lazy(() => import("./Main Components/Seller/Seller Auth/SellerRegister"))
+const SellerLogin = lazy(() => import("./Main Components/Seller/Seller Auth/SellerLogin"))
+const SellerDashboard = lazy(() => import("./Main Components/Seller/Seller Dashboard/SellerDashboard"))
+const SellerProducts = lazy(() => import("./Main Components/Seller/Seller Products/SellerProducts"))
+const AddNewProduct = lazy(() => import("./Main Components/Seller/Seller Products/AddNewProduct"))
+const EditProduct = lazy(() => import("./Main Components/Seller/Seller Products/EditProduct"))
+const SellerSingleProduct = lazy(() => import("./Main Components/Seller/Seller Products/SellerSingleProduct"))
+const SellerOrders = lazy(() => import("./Main Components/Seller/Seller Orders/SellerOrders"))
+const SellerOrderDetails = lazy(() => import("./Main Components/Seller/Seller Orders/SellerOrderDetails"))
+const SellerReturnRequests = lazy(() => import("./Main Components/Seller/Seller Orders/SellerReturnRequests"))
+const SellerAccount = lazy(() => import("./Main Components/Seller/Seller Profile/SellerAccount"))
+
+//  Admin Pages
+const AdminDashboard = lazy(() => import("./Main Components/Admin/Admin Dashboard/AdminDashboard"))
+const AdminCategory = lazy(() => import("./Main Components/Admin/Admin Categories/AdminCategory"))
+const AddCategory = lazy(() => import("./Main Components/Admin/Admin Categories/AddCategory"))
+const EditCategory = lazy(() => import("./Main Components/Admin/Admin Categories/EditCategory"))
+const AdminSellers = lazy(() => import("./Main Components/Admin/Manage Sellers/AdminSeller"))
+const SelectedSeller = lazy(() => import("./Main Components/Admin/Manage Sellers/SelectedSeller"))
+const AdminBanners = lazy(() => import("./Main Components/Admin/Banners/AdminBanners"))
+const AdminOrders = lazy(() => import("./Main Components/Admin/Admin Orders/AdminOrders"))
+
+//  Delivery Pages
+const DeliveryLogin = lazy(() => import("./Main Components/DeliveryPartner/Delivery Auth/DeliveryLogin"))
+const DeliveryRegistration = lazy(() => import("./Main Components/DeliveryPartner/Delivery Auth/DeliveryRegistration"))
+const DeliveryDashboard = lazy(() => import("./Main Components/DeliveryPartner/DeliveryDashboard"))
+const OngoingDeliveryOrders = lazy(() => import("./Main Components/DeliveryPartner/OngoingDeliveryOrders"))
+const DeliveryReturnOrders = lazy(() => import("./Main Components/DeliveryPartner/DeliveryReturnOrders"))
+const DeliveryAllOrders = lazy(() => import("./Main Components/DeliveryPartner/DeliveryAllOrders"))
+
+const ErrorPage = lazy(() => import("./Main Components/Other/ErrorPage"))
 
 
 const appRouter = createBrowserRouter([
@@ -57,257 +72,150 @@ const appRouter = createBrowserRouter([
     path: "/user/auth",
     element: (
       <ProtectedRoutes>
-        <AuthLayout></AuthLayout>
+        <AuthLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        path: "login",
-        element: <Login></Login>
-      },
-      {
-        path: "register",
-        element: <Register></Register>
-      }
-    ]
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+    ],
   },
 
   {
     path: "/seller/auth",
     element: (
       <ProtectedRoutes>
-        <SellerAuthLayout></SellerAuthLayout>
+        <SellerAuthLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        path: "register",
-        element: <SellerRegister></SellerRegister>
-      },
-      {
-        path: "login",
-        element: <SellerLogin></SellerLogin>
-      }
-    ]
+      { path: "login", element: <SellerLogin /> },
+      { path: "register", element: <SellerRegister /> },
+    ],
   },
 
   {
     path: "/delivery/auth",
     element: (
       <ProtectedRoutes>
-        <DeliveryAuthLayout></DeliveryAuthLayout>
+        <DeliveryAuthLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        path: "register",
-        element: <DeliveryRegistration></DeliveryRegistration>
-      },
-      {
-        path: "login",
-        element: <DeliveryLogin></DeliveryLogin>
-      }
-    ]
+      { path: "login", element: <DeliveryLogin /> },
+      { path: "register", element: <DeliveryRegistration /> },
+    ],
   },
 
   {
     path: "/",
     element: (
       <ProtectedRoutes>
-        <ShopersLayout></ShopersLayout>
+        <ShopersLayout />
       </ProtectedRoutes>
     ),
     children: [
+      { index: true, element: <Home /> },
+      { path: "products", element: <ProductsLayout /> },
+      { path: "product/:slug", element: <ProductDetails /> },
+      { path: "cart", element: <Cart /> },
+      { path: "checkout", element: <CheckOut /> },
+      { path: "orders", element: <Orders /> },
+      { path: "order/:id", element: <OrderDetails /> },
+      { path: "wishlist", element: <Wishlist /> },
+
       {
-        index: true,
-        element: <Home></Home>
-      },
-      {
-        path: "/products",
-        element: <ProductsLayout></ProductsLayout>
-      },
-      {
-        path: "/product/:slug",
-        element: <ProductDetails></ProductDetails>
-      },
-      {
-        path: "/cart",
-        element: <Cart></Cart>
-      },
-      {
-        path: "/checkout",
-        element: <CheckOut></CheckOut>
-      },
-      {
-        path: "/orders",
-        element: <Orders></Orders>
-      },
-      {
-        path: "/order/:id",
-        element: <OrderDetails></OrderDetails>
-      },
-      {
-        path: "/account",
-        element: <UserProfileLayout></UserProfileLayout>,
+        path: "account",
+        element: <UserProfileLayout />,
         children: [
-          {
-            index: true,
-            element: <UserProfilePersonalInformation></UserProfilePersonalInformation>
-          },
-          {
-            path: "/account/address",
-            element: <UserAddress></UserAddress>
-          },
-          {
-            path: "/account/settings",
-            element: <AccountSettings></AccountSettings>
-          },
-        ]
+          { index: true, element: <UserProfilePersonalInformation /> },
+          { path: "address", element: <UserAddress /> },
+          { path: "settings", element: <AccountSettings /> },
+        ],
       },
-    ]
+    ],
   },
 
   {
     path: "/seller",
     element: (
       <ProtectedRoutes>
-        <SellerLayout></SellerLayout>
+        <SellerLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        index: true,
-        element: <SellerDashboard></SellerDashboard>
-      },
-      {
-        path: "products",
-        element: <SellerProducts></SellerProducts>
-      },
-      {
-        path: "add-product",
-        element: <AddNewProduct></AddNewProduct>
-      },
-      {
-        path: "edit-product/:slug",
-        element: <EditProduct></EditProduct>
-      },
-      {
-        path: "product/:slug",
-        element: <SellerSingleProduct></SellerSingleProduct>
-      },
-      {
-        path: "orders",
-        element: <SellerOrders></SellerOrders>
-      },
-      {
-        path: "returns",
-        element: <SellerReturnRequests></SellerReturnRequests>
-      },
-      {
-        path: "order/:id",
-        element: <SellerOrderDetails></SellerOrderDetails>
-      },
-      {
-        path: "settings",
-        element: <SellerAccount></SellerAccount>
-      }
-    ]
+      { index: true, element: <SellerDashboard /> },
+      { path: "products", element: <SellerProducts /> },
+      { path: "add-product", element: <AddNewProduct /> },
+      { path: "edit-product/:slug", element: <EditProduct /> },
+      { path: "product/:slug", element: <SellerSingleProduct /> },
+      { path: "orders", element: <SellerOrders /> },
+      { path: "order/:id", element: <SellerOrderDetails /> },
+      { path: "returns", element: <SellerReturnRequests /> },
+      { path: "settings", element: <SellerAccount /> },
+    ],
   },
 
   {
     path: "/admin",
     element: (
       <ProtectedRoutes>
-        <AdminLayout></AdminLayout>
+        <AdminLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        index: true,
-        element: <AdminDashboard></AdminDashboard>
-      },
-      {
-        path: "category",
-        element: <AdminCategory></AdminCategory>
-      },
-      {
-        path: "add-category",
-        element: <AddCategory></AddCategory>
-      },
-      {
-        path: "edit-category/:id",
-        element: < EditCategory ></EditCategory >
-      },
-      {
-        path: "sellers",
-        element: <AdminSellers></AdminSellers>
-      },
-      {
-        path: "seller/:id",
-        element: <SelectedSeller></SelectedSeller>
-      },
-      {
-        path: "banners",
-        element: <AdminBanners></AdminBanners>
-      },
-      {
-        path: "reports",
-        element: <AdminOrders></AdminOrders>
-      }
-    ]
+      { index: true, element: <AdminDashboard /> },
+      { path: "category", element: <AdminCategory /> },
+      { path: "add-category", element: <AddCategory /> },
+      { path: "edit-category/:id", element: <EditCategory /> },
+      { path: "sellers", element: <AdminSellers /> },
+      { path: "seller/:id", element: <SelectedSeller /> },
+      { path: "banners", element: <AdminBanners /> },
+      { path: "reports", element: <AdminOrders /> },
+    ],
   },
 
   {
     path: "/delivery",
     element: (
       <ProtectedRoutes>
-        <DeliveryLayout></DeliveryLayout>
+        <DeliveryLayout />
       </ProtectedRoutes>
     ),
     children: [
-      {
-        index: true,
-        element: <DeliveryDashboard></DeliveryDashboard>
-      },
-      {
-        path: "ongoing-orders",
-        element: <OngoingDeliveryOrders></OngoingDeliveryOrders>
-      },
-      {
-        path: "return-orders",
-        element: <DeliveryReturnOrders></DeliveryReturnOrders>
-      },
-      {
-        path: "all-orders",
-        element: <DeliveryAllOrders></DeliveryAllOrders>
-      }
-    ]
+      { index: true, element: <DeliveryDashboard /> },
+      { path: "ongoing-orders", element: <OngoingDeliveryOrders /> },
+      { path: "return-orders", element: <DeliveryReturnOrders /> },
+      { path: "all-orders", element: <DeliveryAllOrders /> },
+    ],
   },
-  {
-    path: "*",
-    element: <ErrorPage />
-  }
+
+  { path: "*", element: <ErrorPage /> },
 ])
 
 
+
+const queryClient = new QueryClient()
+
 function App() {
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    dispatch(checkAuth());
-  }, []);
+    dispatch(checkAuth())
+  }, [dispatch])
 
   return (
-    <>
-      <RouterProvider router={appRouter}></RouterProvider>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <Suspense
+        fallback={<div className="w-screen h-screen flex justify-center items-center"><Loader2></Loader2></div>}
+      >
+        <RouterProvider router={appRouter} />
+      </Suspense>
+    </QueryClientProvider>
   )
 }
 
 export default App
 
 
-//uske bad notifications websocketets banana hai
-// uske bad AI
-//CANCEL order ki button banegi jab order shipped nahi hua hoga tab visible hogi
-//one star wale review product admin dekhega

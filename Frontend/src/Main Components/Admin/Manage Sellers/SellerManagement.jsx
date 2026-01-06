@@ -4,33 +4,36 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Ban, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import useSellerChangeStatus from "@/Custom Hooks/useSellerChangeStatus";
-import { useDispatch } from "react-redux";
-import { updateSellerStatus } from "@/Redux/adminSlice";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { changeSellerStatusAPI } from "@/api/admin.api";
 
 const SellerManagement = ({ seller }) => {
     const [open, setOpen] = useState(false);
     const [actionType, setActionType] = useState(null);
     const [message, setMessage] = useState("");
-    const { changeSellerStatus, loading } = useSellerChangeStatus();
-
-    const dispatch = useDispatch()
 
     function handleOpen(type) {
         setActionType(type);
         setOpen(true);
     }
 
-    async function handleConfirm() {
-        try {
-            const updatedSeller = await changeSellerStatus(actionType, seller?._id, message);
-            dispatch(updateSellerStatus({ id: seller._id, status: updatedSeller?.status }))
-            setOpen(false);
-            setMessage("");
-        } catch (error) {
-            console.error(error);
+    const queryClient = useQueryClient()
+    const { mutate: changeStatus, isPending: loading } = useMutation({
+        mutationFn: changeSellerStatusAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["seller"] })
+            setOpen(false)
+            setMessage("")
+        },
+        onError: (error) => {
+            toast.error(error.response.data.message || "Something Went wrong on server")
         }
+    })
+
+    function handleConfirm() {
+        changeStatus({ sellerID: seller._id, newStatus: actionType, message })
     }
+
 
     async function handleDelete() {
         try {

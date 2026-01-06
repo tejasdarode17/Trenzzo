@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 
 const UserReturn = ({ item, order }) => {
@@ -12,6 +13,8 @@ const UserReturn = ({ item, order }) => {
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
+
+    const navigate = useNavigate()
 
     async function handelProductReturnRequest(e, item, order) {
         try {
@@ -22,9 +25,11 @@ const UserReturn = ({ item, order }) => {
                 { withCredentials: true }
             );
             setLoading(false)
-            console.log(response.data);
             setOpen(false)
             toast.success(response?.data?.message)
+            if (response?.data?.success) {
+                navigate("/orders")
+            }
         } catch (error) {
             setLoading(false)
             setOpen(false)

@@ -41,15 +41,23 @@ export async function registerUser(req, res) {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
+            secure: false, // true in production
             sameSite: "Lax",
-            path: "/"
-        })
+            path: "/",
+        });
+
+        const safeUser = {
+            _id: newUser._id,
+            username: newUser.username,
+            email: newUser.email,
+            role: newUser.role,
+            addresses: newUser.addresses,
+        };
 
         return res.status(200).json({
             success: true,
-            message: "User Logged in Success",
-            user: newUser
+            message: "User registered successfully",
+            user: safeUser
         })
 
     } catch (error) {
@@ -60,7 +68,6 @@ export async function registerUser(req, res) {
             error: error.message,
         });
     }
-
 }
 
 export async function loginUser(req, res) {
@@ -103,11 +110,29 @@ export async function loginUser(req, res) {
             path: "/"
         })
 
-        return res.status(200).json({
-            success: true,
-            message: "User Logged in Success",
-            user: user
-        })
+        if (user.role === "admin") {
+            return res.status(200).json({
+                success: true,
+                message: "User Logged in Success",
+                user: user
+            })
+        }
+
+        if (user.role === "user") {
+            const safeUser = {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                addresses: user.addresses
+            };
+
+            return res.status(200).json({
+                success: true,
+                message: "User Logged in Success",
+                user: safeUser
+            })
+        }
 
     } catch (error) {
         console.error(error);
@@ -118,7 +143,6 @@ export async function loginUser(req, res) {
         });
     }
 }
-
 
 //seller 
 export async function registerSeller(req, res) {
@@ -160,11 +184,21 @@ export async function registerSeller(req, res) {
             path: "/"
         })
 
+        const safeUser = {
+            _id: newSeller._id,
+            username: newSeller.username,
+            email: newSeller.email,
+            role: newSeller.role,
+            status: newSeller.status,
+            businessAddress: newSeller.businessAddress,
+            razorpayAccountId: newSeller.razorpayAccountId,
+            products: newSeller.products
+        };
 
         return res.status(200).json({
             success: true,
             message: "Seller Registred Successfully",
-            user: newSeller
+            user: safeUser
         })
 
 
@@ -191,7 +225,6 @@ export async function loginSeller(req, res) {
         }
 
         const seller = await Seller.findOne({ email })
-
         if (!seller) {
             return res.status(400).json({
                 success: false,
@@ -217,10 +250,21 @@ export async function loginSeller(req, res) {
             path: "/"
         })
 
+        const safeUser = {
+            _id: seller._id,
+            username: seller.username,
+            email: seller.email,
+            role: seller.role,
+            status: seller.status,
+            businessAddress: seller.businessAddress,
+            razorpayAccountId: seller.razorpayAccountId,
+            products: seller.products
+        };
+
         return res.status(200).json({
             success: true,
             message: "Seller loggedin Successfully",
-            user: seller
+            user: safeUser
         })
 
 
@@ -234,7 +278,6 @@ export async function loginSeller(req, res) {
     }
 
 }
-
 
 //delivery partner
 export async function registerDeliveryPartner(req, res) {
@@ -352,8 +395,6 @@ export async function loginDeliveryPartner(req, res) {
         });
     }
 }
-
-
 
 
 //logout this is common for all the users 

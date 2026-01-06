@@ -18,7 +18,6 @@ const Cart = () => {
   if (!cart?.items?.length) { return <EmptyCart></EmptyCart> }
 
   function placeOrder() {
-    dispatch(checkOut())
     navigate("/checkout")
   }
 
@@ -135,7 +134,7 @@ const Cart = () => {
                             <p className="text-gray-600 text-sm flex items-center gap-2">
                               Seller:
                               <span className="font-medium text-gray-800">
-                                {p?.product?.seller?.username || "Tejas Darode"}
+                                {p?.product?.seller?.username}
                               </span>
                             </p>
                             <Badge variant="secondary" className="bg-green-600 text-white px-2 py-1 text-xs">

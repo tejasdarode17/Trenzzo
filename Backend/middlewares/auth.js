@@ -17,7 +17,7 @@ export function verifyUser(req, res, next) {
             message: "User is not authenticated"
         })
     }
-
+    
     try {
         let decoded = JWT.verify(token, process.env.JWT_SECRET_KEY)
         req.user = decoded
@@ -31,24 +31,10 @@ export function verifyUser(req, res, next) {
     }
 }
 
-//middleware for checking the role of the user this is not using anywhere
-// export function verifyRole(requiredRole) {
-//     return (req, res, next) => {
-//         if (!req.user || req.user.role !== requiredRole) {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Access denied"
-//             });
-//         }
-//         next();
-//     };
-// }
-
 
 export async function checkAuth(req, res) {
     try {
         const authUser = req.user;
-
         if (!authUser) {
             return res.status(400).json({
                 success: false,

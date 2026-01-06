@@ -1,9 +1,10 @@
 import SellerSidebar from '@/Main Components/Seller/Seller Navigations/SellerSideBar'
-import { fetchAllCategories } from '@/Redux/categoriesSlice'
-import { fetchAllSellerOrders, fetchAllSellerProducts, fetchRecentSellerOrders, fetchSellerStats, } from '@/Redux/sellerSlice'
+import { addSellerNotification, addSellerReturnNotification, } from '@/Redux/sellerSlice'
+import { connectSocket } from '@/utils/socket'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
+
 
 const SellerLayout = () => {
 
@@ -11,19 +12,42 @@ const SellerLayout = () => {
     const dispatch = useDispatch();
     const { role } = userData
 
+    console.log(isAuthenticated, userData);
+
+    
+
 
     useEffect(() => {
-        if (isAuthenticated && role === "seller") {
-            dispatch(fetchAllSellerProducts({ category: "all", page: 1, status: "all" }));
-            dispatch(fetchAllSellerOrders({ range: "all", page: 1 }));
-            dispatch(fetchRecentSellerOrders());
-            dispatch(fetchSellerStats());
+        if (!isAuthenticated || role !== "seller" || !userData?._id) return;
+
+        const socket = connectSocket({ userId: userData._id, role: "seller", })
+
+        socket.on("new-order", (order) => {
+            console.log(order)
+            dispatch(addSellerNotification({
+                type: "NEW_ORDER",
+                order,
+                read: false,
+            }))
+        })
+
+        socket.on("new-return-order", (order) => {
+            console.log(order)
+            dispatch(addSellerReturnNotification({
+                type: "NEW_RETURN_ORDER",
+                order,
+                read: false,
+            }))
+        })
+
+        return () => {
+            socket.off("new-order");
+            socket.off("new-return-order");
         }
-    }, [isAuthenticated]);
 
-    useEffect(() => {
-        dispatch(fetchAllCategories())
-    }, [])
+    }, [isAuthenticated, role, userData?._id]);
+
+
 
     return (
         <div className="flex min-h-screen w-full">

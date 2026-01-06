@@ -1,26 +1,48 @@
-import { addToCartThunk, buyNowThunk } from "@/Redux/cartSlice";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, ShoppingCart, Zap, Truck, Calendar, FileText, User, ThumbsUp } from "lucide-react";
+import { addToCartThunk, buyNowThunk } from "@/Redux/cartSlice";
+import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, ShoppingCart, Zap, Truck, Calendar, FileText, ThumbsUp, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { fetchReviews } from "@/Redux/reviewSlice";
-import { fetchProductDetails } from "@/Redux/productsSlice";
 import { formatDate } from "@/utils/formatDate";
+import { useProductReviews } from "@/hooks/shopper/useProductReviews";
+import { useProductDetail } from "@/hooks/shopper/useProductDetail";
+import { useWishlist } from "@/hooks/shopper/useWishlist";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addProductToWishlist } from "@/api/shopper.api";
 
 const ProductDetails = () => {
-    const { product, productLoading } = useSelector((store) => store?.product);
     const [mainImage, setMainImage] = useState(null)
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { slug } = useParams()
 
-    useEffect(() => {
-        dispatch(fetchProductDetails({ slug }))
-    }, [slug])
+    const { data, isLoading: productLoading } = useProductDetail({ slug })
+    const product = data?.product
 
+    const { data: wishlist } = useWishlist()
+    const hasWishlisted = wishlist?.some((id) => id === product?._id)
+    const [isWishlisted, setIsWishlisted] = useState(hasWishlisted)
+
+    const queryClient = useQueryClient()
+
+    const { mutate: addToWishlist, isPending: wishlistAdding } = useMutation({
+        mutationFn: addProductToWishlist,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["wishlist"])
+            setIsWishlisted((prev) => !prev)
+        },
+        onError: (error) => {
+            console.log(error);
+            toast.error(error?.response?.data?.message || "Something went wrong on server")
+        }
+    })
+
+    function handleAddWishlist() {
+        addToWishlist({ productID: product?._id })
+    }
 
     useEffect(() => {
         setMainImage(product?.images?.[0]?.url)
@@ -55,7 +77,24 @@ const ProductDetails = () => {
         });
     };
 
-    if (productLoading) return <p className="p-6">Product not found</p>;
+
+    if (productLoading) {
+        return (
+            <div className="w-full h-screen flex justify-center items-center">
+                Product Not Found
+            </div>
+        )
+    }
+
+
+    // if (wishlistAdding) {
+    //     return (
+    //         <div className="w-full h-screen flex justify-center items-center">
+    //             <Loader2 className="animate-spin"></Loader2>
+    //         </div>
+    //     )
+    // }
+
 
     return (
         <div className="w-full bg-white">
@@ -112,8 +151,8 @@ const ProductDetails = () => {
                                     <Share2 className="w-3 h-3 mr-1" />
                                     Share
                                 </Button>
-                                <Button variant="outline" size="sm" className="flex-1 text-xs border-gray-300 hover:bg-gray-50">
-                                    <Heart className="w-3 h-3 mr-1" />
+                                <Button onClick={handleAddWishlist} variant="outline" size="sm" className="flex-1 text-xs border-gray-300 hover:bg-gray-50">
+                                    <Heart className={`w-3 h-3 mr-1 ${isWishlisted ? "text-red-500 fill-red-500" : ""}`} />
                                     Wishlist
                                 </Button>
                             </div>
@@ -286,17 +325,11 @@ const ProductDetails = () => {
 
 export const ProductReview = () => {
 
-    const { reviews, loading } = useSelector((store) => store?.review)
     const { slug } = useParams();
     const id = slug?.split("-").pop();
-    const dispatch = useDispatch()
 
-    useEffect(() => {
-        dispatch(fetchReviews({ productID: id }))
-    }, [id])
-
-    console.log(reviews);
-
+    const { data, } = useProductReviews({ productID: id })
+    const reviews = data?.reviews ?? []
 
     function calculateRatingStats() {
         if (!reviews || reviews.length === 0) return null;
@@ -310,16 +343,13 @@ export const ProductReview = () => {
         });
 
         return {
-            averageRating: averageRating.toFixed(1),
+            averageRating: averageRating?.toFixed(1),
             totalReviews,
             ratingDistribution
         };
     };
 
     const ratingStats = calculateRatingStats();
-
-
-
     return (
         <div className="border-gray-200">
             <div className="p-4">
@@ -481,18 +511,6 @@ export const ProductReview = () => {
         </div>
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 export default ProductDetails;

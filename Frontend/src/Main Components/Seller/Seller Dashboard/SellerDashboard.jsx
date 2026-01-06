@@ -1,34 +1,27 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { useSellerStats } from "@/hooks/seller/useSellerStats";
 
 
 export default function SellerDashboard() {
-    const seller = useSelector((s) => s.seller || {});
     const auth = useSelector((s) => s.auth || {});
 
-    const products = seller.products || {};
-    const revenue = seller.revenue || {};
-
     const username = auth.userData?.username || "Seller"
-    const statsLoading = !!revenue.statsLoading;
-    const totalRevenue = revenue.totalRevenue ?? 0;
-    const monthlyRevenue = revenue.monthlyRevenue ?? 0;
-    const yearlyRevenue = revenue.yearlyRevenue ?? 0;
+    const { data: stats, isLoading: statsLoading } = useSellerStats()
 
-    const totalProducts = products.totalProducts ?? products.total ?? 0;
-    const totalOrders = revenue.totalOrdersDelivered ?? 0
-
+    const totalRevenue = stats?.totalRevenue ?? 0;
+    const monthlyRevenue = stats?.monthRevenue ?? 0;
+    const totalOrders = stats?.totalOrders ?? 0
+    const totalProducts = stats?.totalProducts
 
     const navigate = useNavigate()
-
     const revenueTrend = useMemo(() => {
-        const breakdown = revenue.monthlyBreakdown || [];
+        const breakdown = stats?.monthlyBreakdown || [];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         return monthNames.map((name, index) => ({
@@ -36,7 +29,7 @@ export default function SellerDashboard() {
             revenue: breakdown[index] || 0
         }));
 
-    }, [revenue.monthlyBreakdown]);
+    }, [stats?.monthlyBreakdown]);
 
 
     return (
@@ -54,7 +47,7 @@ export default function SellerDashboard() {
 
             {/* top KPI row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
+                <Card className="pointer" onClick={() => navigate("/seller/products")}>
                     <CardContent>
                         <div className="text-sm text-slate-500">Products</div>
                         <div className="mt-2 flex items-baseline justify-between">
@@ -65,7 +58,7 @@ export default function SellerDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="pointer" onClick={() => navigate("/seller/orders")} >
                     <CardContent>
                         <div className="text-sm text-slate-500">Total Orders</div>
                         <div className="mt-2 flex items-baseline justify-between">

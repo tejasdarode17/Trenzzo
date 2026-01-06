@@ -3,12 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, MapPin } from "lucide-react";
-import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
 
 const AddressForm = ({ onSubmit, initialData = {}, loading, open, setOpen }) => {
-    const { userData } = useSelector((store) => store.auth);
 
     const [deliveryAddress, setDeliveryAddress] = useState({
         name: '',

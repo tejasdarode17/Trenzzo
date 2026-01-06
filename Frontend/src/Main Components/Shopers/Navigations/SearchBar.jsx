@@ -3,8 +3,6 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useDispatch } from "react-redux";
-import { fetchSearchProducts } from "@/Redux/productsSlice";
 import { useNavigate } from "react-router-dom";
 
 const SearchBar = () => {
@@ -12,7 +10,6 @@ const SearchBar = () => {
     const [userInput, setUserInput] = useState("");
     const [productsSuggesation, setProductsSuggesation] = useState([]);
 
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     async function fetchSearchSuggestion() {
@@ -42,10 +39,11 @@ const SearchBar = () => {
     function handleKeyDown(e) {
         if (e.key === "Enter") {
             e.preventDefault();
-            dispatch(fetchSearchProducts({ query: userInput }))
             navigate(`/products?search=${encodeURIComponent(userInput)}`,);
         }
     }
+
+
 
     return (
         <div className="relative flex-1" >
@@ -76,7 +74,6 @@ const SearchBar = () => {
                                             onMouseDown={() => {
                                                 setUserInput(p?.brand);
                                                 setSearchDropDown(false);
-                                                dispatch(fetchSearchProducts({ query: p?.brand }));
                                                 navigate(`/products?search=${encodeURIComponent(p?.brand)}`, { state: { userInput } })
                                             }}
                                             className={`p-2 text-sm cursor-pointer`}
@@ -88,7 +85,6 @@ const SearchBar = () => {
                                             onMouseDown={() => {
                                                 setUserInput(p?.name);
                                                 setSearchDropDown(false);
-                                                dispatch(fetchSearchProducts({ query: p?.name }));
                                                 navigate(`/products?search=${encodeURIComponent(p?.name)}`, { state: { userInput } })
                                             }}
                                             className={`p-2 text-sm cursor-pointer`}

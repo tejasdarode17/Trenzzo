@@ -3,30 +3,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatDate } from "@/utils/formatDate";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { fetchAllSellerOrders, setSellerSingleOrder } from "@/Redux/sellerSlice";
+import { markSellerNotificationsRead,  } from "@/Redux/sellerSlice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "lucide-react";
+import { useSellerOrders } from "@/hooks/seller/useSellerOrders";
 
 
 export default function SellerOrders() {
-    const { orders } = useSelector((store) => store.seller);
-    const [selectRange, setSelectRange] = useState("today")
+    const { notifications } = useSelector((store) => store.seller);
+    const [selectRange, setSelectRange] = useState()
     const [page, setPage] = useState(1);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const { data, isLoading: ordersLoading } = useSellerOrders({ range: selectRange, page })
+    const orders = data?.orders
+    const totalPages = data?.totalPages
+
     function orderDetails(order) {
-        dispatch(setSellerSingleOrder(order));
         navigate(`/seller/order/${order?._id}`);
     }
 
     useEffect(() => {
-        dispatch(fetchAllSellerOrders({ range: selectRange, page }));
-    }, [selectRange, page]);
-
+        dispatch(markSellerNotificationsRead())
+    }, [notifications?.data])
 
     function checkDeliveryStatusPerItem(order) {
         return order.items.every((i) => i.status === "delivered")
@@ -61,7 +64,7 @@ export default function SellerOrders() {
                 </div>
 
 
-                {orders?.orderLoading && (
+                {ordersLoading && (
                     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6">
                         <div className="max-w-6xl mx-auto">
                             <div className="animate-pulse space-y-4">
@@ -83,7 +86,7 @@ export default function SellerOrders() {
                 )}
 
                 {/* Orders List */}
-                {orders.length === 0 ? (
+                {orders?.length === 0 ? (
                     <div className="text-center py-16">
                         <div className="w-24 h-24 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                             <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,12 +95,12 @@ export default function SellerOrders() {
                         </div>
                         <p className="text-slate-500 text-lg font-medium">No orders found</p>
                         <p className="text-slate-400 text-sm mt-1">
-                            {searchTerm ? "Try adjusting your search terms" : "Orders will appear here once customers start purchasing"}
+                            {/* {searchTerm ? "Try adjusting your search terms" : "Orders will appear here once customers start purchasing"} */}
                         </p>
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {orders.allOrders.map((order) => (
+                        {(orders || []).map((order) => (
                             <Card
                                 key={order._id}
                                 className="
@@ -193,9 +196,8 @@ export default function SellerOrders() {
                     </div>
                 )}
 
-
                 {
-                    orders.totalPages > 1 && (
+                    totalPages > 1 && (
                         <div className="flex justify-center mt-8 gap-3">
                             <Button
                                 className="w-24"
@@ -213,7 +215,7 @@ export default function SellerOrders() {
                             <Button
                                 className="w-24"
                                 variant="outline"
-                                disabled={page === orders.totalPages}
+                                disabled={page === totalPages}
                                 onClick={() => setPage(prev => prev + 1)}
                             >
                                 Next

@@ -1,31 +1,27 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { deleteCarouselAPI } from "@/api/admin.api"
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { deleteCarousel } from "@/Redux/bannersSlice"
-import axios from "axios"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2, Trash } from "lucide-react"
 import { useState } from "react"
-import { useDispatch } from "react-redux"
 
 const DeleteCarousel = ({ carousel }) => {
-    const [loading, setLoading] = useState(false)
-    const [open, setOpen] = useState(false)
-    const id = carousel?._id
-    const dispatch = useDispatch()
-    async function handleDeleteCarousel() {
-        try {
-            setLoading(true)
-            setOpen(true)
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-carousel/${id}`, {
-                withCredentials: true,
-            });
-            dispatch(deleteCarousel({ id }))
+    const [open, setOpen] = useState(false) 
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteCarousel, isPending: loading, isError: error } = useMutation({
+        mutationFn: deleteCarouselAPI,
+        onSuccess: () => {
             setOpen(false)
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-            setOpen(false)
+            queryClient.invalidateQueries(["carousels"])
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message || "Something went wrong on server")
         }
+    })
+
+    function handleDeleteCarousel() {
+        deleteCarousel(carousel?._id)
     }
 
     return (

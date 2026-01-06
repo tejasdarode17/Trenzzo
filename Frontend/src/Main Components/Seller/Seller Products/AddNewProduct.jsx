@@ -1,27 +1,20 @@
-import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import ProductForm from './ProductForm'
-import { useDispatch } from 'react-redux'
-import { addProduct } from '@/Redux/sellerSlice'
-import useUploadImages from '@/Custom Hooks/useUploadImages'
 import { StepBack } from 'lucide-react'
+import { useSellerNewProduct } from '@/hooks/seller/useSellerNewProduct'
+
+const AddNewProduct = () => {
 
 
-export const AddNewProduct = () => {
+    
 
+    const { mutateAsync: addNewProduct, isPending: loading } = useSellerNewProduct()
     const navigate = useNavigate()
-    const dispatch = useDispatch()
-    const [loading, setLoading] = useState(false)
 
-    const { uploadImagesToServer } = useUploadImages()
-
-    async function handleSubmit(formData, setFormData, productImages, setProductImages) {
+    async function handleSubmit(formData, productImages,) {
         try {
-            setLoading(true)
-            const uploadedImages = await uploadImagesToServer(productImages);
-            const productData = {
+            const productFromData = {
                 name: formData.name,
                 price: Number(formData.price),
                 brand: formData.brand,
@@ -30,20 +23,13 @@ export const AddNewProduct = () => {
                 highlights: formData.highlights,
                 description: formData.description,
                 attributes: formData.attributes,
-                images: uploadedImages
             };
 
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/add-product`, productData, {
-                withCredentials: true,
-            });
-            dispatch(addProduct(response?.data?.product))
-            setFormData({ name: "", price: "", salePrice: "", brand: "", category: "", stock: "", description: "", });
-            setProductImages([])
+            await addNewProduct({ productFromData, productImages })
             navigate("/seller/products")
+
         } catch (err) {
             console.log(err);
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -57,8 +43,11 @@ export const AddNewProduct = () => {
             </div>
 
             <div className="bg-white p-6 rounded shadow-md">
-                <ProductForm onSubmit={handleSubmit} loading={loading} />
+                <ProductForm initialData={{}} onSubmit={handleSubmit} loading={loading} />
             </div>
         </div>
     );
 }
+
+
+export default AddNewProduct

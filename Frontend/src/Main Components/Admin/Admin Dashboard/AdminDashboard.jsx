@@ -1,12 +1,12 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, } from "recharts";
 import { formatDistanceToNowStrict } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAdminStats } from "@/api/admin.api";
 
 const sampleTopSellers = [
     { name: "alice", products: 42 },
@@ -16,18 +16,18 @@ const sampleTopSellers = [
     { name: "eve", products: 12 },
 ];
 
-
-
 export default function AdminDashboardCarded() {
+
     const navigate = useNavigate();
-    const { dashboardData } = useSelector((s) => s.admin || {});
 
-    // safe fallbacks
-    const totals = dashboardData?.totals || { all: 0, pending: 0 };
-    const recentSellers = dashboardData?.recentSellers || [];
+    const { data } = useQuery({
+        queryKey: ["adminStats"],
+        queryFn: fetchAdminStats
+    })
 
-    // chart data (prefer real if present)
-    const topSellers = dashboardData?.topSellers || sampleTopSellers;
+    const totals = data?.totals || { all: 0, pending: 0 };
+    const recentSellers = data?.recentSellers
+    const topSellers = data?.topSellers || sampleTopSellers;
 
     return (
         <div className="p-6 space-y-8">

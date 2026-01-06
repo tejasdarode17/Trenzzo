@@ -6,11 +6,12 @@ import { ArrowLeft } from "lucide-react"
 import { CheckCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import AddAddress from '../User Auth/AddAddress'
-import EditAddress from '../User Auth/EditAddress'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { clearCart, clearCheckOut } from '@/Redux/cartSlice'
+import { checkOut, clearCart, clearCheckOut } from '@/Redux/cartSlice'
+import AddAddress from '../Address/AddAddress'
+import EditAddress from '../Address/EditAddress'
+import { useAddresses } from '@/hooks/shopper/useAddresses'
 
 
 const CheckOut = () => {
@@ -21,6 +22,12 @@ const CheckOut = () => {
     const [visibleSection, setVisibleSection] = useState(selectedAddress ? "summary" : "address")
     const navigate = useNavigate()
     const dispatch = useDispatch()
+
+
+
+    useEffect(() => {
+        dispatch(checkOut())
+    }, [])
 
 
     useEffect(() => {
@@ -155,7 +162,9 @@ const CheckoutAddressSection = ({ visibleSection, setVisibleSection, selectedAdd
 
     const [addressFormVisible, setAddressFormVisible] = useState(false);
     const [editAddressFormVisible, setEditAddressFormVisible] = useState(false)
-    const { userAddresses } = useSelector((store) => store.auth)
+
+    const { data } = useAddresses()
+    const userAddresses = data?.addresses || []
     const hasAddresses = userAddresses?.length > 0;
 
     return (

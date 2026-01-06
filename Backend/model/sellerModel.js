@@ -53,6 +53,7 @@ const sellerSchema = new mongoose.Schema({
         enum: ["created", "active", "inactive", "suspended", "closed"],
         default: "created"
     },
+    
 }, { timestamps: true })
 
 

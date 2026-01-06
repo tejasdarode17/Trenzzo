@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Pencil, Plus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useSelector } from "react-redux";
 import DeleteCategory from "./DeleteCategory";
 import { useNavigate } from "react-router-dom";
+import { useCatogery } from "@/hooks/admin/useCategory";
 
 const AdminCategory = () => {
     const navigate = useNavigate()
@@ -19,9 +19,10 @@ const AdminCategory = () => {
     );
 };
 
+
 const CategoryList = () => {
-    const { categories, loading } = useSelector((store) => store.categories);
     const navigate = useNavigate()
+    const { data: categories, isLoading: loading } = useCatogery()
 
     return (
         <Card>

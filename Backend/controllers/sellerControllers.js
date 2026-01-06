@@ -14,6 +14,7 @@ export async function addProduct(req, res) {
 
     const { name, category, images, brand, highlights, description, stock, price, salePrice, attributes, } = req.body;
     const sellerID = req.user.id;
+    
     try {
         if (!name || !category || !brand || !description || stock == null || price == null) {
             return res.status(400).json({
@@ -460,8 +461,6 @@ export async function toggleProductStatus(req, res) {
     }
 }
 
-
-
 // --------Orders Apis----------------------------------
 export async function fetchSellerOrders(req, res) {
     try {
@@ -508,7 +507,6 @@ export async function fetchSellerOrders(req, res) {
             .limit(limit);
 
         let formattedOrders = orders.map(order => {
-
             const sellerItems = order.items.filter(it => it.seller.toString() === sellerID.toString());
             const sellerTotalAmount = sellerItems.reduce((sum, it) => sum + it.sellerAmount, 0);
             return {
@@ -522,7 +520,6 @@ export async function fetchSellerOrders(req, res) {
                 createdAt: order.createdAt,
                 updatedAt: order.updatedAt,
             }
-
         });
 
         if (search.trim()) {
@@ -546,6 +543,70 @@ export async function fetchSellerOrders(req, res) {
 
     } catch (error) {
         console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+export async function fetchSellerOrderDetails(req, res) {
+    try {
+
+        const orderID = req.params.id
+        const sellerID = req.user.id;
+
+        if (!sellerID) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized"
+            });
+        }
+
+        if (!orderID) {
+            return res.status(404).json({
+                success: false,
+                message: "Order ID is required"
+            });
+        }
+
+        const order = await Order.findById(orderID)
+            .populate("customer", "username email addresses email")
+            .populate("items.product", "name price images")
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        const sellerItems = order.items.filter(it => it.seller.toString() === sellerID.toString());
+        const sellerTotalAmount = sellerItems.reduce((sum, it) => sum + it.sellerAmount, 0);
+
+        const orderDetails = {
+            _id: order._id,
+            customer: order.customer,
+            items: sellerItems,
+            sellerTotalAmount,
+            paymentMode: order.paymentMode,
+            paymentStatus: order.paymentStatus,
+            address: order.address,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+        }
+
+
+        return res.status(200).json({
+            success: true,
+            order: orderDetails,
+            message: "Order Details Fetched"
+        });
+
+
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -616,9 +677,13 @@ export async function fetchSellerStats(req, res) {
             .populate("items.product", "name price")
             .sort({ createdAt: -1 });
 
+
+        const products = await Product.countDocuments()
+
         let totalRevenue = 0;
         let monthRevenue = 0;
         let yearRevenue = 0;
+        let sellerOrderCountDelivered = 0;
         let sellerOrderCount = 0;
 
         const now = new Date();
@@ -637,7 +702,8 @@ export async function fetchSellerStats(req, res) {
             const sellerItems = order.items.filter(it => it.seller.toString() === sellerID.toString());
             const validItems = sellerItems.filter(it => it.status !== "cancelled" && it.status !== "returned");
 
-            if (validItems.length > 0) sellerOrderCount++;
+            if (sellerItems) sellerOrderCount++
+            if (validItems.length > 0) sellerOrderCountDelivered++;
 
             const sellerTotal = validItems.reduce((sum, it) => sum + it.sellerAmount, 0);
 
@@ -665,9 +731,11 @@ export async function fetchSellerStats(req, res) {
             totalRevenue,
             monthRevenue,
             yearRevenue,
+            totalOrdersDelivered: sellerOrderCountDelivered,
             totalOrders: sellerOrderCount,
+            totalProducts: products,
             monthlyBreakdown
-        });
+        })
 
     } catch (error) {
         console.error(error);
@@ -1083,10 +1151,7 @@ export async function updateReturnStatusForSeller(req, res) {
 }
 
 // --------------------------------------------------------------------------
-
-
 //seller Account related Apis 
-
 export async function sellerChangePassword(req, res) {
 
     try {
@@ -1136,8 +1201,6 @@ export async function sellerChangePassword(req, res) {
         });
     }
 }
-
-
 
 export async function sellerPersonalInfoChange(req, res) {
 

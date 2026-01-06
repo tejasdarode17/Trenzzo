@@ -3,11 +3,10 @@ import axios from "axios";
 const useUploadImages = () => {
 
     async function uploadImagesToServer(files) {
-        const formData = new FormData();
 
-        files?.forEach((file) => {
-            formData?.append("images", file);
-        });
+        const formData = new FormData();
+        files?.forEach((file) => { formData?.append("images", file) })
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/upload-images`, formData,
                 {

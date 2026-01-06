@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { clearUser } from "@/Redux/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ChartNoAxesCombined, LayoutDashboard, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { clearAllProducts } from "@/Redux/sellerSlice";
 
 const SellerSidebar = () => {
 
@@ -59,12 +58,12 @@ const SideBarMenu = ({ setOpenSheet }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
+    const { notifications, returnNotification } = useSelector((store) => store.seller);
 
     async function handleLogout() {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, { withCredentials: true });
             dispatch(clearUser());
-            dispatch(clearAllProducts())
             navigate("/seller/auth/login");
         } catch (error) {
             console.log(error);
@@ -93,8 +92,20 @@ const SideBarMenu = ({ setOpenSheet }) => {
                     className={`flex items-center gap-3 w-full justify-start px-4 py-2 rounded-md text-sm font-medium transition-colors
                                 ${location.pathname === item.path ? "bg-blue-100 text-blue-700 hover:bg-blue-100" : "hover:bg-gray-100 text-gray-700"}`}
                 >
-                    {item.icon}
-                    {item.name}
+                    <div className="relative flex items-center gap-3">
+                        {item.icon}
+                        {item.name}
+                        {item.name === "Orders" && notifications.unreadCount > 0 && (
+                            <span className="w-4 h-4 absolute -top-1 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                                {notifications.unreadCount}
+                            </span>
+                        )}
+                        {item.name === "Return Requests" && returnNotification.unreadCount > 0 && (
+                            <span className="w-4 h-4 absolute -top-1 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                                {returnNotification.unreadCount}
+                            </span>
+                        )}
+                    </div>
                 </Button>
             ))}
 

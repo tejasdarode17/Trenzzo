@@ -1,26 +1,36 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/utils/formatDate";
-import { useNavigate } from "react-router-dom";
-import { CheckCircle, Circle, MapPin, CreditCard, Package, ShoppingBag, Calendar, Phone, ArrowRight, Copy, Star, ThumbsUp, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CheckCircle, Circle, MapPin, CreditCard, Package, ShoppingBag, Calendar, Phone, ArrowRight, Copy, Star, ThumbsUp, Trash, Loader2, Divide } from "lucide-react";
 import UserReturn from "./UserReturn";
-import { fetchUserReviews } from "@/Redux/userSlice";
 import UserReview from "./UserReview";
-import axios from "axios";
+import { useUserReviews } from "@/hooks/shopper/useUserReviews";
+import { useDeleteReview } from "@/hooks/shopper/useDeleteReviews";
+import { useUserOrderDetail } from "@/hooks/shopper/useUserOrderDetail";
 
 const OrderDetails = () => {
-    const { order, userReviews } = useSelector((store) => store.user);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [copied, setCopied] = useState(false);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        dispatch(fetchUserReviews())
-    }, [order, userReviews])
+    const { id: orderId } = useParams()
+    const { data: order, isLoading: orderDetailLoading, isError: orderDetailError } = useUserOrderDetail(orderId)
+
+    const { data, isLoading } = useUserReviews()
+    const userReviews = data?.reviews || [];
+    function checkReview(item) {
+        if (!userReviews) return false;
+        return userReviews.find((r) => r?.product._id?.toString() === item?.product._id?.toString()) || false;
+    }
+
+    const { mutate: deleteReview, isLoading: deleteReviewLoading } = useDeleteReview()
+    function handleReviewDelete(reviewID, productID) {
+        deleteReview({ reviewID, productID })
+    }
+
 
     const copyOrderId = () => {
         navigator.clipboard.writeText(order._id);
@@ -44,24 +54,6 @@ const OrderDetails = () => {
             current: step === currentStatus,
         }));
 
-    function checkReview(item) {
-        if (!userReviews) return false;
-        return userReviews.find((r) => r?.product._id?.toString() === item?.product._id?.toString()) || false;
-    }
-
-    async function deleteReview(id, productID) {
-        try {
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/product/delete/review/${id}`,
-                {
-                    data: { productID },
-                    withCredentials: true
-                }
-            );
-            console.log(response);
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     if (!order) return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -73,6 +65,15 @@ const OrderDetails = () => {
             </div>
         </div>
     )
+
+    if (orderDetailLoading) {
+        return (
+            <div className="w-full h-full flex justify-center items-center">
+                <Loader2 className="animate-spin"></Loader2>
+            </div>
+        )
+    }
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -400,7 +401,7 @@ const OrderDetails = () => {
                                                                     )}
                                                                 </div>
 
-                                                                <Button onClick={() => deleteReview(userReview._id, item.product._id)} variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50">
+                                                                <Button onClick={() => handleReviewDelete(userReview._id, item.product._id)} variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50">
                                                                     <Trash></Trash>
                                                                     Delete
                                                                 </Button>
@@ -423,6 +424,8 @@ const OrderDetails = () => {
                                                             <UserReview productID={item.product._id} />
                                                         </div>
                                                     )}
+
+                                                    {isLoading && <Loader2 className="animate-spin flex justify-center items-center" ></Loader2>}
                                                 </div>
                                             )
                                             }

@@ -1,32 +1,28 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { deleteBannerAPI } from "@/api/admin.api"
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { deleteBanner } from "@/Redux/bannersSlice"
-import axios from "axios"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2, Trash } from "lucide-react"
 import { useState } from "react"
-import { useDispatch } from "react-redux"
 
 const DeleteBanner = ({ banner }) => {
-    const [loading, setLoading] = useState(false)
-    const [open, setOpen] = useState(false)
 
-    const id = banner?._id
-    const dispatch = useDispatch()
-    async function handleDeleteBanner() {
-        try {
-            setLoading(true)
-            setOpen(true)
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-banner/${id}`, {
-                withCredentials: true,
-            });
-            dispatch(deleteBanner({ id }))
+    const [open, setOpen] = useState(false)
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteBanner, isPending: loading, isError: error } = useMutation({
+        mutationFn: deleteBannerAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["banners"])
             setOpen(false)
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-            setOpen(false)
+        },
+        onError: (error) => {
+            toast.error(error?.respone?.data?.message || "Somwthing went wrong on server")
         }
+    })
+
+    function handleDeleteBanner() {
+        deleteBanner(banner?._id)
     }
 
     return (

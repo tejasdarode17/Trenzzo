@@ -1,46 +1,49 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { FiMoreVertical, FiTrash2 } from "react-icons/fi";
-import axios from 'axios';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { Power } from "lucide-react";
 import { toast } from 'sonner';
-import { useDispatch, } from 'react-redux';
-import { deleteProduct, updateProductStatus } from '@/Redux/sellerSlice';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteProductAPI, toggleProductStatusAPI } from '@/api/seller.api';
 
 const ProductsActionButton = ({ product }) => {
 
-    const [isActive, setIsActive] = useState(product.active)
-    const dispatch = useDispatch()
+    const [isActive, setIsActive] = useState(product?.active)
 
-    async function toggleProductStatus(id, newStatus) {
-        setIsActive(newStatus);
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/active/product/${id}`, { newStatus }, {
-                withCredentials: true,
-            });
-            const data = response.data
-            console.log(data);
-            dispatch(updateProductStatus({ id, active: data.status }));
-        } catch (err) {
-            setIsActive(!newStatus)
-            toast.error("Failed to update product status");
-            console.error(err);
+    const queryClient = useQueryClient()
+    const { mutate: deleteProduct, isPending: deleteLoading } = useMutation({
+        mutationFn: deleteProductAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerProducts"])
+        },
+        onError: (err) => {
+            toast.error(err?.response?.data?.message || "Something went Wrong on the Server..!")
         }
+    })
+
+    function handleDeleteProduct(id) {
+        deleteProduct(id)
     }
 
-    async function handleDeleteProduct(id) {
+    const { mutateAsync: toggleProductStatus, } = useMutation({
+        mutationFn: toggleProductStatusAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["sellerProducts"])
+        },
+        onError: (err) => {
+            toast.error(err?.response?.data?.message || "Something went Wrong on the Server..!")
+        }
+    })
+
+    
+    async function handleToggleProductStatus(id, newStatus) {
+        setIsActive(newStatus);
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/delete/product/${id}`, {}, {
-                withCredentials: true,
-            });
-            const data = response.data
-            console.log(data);
-            dispatch(deleteProduct(id))
+            await toggleProductStatus({ id, newStatus })
         } catch (err) {
-            toast.error("Failed to Delete Product");
-            console.error(err);
+            setIsActive(!newStatus)
         }
     }
 
@@ -56,7 +59,6 @@ const ProductsActionButton = ({ product }) => {
                 <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                {/* Toggle Status */}
                 <DropdownMenuItem
                     className="justify-between"
                     onClick={(e) => e.preventDefault()}
@@ -68,18 +70,20 @@ const ProductsActionButton = ({ product }) => {
                     <Switch
                         checked={isActive}
                         onClick={(e) => e.stopPropagation()}
-                        onCheckedChange={() => toggleProductStatus(product._id, !isActive)}
+                        onCheckedChange={() => handleToggleProductStatus(product?._id, !isActive)}
                     />
                 </DropdownMenuItem>
 
-                {/* Delete Option */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    onClick={(e) => { e.preventDefault(), e.stopPropagation(), handleDeleteProduct(product._id) }}
-                    className="text-red-600 hover:bg-red-50 cursor-pointer"
-                >
-                    <FiTrash2 size={16} className="mr-2" />
-                    Delete
+                <DropdownMenuItem >
+                    <button
+                        disabled={deleteLoading}
+                        className='flex items-center text-red-600 hover:bg-red-50 cursor-pointer'
+                        onClick={(e) => { e.preventDefault(), e.stopPropagation(), handleDeleteProduct(product._id) }}
+                    >
+                        <FiTrash2 size={16} className="mr-2" />
+                        {deleteLoading ? "Deleting..." : "Delete"}
+                    </button>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -88,3 +92,5 @@ const ProductsActionButton = ({ product }) => {
 
 
 export default ProductsActionButton
+
+

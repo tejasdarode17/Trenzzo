@@ -6,6 +6,9 @@ import Review from "../model/reviewModel.js";
 import User from "../model/userModel.js";
 import bcrypt from "bcrypt"
 import { deleteImage } from "../utils/cloudinaryHandler.js";
+import { getIO } from "../socket/socket.js";
+
+//-------- Search and Product-----------
 
 export async function fetchSearchSuggestions(req, res) {
     try {
@@ -34,7 +37,7 @@ export async function fetchSearchSuggestions(req, res) {
 export async function fetchSearchProducts(req, res) {
     try {
         const { search, page = 1, sort = "relevance" } = req.query;
-        const limit = 5
+        const limit = 10
 
         if (!search) {
             return res.json({ success: false, products: [] });
@@ -93,52 +96,8 @@ export async function fetchSearchProducts(req, res) {
     }
 }
 
-export async function fetchProductDetails(req, res) {
-    try {
-        const userID = req?.user?.id
-        const slug = req.params.slug;
 
-        if (!userID) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized request"
-            });
-        }
-
-        if (!slug) {
-            return res.status(400).json({
-                success: false,
-                message: "Slug is required"
-            });
-        }
-
-        const product = await Product.findOne({ slug })
-            .populate("seller")
-            .populate("category");
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found"
-            });
-        }
-
-        return res.json({
-            success: true,
-            message: "Product details fetched",
-            product
-        });
-
-    } catch (error) {
-        console.log(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Server error",
-            error: error.message,
-        });
-    }
-}
+//------address----------------
 
 export async function addAddress(req, res) {
 
@@ -258,6 +217,36 @@ export async function editAddress(req, res) {
     }
 }
 
+export async function getUserAddresses(req, res) {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId)
+            .select("addresses")
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Addresses fetched successfully",
+            addresses: user.addresses || [],
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
+}
+
 
 // --------Cart and checkOut -----------------------------------
 
@@ -269,7 +258,7 @@ export async function addCart(req, res) {
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        const product = await Product.findById(productID);
+        const product = await Product.findById(productID).populate("seller", "username")
         if (!product) return res.status(404).json({ message: "Product not found" });
 
         if (product.stock <= 0) {
@@ -305,7 +294,14 @@ export async function addCart(req, res) {
         cart.totalAmmount = itemTotalAmmount + platformFees
 
         await cart.save()
-        const populatedCart = await cart.populate("items.product");
+        const populatedCart = await cart.populate({
+            path: "items.product",
+            populate: {
+                path: "seller",
+                select: "username businessAddress status",
+            },
+        });
+
 
         return res.status(200).json({
             success: true,
@@ -322,7 +318,6 @@ export async function addCart(req, res) {
     }
 }
 
-
 export async function decreaseCartQuantity(req, res) {
 
     try {
@@ -333,7 +328,7 @@ export async function decreaseCartQuantity(req, res) {
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const product = await Product.findById(productID);
-        if (!product) return res.status(404).json({ message: "Product not found" });
+        if (!product) return res.status(404).json({ message: "Product not found" }).populate("seller", "username")
 
         let cart = await Cart.findOne({ user: userId })
         if (!cart) return res.status(404).json({ message: "Cart Not found. Please add any item in cart" });
@@ -352,7 +347,14 @@ export async function decreaseCartQuantity(req, res) {
         cart.totalAmmount = itemTotalAmmount + cart.platformFees
 
         await cart.save()
-        const populatedCart = await cart.populate("items.product");
+        const populatedCart = await cart.populate({
+            path: "items.product",
+            populate: {
+                path: "seller",
+                select: "username businessAddress status",
+            },
+        });
+
 
         return res.status(200).json({
             success: true,
@@ -380,7 +382,7 @@ export async function removeItemFromCart(req, res) {
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const product = await Product.findById(productID);
-        if (!product) return res.status(404).json({ message: "Product not found" });
+        if (!product) return res.status(404).json({ message: "Product not found" }).populate("seller", "username")
 
         let cart = await Cart.findOne({ user: userId })
         if (!cart) return res.status(404).json({ message: "Cart Not found. Please add any item in cart" });
@@ -395,7 +397,14 @@ export async function removeItemFromCart(req, res) {
         cart.totalAmmount = itemTotalAmmount + cart.platformFees
 
         await cart.save()
-        const populatedCart = await cart.populate("items.product");
+
+        const populatedCart = await cart.populate({
+            path: "items.product",
+            populate: {
+                path: "seller",
+                select: "username businessAddress status",
+            },
+        });
 
         return res.status(200).json({
             success: true,
@@ -412,10 +421,6 @@ export async function removeItemFromCart(req, res) {
         });
     }
 }
-
-
-
-
 
 export async function deleteCart(req, res) {
     try {
@@ -453,7 +458,10 @@ export async function fetchCart(req, res) {
         const cart = await Cart.findOne({ user: userId })
             .populate({
                 path: "items.product",
-                options: { strictPopulate: false }
+                populate: {
+                    path: "seller",
+                    select: "username businessAddress status",
+                },
             });
 
         if (!cart) {
@@ -630,6 +638,8 @@ export async function buyNow(req, res) {
     }
 }
 
+
+//orders//
 export async function getAllOrders(req, res) {
     try {
         const userId = req.user.id;
@@ -676,6 +686,45 @@ export async function getAllOrders(req, res) {
     }
 }
 
+export async function getOrderDetail(req, res) {
+    try {
+        const userId = req.user.id;
+        const { orderId } = req.params;
+
+        const order = await Order.findById(orderId)
+            .populate("items.product")
+            .populate("items.seller", "username email")
+            .populate("customer");
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        // if (order.customer.toString() !== userId.toString()) {
+        //     return res.status(403).json({
+        //         success: false,
+        //         message: "Unauthorized access",
+        //     });
+        // }
+
+        res.status(200).json({
+            success: true,
+            order,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
+}
+
+
 
 // ---return and review  ----------------
 export async function userReturnRequest(req, res) {
@@ -693,6 +742,7 @@ export async function userReturnRequest(req, res) {
         }
 
         const item = order.items.find(i => i._id.toString() === itemId);
+        console.log(item.seller)
         if (!item) {
             return res.status(404).json({ success: false, message: "Order item not found" });
         }
@@ -719,6 +769,10 @@ export async function userReturnRequest(req, res) {
 
         item.returnStatus = "requested"
         await order.save();
+
+        //notification implimented here
+        const io = getIO()
+        io.to(`seller_${item.seller.toString()}`).emit("new-return-order", { returnReq });
 
         res.status(200).json({
             success: true,
@@ -869,9 +923,8 @@ export async function getUserReviews(req, res) {
     }
 }
 
+
 // ----password and personal information ------------------
-
-
 export async function userChangePassword(req, res) {
 
     try {
@@ -957,17 +1010,97 @@ export async function userPersonalInfoChange(req, res) {
 }
 
 
+//--------------wishlist ------------------
 
+export async function addProductToWishlist(req, res) {
+
+    try {
+        const { productID } = req.body
+        console.log(productID);
+
+        const userID = req.user.id
+
+        const user = await User.findById(userID)
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const product = await Product.exists({ _id: productID });
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        const exists = user.wishlist.some(id => id.toString() === productID)
+
+        if (exists) {
+            await User.findByIdAndUpdate(userID, { $pull: { wishlist: productID } })
+            return res.status(200).json({
+                success: true,
+                message: "Product removed from wishlist",
+            });
+        } else {
+            await User.findByIdAndUpdate(userID, { $addToSet: { wishlist: productID } })
+            return res.status(200).json({
+                success: true,
+                message: "Product Added to wishlist",
+            });
+        }
+
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+export async function fetchWishlist(req, res) {
+    try {
+        const userID = req.user.id;
+
+        const user = await User.findById(userID)
+            .select("wishlist")
+            .populate("wishlist");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Wishlist fetched successfully",
+            wishlist: user.wishlist
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+}
 
 
 // ------------------------------------------------------------------
 //this api used by seller as well as user 
 export async function fetchReviewsForProduct(req, res) {
     try {
-        const userID = req.user.id;
         const { productID } = req.query;
 
-        if (!userID || !productID) {
+        if (!productID) {
             return res.status(400).json({ success: false, message: "Something is missing" });
         }
 
@@ -986,3 +1119,45 @@ export async function fetchReviewsForProduct(req, res) {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 }
+
+export async function fetchProductDetails(req, res) {
+    try {
+
+        const slug = req?.params?.slug;
+
+        if (!slug) {
+            return res.status(400).json({
+                success: false,
+                message: "Slug is required"
+            });
+        }
+
+        const product = await Product?.findOne({ slug })
+            .populate("seller")
+            .populate("category");
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Product details fetched",
+            product
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+
+

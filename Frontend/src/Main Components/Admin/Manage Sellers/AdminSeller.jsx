@@ -1,33 +1,32 @@
-import { Input } from "@/components/ui/input"
-import { useDispatch, useSelector } from "react-redux"
-import SellersTable from "./SellersTable";
 import { useEffect, useState } from "react";
-import { fetchAllSellers } from "@/Redux/adminSlice";
 import { useSearchParams } from "react-router-dom";
+import { Input } from "@/components/ui/input"
+import SellersTable from "./SellersTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
+import { useSellers } from "@/hooks/admin/useSellers";
 
 const AdminSellers = () => {
 
-    const { sellersData } = useSelector((store) => store.admin)
     const [searchParams, setSearchParams] = useSearchParams();
     const defaultStatus = searchParams.get("status") || "all";
-    const [loading, setLoading] = useState(false)
-
     const [status, setStatus] = useState(defaultStatus);
     const [searchText, setSearchText] = useState("");
+    const [debounceSearch, setDebounceSearch] = useState("")
     const [page, setPage] = useState(1);
 
-    const dispatch = useDispatch();
 
     useEffect(() => {
-        setLoading(true);
-        const delay = setTimeout(() => {
-            dispatch(fetchAllSellers({ status, page, search: searchText }));
-            setLoading(false);
-        }, 600);
+        const timer = setTimeout(() => {
+            setDebounceSearch(searchText)
+            setPage(1)
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [searchText])
 
-        return () => clearTimeout(delay);
-    }, [searchText, status, page]);
+
+    const { data, isLoading: loading } = useSellers({ status, page, search: debounceSearch })
+    const sellers = data?.sellers
+    const pages = data?.pages
 
 
     return (
@@ -57,10 +56,10 @@ const AdminSellers = () => {
                 </div>
             </div>
             <SellersTable
-                sellers={sellersData.sellers}
+                sellers={sellers}
                 loading={loading}
                 page={page}
-                pages={sellersData.pages}
+                pages={pages}
                 onPageChange={setPage}
             />
         </div>
