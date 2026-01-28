@@ -1,54 +1,79 @@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Link } from "react-router-dom";
-import ProductsActionButton from './ProductsActionButtons';
-
+import { useNavigate } from "react-router-dom";
+import ProductsActionButton from "./ProductsActionButtons";
+import SellerProductsTableShimmer from "./SellerProductsTableShimmer";
 
 const ProductsTable = ({ products, productsLoading }) => {
 
-    if (productsLoading) return <p>Loading...</p>;
+    const navigate = useNavigate()
+
+    if (productsLoading) {
+        return (
+            <SellerProductsTableShimmer></SellerProductsTableShimmer>
+        );
+    }
+
+    if (!products || products.length === 0) {
+        return (
+            <div className="p-6 text-sm text-gray-500 text-center">
+                No products found
+            </div>
+        );
+    }
 
     return (
         <>
-            {/* Table Header */}
-            <div className="grid grid-cols-7 font-semibold text-sm text-gray-500 bg-gray-100 px-6 py-3">
-                <span className="text-left">Product Name</span>
-                <span className="text-left">Image</span>
-                <span className="text-left">Category</span>
-                <span className="text-left">Stock</span>
-                <span className="text-left">Price</span>
-                <span className="text-left">Status</span>
-                <span className="text-center">Action</span>
-            </div>
+            {/* ================= Desktop / Tablet Table ================= */}
+            <div className="hidden md:block">
 
-            {/* Scrollable Body */}
-            <ScrollArea className="h-[600px]">
-                {(products || [])?.map((product) => (
-                    <Link to={`/seller/product/${product?.slug}`} key={product?._id}>
-                        <div className="grid grid-cols-7 items-center text-sm px-6 py-4 border-b hover:bg-gray-50 gap-2">
-                            {/* Product Name */}
-                            <span className="font-medium">{product?.name}</span>
+                {/* Header */}
+                <div className="grid grid-cols-7 font-semibold text-sm text-gray-500 bg-gray-100 px-6 py-3 border-b">
+                    <span>Product</span>
+                    <span>Image</span>
+                    <span>Category</span>
+                    <span>Stock</span>
+                    <span>Price</span>
+                    <span>Status</span>
+                    <span className="text-center">Action</span>
+                </div>
+
+                {/* Body */}
+                <ScrollArea className="h-[600px]">
+                    {products.map((product) => (
+                        <div
+                            onClick={() => navigate(`/seller/product/${product?.slug}`)}
+                            key={product?._id}
+                            className="grid grid-cols-7 items-center text-sm px-6 py-4 border-b hover:bg-gray-50 transition"
+                        >
+                            {/* Name */}
+                            <p className="font-medium text-gray-800 hover:underline">
+                                {product?.name}
+                            </p>
 
                             {/* Image */}
-                            <div className="flex">
+                            <div>
                                 <img
-                                    src={product?.images[0]?.url}
+                                    src={product?.images?.[0]?.url}
                                     alt={product?.name}
-                                    className="h-12 w-12 rounded object-cover"
+                                    className="h-12 w-12 rounded object-cover border"
                                 />
                             </div>
 
-
                             {/* Category */}
-                            <span className="text-gray-600">{product?.category?.name}</span>
+                            <span className="text-gray-600">
+                                {product?.category?.name || "—"}
+                            </span>
 
                             {/* Stock */}
-                            <span className={product.stock === 0 ? "text-red-500 font-medium" : product.stock <= 10 ? "text-yellow-500 font-medium" : "text-green-600 font-medium"}>
+                            <span className={product.stock === 0 ? "text-red-600 font-semibold" : product.stock <= 1 ? "text-yellow-600 font-semibold" : "text-green-600 font-semibold"}>
                                 {product.stock}
                             </span>
 
                             {/* Price */}
-                            <span className="text-gray-800 font-semibold">₹{product.price}</span>
+                            <span className="font-semibold text-gray-800">
+                                ₹{product.price}
+                            </span>
 
                             {/* Status */}
                             <span>
@@ -59,21 +84,79 @@ const ProductsTable = ({ products, productsLoading }) => {
                                 )}
                             </span>
 
-                            <div className="text-center cursor-pointer text-gray-600 hover:text-black">
+                            {/* Action */}
+                            <div
+                                className="text-center"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 <ProductsActionButton product={product} />
                             </div>
-
                         </div>
-                    </Link>
-                ))}
-            </ScrollArea>
+                    ))}
+                </ScrollArea >
+            </div >
+
+            {/* ================= Mobile Cards ================= */}
+            < div className="md:hidden space-y-3 p-3" >
+                {
+                    products.map((product) => (
+                        <div
+                            onClick={() => navigate(`/seller/product/${product?.slug}`)}
+                            key={product?._id}
+                            className="bg-white border rounded-lg p-3 flex gap-3 shadow-sm"
+                        >
+                            {/* Image */}
+                            <img
+                                src={product?.images?.[0]?.url}
+                                alt={product?.name}
+                                className="h-16 w-16 rounded object-cover border"
+                            />
+
+                            {/* Info */}
+                            <div className="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-800 text-sm leading-tight">
+                                        {product?.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {product?.category?.name || "Uncategorized"}
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center justify-between mt-2">
+                                    <div className="flex flex-col text-xs">
+                                        <span className="font-semibold text-gray-800">
+                                            ₹{product.price}
+                                        </span>
+
+                                        <span className={product.stock === 0 ? "text-red-600 font-medium" : product.stock <= 10 ? "text-yellow-600 font-medium" : "text-green-600 font-medium"}>
+                                            Stock: {product.stock}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        {product.active ? (
+                                            <Badge className="bg-green-100 text-green-700 text-xs">
+                                                Active
+                                            </Badge>
+                                        ) : (
+                                            <Badge className="bg-red-100 text-red-700 text-xs">
+                                                Inactive
+                                            </Badge>
+                                        )}
+
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <ProductsActionButton product={product} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
         </>
     );
 };
 
-
-
-
 export default ProductsTable;
-
-

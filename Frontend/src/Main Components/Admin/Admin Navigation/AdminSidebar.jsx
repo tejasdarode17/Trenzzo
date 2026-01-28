@@ -1,14 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaBoxOpen, FaClipboardList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings, Settings2, Tag, Users, } from "lucide-react";
+import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings2, Tag, Users } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { clearUser } from "@/Redux/authSlice";
-
 
 const AdminSidebar = () => {
 
@@ -18,10 +16,10 @@ const AdminSidebar = () => {
     return (
         <>
             {/* Desktop Sidebar */}
-            <div className="hidden lg:flex flex-col w-64 min-h-screen bg-white text-gray-800 border-r border-gray-200 shadow-none">
+            <div className="hidden lg:flex flex-col w-64 min-h-full bg-white text-gray-800 border-r border-gray-200 shrink-0">
                 <div
                     onClick={() => navigate("/admin")}
-                    className="flex gap-2 items-center px-6 py-5 text-xl font-semibold border-b border-gray-100 cursor-pointer"
+                    className="flex gap-2 items-center px-6 py-5 text-lg font-semibold border-b border-gray-100 cursor-pointer"
                 >
                     <ChartNoAxesCombined className="text-blue-600" />
                     Admin Panel
@@ -29,24 +27,33 @@ const AdminSidebar = () => {
                 <SideBarMenu />
             </div>
 
-            {/* Mobile Sidebar (optional if used here) */}
-            <div className="lg:hidden">
+            {/* Mobile Sidebar Trigger */}
+            <div className="lg:hidden fixed top-3 left-1 z-50">
                 <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+
                     <SheetTrigger asChild>
-                        <Menu onClick={() => setOpenSheet(true)} />
+                        <Button variant="ghost" size="icon">
+                            <Menu className="w-5 h-5" />
+                        </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-64">
-                        <SheetHeader>
+
+                    <SheetContent side="left" className="w-64 p-0">
+                        <SheetHeader className="border-b p-4">
                             <SheetTitle
-                                onClick={() => navigate("/admin")}
-                                className="flex gap-2 items-center mt-2"
+                                onClick={() => {
+                                    navigate("/admin")
+                                    setOpenSheet(false)
+                                }}
+                                className="flex gap-2 items-center cursor-pointer"
                             >
                                 <ChartNoAxesCombined />
-                                Seller Panel
+                                Admin Panel
                             </SheetTitle>
                         </SheetHeader>
+
                         <SideBarMenu setOpenSheet={setOpenSheet} />
                     </SheetContent>
+
                 </Sheet>
             </div>
         </>
@@ -62,23 +69,25 @@ const SideBarMenu = ({ setOpenSheet }) => {
 
     async function handleLogout() {
         try {
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, { withCredentials: true });
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`,
+                {},
+                { withCredentials: true }
+            );
             dispatch(clearUser());
             navigate("/")
         } catch (error) {
-            console.log(error);
-            toast.error(error?.response?.data?.message);
+            toast.error(error?.response?.data?.message || "Logout failed");
         }
     }
 
     const items = [
-        { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/admin" },
-        { id: 4, name: "Reports", icon: <FileText />, path: "/admin/reports" },
-        { id: 6, name: "Sellers", icon: <Users />, path: "/admin/sellers" },
-        { id: 3, name: "Categories", icon: <Tag />, path: "/admin/category" },
-        { id: 7, name: "Banners", icon: <ImageIcon />, path: "/admin/banners" },
-        { id: 9, name: "Settings", icon: <Settings2 />, path: "/admin/settings" },
+        { id: 1, name: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin" },
+        // { id: 4, name: "Reports", icon: <FileText size={18} />, path: "/admin/reports" },
+        { id: 6, name: "Sellers", icon: <Users size={18} />, path: "/admin/sellers" },
+        { id: 3, name: "Categories", icon: <Tag size={18} />, path: "/admin/category" },
+        { id: 7, name: "Banners", icon: <ImageIcon size={18} />, path: "/admin/banners" },
     ];
+
     return (
         <div className="flex flex-col gap-1 px-2 py-4">
             {items.map((item) => (
@@ -89,25 +98,35 @@ const SideBarMenu = ({ setOpenSheet }) => {
                         if (setOpenSheet) setOpenSheet(false);
                     }}
                     variant="ghost"
-                    className={`flex items-center gap-3 w-full justify-start px-4 py-2 rounded-md text-sm font-medium transition-colors
-                                ${location.pathname === item.path ? "bg-blue-100 text-blue-700 hover:bg-blue-100" : "hover:bg-gray-100 text-gray-700"}`}
+                    className={`
+                        flex items-center gap-3 w-full justify-start 
+                        px-4 py-2 
+                        rounded-md 
+                        text-sm font-medium 
+                        transition-colors
+                        ${location.pathname === item.path
+                            ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
+                            : "hover:bg-gray-100 text-gray-700"
+                        }
+                    `}
                 >
                     {item.icon}
                     {item.name}
                 </Button>
             ))}
 
-            <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="flex items-center gap-3 w-full justify-start px-4 py-2 rounded-md text-sm font-medium text-red-500 hover:bg-red-50"
-            >
-                <LogOut />
-                Logout
-            </Button>
+            <div className="mt-2 border-t pt-2">
+                <Button
+                    onClick={handleLogout}
+                    variant="ghost"
+                    className="flex items-center gap-3 w-full justify-start px-4 py-2 rounded-md text-sm font-medium text-red-500 hover:bg-red-50"
+                >
+                    <LogOut size={18} />
+                    Logout
+                </Button>
+            </div>
         </div>
     );
 };
-
 
 export default AdminSidebar;

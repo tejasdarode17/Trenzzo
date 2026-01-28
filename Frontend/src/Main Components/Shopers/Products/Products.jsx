@@ -1,29 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/shopper/useProducts";
-import { ChevronLeft, ChevronRight, Loader2, Shield, Truck, } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import ProductCard from "./ProductsCard";
+import ProductSkeleton from "./ProductSkelton";
 
 const Products = () => {
-    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "relevance";
     const page = Number(searchParams.get("page") || 1);
 
-    const { data, isLoading } = useProducts({ search, sort, page, });
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="animate-spin"></Loader2>
-            </div>
-        );
-    }
+    const { data, isLoading } = useProducts({ search, sort, page });
 
     const products = data?.products || [];
-    const currentPage = data?.currentPage || 1;
     const totalPages = data?.totalPages || 1;
+    const skeletonCount = 8;
 
     function changePage(nextPage) {
         setSearchParams(prev => {
@@ -33,87 +26,58 @@ const Products = () => {
     }
 
     return (
-        <div className="p-5">
-            <p className="text-lg font-semibold mb-5">
-                Showing results for "{search}"
-            </p>
+        <div className="px-2 md:px-5 pb-4 mt-2">
+            {/* Heading */}
+            {search && (
+                <p className="text-sm md:text-lg font-semibold mb-3">
+                    Showing results for "{search}"
+                </p>
+            )}
 
-            {products?.map(product => (
-                <div
-                    key={product._id}
-                    onClick={() =>
-                        navigate(`/product/${product?.slug}`)
-                    }
-                    className="flex gap-4 p-4 border-b cursor-pointer hover:bg-gray-50"
-                >
-                    <img
-                        src={product?.images[0]?.url}
-                        alt={product?.name}
-                        className="w-40 h-40 object-contain"
-                    />
-
-                    <div className="flex-1">
-                        <div className="flex gap-2 mb-2">
-                            <span className="text-xs bg-gray-100 px-2 py-1">
-                                {product?.brand}
-                            </span>
-                            <span className="bg-green-600 text-white text-xs px-2 py-1 flex items-center gap-1">
-                                <Shield className="w-3 h-3" />
-                                Assured
-                            </span>
-                        </div>
-
-                        <h1 className="font-semibold text-lg">
-                            {product?.name}
-                        </h1>
-
-                        <div className="mt-2 text-sm">
-                            {product?.highlights?.map((h, i) => (
-                                <p key={i}>• {h}</p>
-                            ))}
-                        </div>
-
-                        <div className="mt-4 flex justify-between">
-                            <p className="text-2xl font-bold">
-                                ₹{product?.price?.toLocaleString("en-IN")}
-                            </p>
-                            <div className="flex items-center gap-1 text-green-600">
-                                <Truck className="w-4 h-4" />
-                                Free delivery
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ))}
-
-            {/* Pagination */}
-            <div className="flex justify-center mt-8 gap-2">
-                <Button
-                    disabled={page === 1}
-                    onClick={() => changePage(page - 1)}
-                    variant="outline"
-                >
-                    <ChevronLeft className="w-4 h-4" /> Prev
-                </Button>
-
-                {Array.from({ length: totalPages }).map((_, i) => (
-                    <Button
-                        key={i}
-                        variant={page === i + 1 ? "default" : "outline"}
-                        onClick={() => changePage(i + 1)}
-                    >
-                        {i + 1}
-                    </Button>
-                ))}
-
-                <Button
-                    disabled={page === totalPages}
-                    onClick={() => changePage(page + 1)}
-                    variant="outline"
-                >
-                    Next <ChevronRight className="w-4 h-4" />
-                </Button>
+            {/* Products Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-5">
+                {isLoading
+                    ? Array.from({ length: skeletonCount }).map((_, i) => (
+                        <ProductSkeleton key={i} />
+                    ))
+                    : products.map(product => (
+                        <ProductCard key={product._id} product={product} />
+                    ))}
             </div>
+
+            {/* Pagination (desktop + fallback mobile) */}
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-6 gap-1 flex-wrap">
+                    <Button
+                        disabled={page === 1}
+                        onClick={() => changePage(page - 1)}
+                        variant="outline"
+                        size="sm"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </Button>
+
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                        <Button
+                            key={i}
+                            size="sm"
+                            variant={page === i + 1 ? "default" : "outline"}
+                            onClick={() => changePage(i + 1)}
+                        >
+                            {i + 1}
+                        </Button>
+                    ))}
+
+                    <Button
+                        disabled={page === totalPages}
+                        onClick={() => changePage(page + 1)}
+                        variant="outline"
+                        size="sm"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };

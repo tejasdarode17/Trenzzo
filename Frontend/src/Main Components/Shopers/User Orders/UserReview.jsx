@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CloudUpload, Star } from "lucide-react";
 import useUploadImage from "@/hooks/image/useUploadImage";
 import { toast } from "sonner";
-import { usePostReview } from "@/hooks/shopper/userPostReview";
+import { usePostReview } from "@/hooks/shopper/usePostReview";
 
 
 const UserReview = ({ productID, }) => {

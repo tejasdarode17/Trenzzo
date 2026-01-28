@@ -31,3 +31,36 @@ isError: false,
 isSuccess: false,
 error: null,
 }
+
+401 = "I dont know who you are" use when token expires
+403 = "I know who you are but you can not access this"
+
+httpOnly : true, mean it can only be acces by http JS cannot read cookie Protects from XSS stealing tokens
+secure : true, mean it can be acces only by the https not by http
+path = "/" mean cooke is sent to every route /cart/orders/profile/auth/refresh/admin
+
+sameSite — 
+ “Who is allowed to send this cookie”
+This is about who is making the request
+Strict
+“Only my own site can send this cookie”
+If user clicks a link from:
+google.com → yoursite.com
+Cookie not sent
+Only works if user is already on your site.
+
+Lax (default behavior)
+“Allow normal navigation, block shady cross-site requests”
+Allows:
+Page reload
+Normal navigation
+Same-site API calls
+
+Blocks:
+iframe attacks
+hidden form submits
+CSRF tricks
+Best for most apps
+
+None
+“Any site can send this cookie”

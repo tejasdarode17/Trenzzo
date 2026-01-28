@@ -1,31 +1,30 @@
-import Footer from "@/Main Components/Shopers/Footer"
-import Navbar from "@/Main Components/Shopers/Navigations/Navbar"
-import { fetchCartThunk } from "@/Redux/cartSlice"
-import { useEffect } from "react"
-import { useDispatch } from "react-redux"
-import { Outlet, useLocation } from "react-router-dom"
+import Navbar from "@/Main Components/Shopers/Navigations/Navbar";
+import Footer from "@/Main Components/Shopers/Footer";
+import MobileBottomNav from "@/Main Components/Shopers/Navigations/MobileBottomNav";
+import { Outlet, useLocation } from "react-router-dom";
+import CartFooter from "@/Main Components/Shopers/Cart/CartFooter";
 
 const ShopersLayout = () => {
-
-    const location = useLocation()
-    const path = location.pathname
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(fetchCartThunk())
-    }, [])
-
-
+    const location = useLocation();
+    const path = location.pathname;
     return (
         <div className="min-h-screen flex flex-col bg-[#F1F3F6]">
             <Navbar />
-            <div className="flex-1">
+
+            {/* CONTENT */}
+            <div className="flex-1 w-full pb-16 md:pb-0">
                 <Outlet />
             </div>
-            {!path.startsWith("/cart") && <Footer />}
+
+            {/* DESKTOP FOOTER */}
+            <div className="hidden md:block">
+                {path.startsWith("/cart") ? <CartFooter /> : <Footer />}
+            </div>
+
+            {/* MOBILE BOTTOM NAV */}
+            <MobileBottomNav />
         </div>
+    );
+};
 
-    )
-}
-
-export default ShopersLayout
+export default ShopersLayout;

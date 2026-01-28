@@ -12,11 +12,6 @@ const SellerLayout = () => {
     const dispatch = useDispatch();
     const { role } = userData
 
-    console.log(isAuthenticated, userData);
-
-    
-
-
     useEffect(() => {
         if (!isAuthenticated || role !== "seller" || !userData?._id) return;
 
@@ -51,11 +46,11 @@ const SellerLayout = () => {
 
     return (
         <div className="flex min-h-screen w-full">
-            <div>
-                <SellerSidebar />
+            <div >
+                <SellerSidebar></SellerSidebar>
             </div>
-            <div className="flex-1 p-4 lg:p-10 overflow-x-hidden">
-                <Outlet />
+            <div className="flex-1 pl-6 py-6 lg:p-10 overflow-x-hidden">
+                <Outlet></Outlet>
             </div>
         </div>
     )

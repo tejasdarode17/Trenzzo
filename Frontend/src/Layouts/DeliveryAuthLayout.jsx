@@ -1,33 +1,28 @@
-import { Outlet } from "react-router-dom";
+import Logo from "@/Main Components/Other/Logo";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const DeliveryAuthLayout = () => {
+
+
     return (
-        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+        <div className="min-h-screen bg-white md:bg-gray-50 flex flex-col">
+            <main className="flex-1 flex items-center justify-center px-4">
+                <div className="w-full max-w-[420px]">
 
-            {/* Left Section */}
-            <div className="bg-blue-700 text-white p-10 flex flex-col justify-center items-start">
-                <h1 className="text-4xl font-bold mb-4">Shoply Delivery Partners</h1>
+                    <div className="flex justify-center pointer mb-4 md:mb-8">
+                        <Logo />
+                    </div>
 
-                <p className="text-lg">
-                    Join Shoply’s delivery network. Get orders fast, deliver efficiently,
-                    and earn more every day.
-                </p>
+                    <div className="w-full bg-white md:rounded-2xl md:shadow px-4 py-6 md:px-8 md:py-10">
+                        <Outlet />
+                    </div>
 
-                <ul className="mt-6 space-y-2 list-disc list-inside text-sm">
-                    <li>🚚 Accept deliveries instantly</li>
-                    <li>📍 Smart route optimization for quicker drops</li>
-                    <li>💰 Track daily earnings in real-time</li>
-                    <li>📦 Seamless pickup & delivery workflow</li>
-                </ul>
-            </div>
-
-            {/* Right Section – Authentication Forms */}
-            <div className="p-10 flex justify-center items-center">
-                <div className="w-full max-w-md">
-                    <Outlet />
                 </div>
-            </div>
+            </main>
 
+            <footer className="hidden md:block text-xs text-gray-400 text-center py-4">
+                © 2024 Trenzzo. All rights reserved.
+            </footer>
         </div>
     );
 };

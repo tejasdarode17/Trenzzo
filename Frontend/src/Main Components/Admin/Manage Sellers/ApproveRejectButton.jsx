@@ -30,7 +30,7 @@ export const ApproveRejectButton = ({ seller }) => {
     return (
         <DropdownMenu open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={loading}>
+                <Button variant="secondary" disabled={loading}>
                     <MoreHorizontal />
                 </Button>
             </DropdownMenuTrigger>

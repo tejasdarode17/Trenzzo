@@ -11,6 +11,7 @@ import UserReview from "./UserReview";
 import { useUserReviews } from "@/hooks/shopper/useUserReviews";
 import { useDeleteReview } from "@/hooks/shopper/useDeleteReviews";
 import { useUserOrderDetail } from "@/hooks/shopper/useUserOrderDetail";
+import OrderDetailsSkeleton from "./OrdersDetailsSkeleton";
 
 const OrderDetails = () => {
     const [copied, setCopied] = useState(false);
@@ -55,6 +56,14 @@ const OrderDetails = () => {
         }));
 
 
+
+    if (orderDetailLoading) {
+        return (
+            <OrderDetailsSkeleton></OrderDetailsSkeleton>
+        )
+    }
+
+
     if (!order) return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
             <div className="text-center p-8">
@@ -65,15 +74,6 @@ const OrderDetails = () => {
             </div>
         </div>
     )
-
-    if (orderDetailLoading) {
-        return (
-            <div className="w-full h-full flex justify-center items-center">
-                <Loader2 className="animate-spin"></Loader2>
-            </div>
-        )
-    }
-
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -347,7 +347,7 @@ const OrderDetails = () => {
                                             )}
 
 
-                                            {(item.status === "delivered" || item.status === "returned") && (
+                                            {(item?.status === "delivered" || item.status === "returned") && (
                                                 <div className="border-t border-gray-100 pt-4 mt-4">
                                                     <div className="flex items-center justify-between mb-3">
                                                         {userReview && (
@@ -401,7 +401,7 @@ const OrderDetails = () => {
                                                                     )}
                                                                 </div>
 
-                                                                <Button onClick={() => handleReviewDelete(userReview._id, item.product._id)} variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50">
+                                                                <Button disabled={orderDetailLoading} onClick={() => handleReviewDelete(userReview._id, item.product._id)} variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50">
                                                                     <Trash></Trash>
                                                                     Delete
                                                                 </Button>

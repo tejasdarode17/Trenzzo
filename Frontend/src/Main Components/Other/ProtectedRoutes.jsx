@@ -31,7 +31,7 @@ const ProtectedRoutes = ({ children }) => {
         }
     }
 
-    // if deliveryPartner is login and try to access the nay auth pages again
+    // if deliveryPartner is login and try to access the  auth pages again
     if (role === "deliveryPartner") {
         if (path.startsWith("/delivery/auth") || path.startsWith("/user/auth") || path.startsWith("/seller/auth") || path === "/") {
             return <Navigate to="/delivery" replace />;

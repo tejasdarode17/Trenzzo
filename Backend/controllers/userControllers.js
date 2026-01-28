@@ -7,9 +7,9 @@ import User from "../model/userModel.js";
 import bcrypt from "bcrypt"
 import { deleteImage } from "../utils/cloudinaryHandler.js";
 import { getIO } from "../socket/socket.js";
+import Checkout from "../model/checkoutModel.js";
 
 //-------- Search and Product-----------
-
 export async function fetchSearchSuggestions(req, res) {
     try {
         let search = req.query.search?.trim();
@@ -98,7 +98,6 @@ export async function fetchSearchProducts(req, res) {
 
 
 //------address----------------
-
 export async function addAddress(req, res) {
 
     try {
@@ -249,7 +248,6 @@ export async function getUserAddresses(req, res) {
 
 
 // --------Cart and checkOut -----------------------------------
-
 export async function addCart(req, res) {
     try {
         const userId = req.user.id
@@ -520,120 +518,135 @@ export async function fetchCart(req, res) {
     }
 }
 
-export async function checkOut(req, res) {
+export async function initCheckout(req, res) {
     try {
         const userId = req.user.id;
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        const { source, productID, quantity = 1, attributes = {} } = req.body;
 
-        const cart = await Cart.findOne({ user: userId }).populate("items.product");
-        if (!cart) return res.status(404).json({ message: "Cart not found" });
+        if (!["cart", "buy_now"].includes(source)) {
+            return res.status(400).json({ message: "Invalid checkout source" });
+        }
 
-        let hasIssues = false;
+        let items = [];
+        let itemTotal = 0;
+        let platformFees = 100;
 
-        cart.items.forEach(item => {
+        if (source === "cart") {
+            const cart = await Cart.findOne({ user: userId }).populate("items.product");
 
-            if (!item.product) {
-                item.unavailable = true;
-                item.stockIssue = false;
-                item.lockedPrice = null;
-                hasIssues = true;
-                return;
+            if (!cart || !cart.items.length) {
+                return res.status(400).json({ message: "Cart is empty" });
             }
 
-            if (item.product.stock < item.quantity) {
-                item.unavailable = true;
-                item.stockIssue = true;
-                item.lockedPrice = null;
-                hasIssues = true;
-                return;
+            for (const cartItem of cart.items) {
+                const product = cartItem.product;
+
+                if (!product || product.stock < cartItem.quantity) {
+                    return res.status(400).json({
+                        message: `Product ${product?.name || ""} is out of stock`,
+                    });
+                }
+
+                const lockedPrice = product.salePrice > 0 ? product.salePrice : product.price;
+
+                const subtotal = lockedPrice * cartItem.quantity;
+                itemTotal += subtotal;
+
+                items.push({
+                    product: product._id,
+                    seller: product.seller,
+                    quantity: cartItem.quantity,
+                    lockedPrice,
+                    subtotal,
+                    attributes: cartItem.attributes || {},
+                });
+            }
+        }
+
+        if (source === "buy_now") {
+            if (!productID) {
+                return res.status(400).json({ message: "Product ID required" });
             }
 
-            item.unavailable = false;
-            item.stockIssue = false;
+            const product = await Product.findById(productID);
 
-            const frozenPrice = item.product.salePrice > 0 ? item.product.salePrice : item.product.price;
-            item.lockedPrice = frozenPrice;
-        });
+            if (!product) {
+                return res.status(404).json({ message: "Product not found" });
+            }
 
-        await cart.save();
+            if (product.stock < quantity) {
+                return res.status(400).json({ message: "Product out of stock" });
+            }
 
-        if (hasIssues) {
-            return res.status(400).json({
-                success: false,
-                message: "Some items need your attention",
+            const lockedPrice = product.salePrice > 0 ? product.salePrice : product.price;
+
+            const subtotal = lockedPrice * quantity;
+            itemTotal = subtotal;
+
+            items.push({
+                product: product._id,
+                seller: product.seller,
+                quantity,
+                lockedPrice,
+                subtotal,
+                attributes,
             });
         }
 
-        let total = cart.items.reduce((sum, item) => sum + item.lockedPrice * item.quantity, 0);
-        cart.itemTotal = total
-
-        cart.platformFees = 100
-
-        const finalAmount = total + cart.platformFees
-        cart.totalAmmount = finalAmount
-        cart.finalPayable = finalAmount
-        await cart.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Checkout ready",
-            cart
+        const finalPayable = itemTotal + platformFees;
+        const checkout = await Checkout.create({
+            user: userId,
+            source,
+            items,
+            itemTotal,
+            platformFees,
+            finalPayable,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
         });
 
-    } catch (err) {
+        return res.status(201).json({
+            success: true,
+            message: "Checkout initialized",
+            checkout,
+        });
+
+
+    } catch (error) {
+        console.error("CHECKOUT INIT ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: "Server error",
-            error: err.message,
+            message: "Failed to initialize checkout",
         });
     }
 }
 
-export async function buyNow(req, res) {
+export async function fetchCheckout(req, res) {
     try {
-        const userId = req.user.id
-        const { productID, quantity = 1, attributes } = req.body
+        const userId = req.user.id;
 
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        const checkout = await Checkout.findOne({
+            user: userId,
+            status: "pending",
+            expiresAt: { $gt: new Date() },
+        }).populate("items.product").populate("items.seller");
 
-        const product = await Product.findById(productID);
-        if (!product) return res.status(404).json({ message: "Product not found" });
-
-        if (product.stock < quantity) {
-            return res.status(400).json({ message: "Product out of stock" })
+        if (!checkout) {
+            return res.status(404).json({
+                success: false,
+                message: "No active checkout found",
+            });
         }
-
-        const lockedPrice = product.salePrice > 0 ? product.salePrice : product.price;
-        const total = lockedPrice * quantity
-        let platformFees = 100
-        let finalPayable = total + platformFees
-
-        const buyNowItem = {
-            productID: product._id,
-            product,
-            name: product.name,
-            image: product.images[0]?.url,
-            brand: product.brand,
-            attributes,
-            itemTotal: lockedPrice,
-            platformFees,
-            quantity,
-            finalPayable
-        };
 
         return res.status(200).json({
             success: true,
-            message: "Buy now item ready",
-            item: buyNowItem,
+            checkout,
         });
 
     } catch (error) {
+        console.error(error);
         return res.status(500).json({
             success: false,
-            message: "Server error",
-            error: error.message,
+            message: "Failed to fetch checkout",
         });
     }
 }
@@ -723,7 +736,6 @@ export async function getOrderDetail(req, res) {
         });
     }
 }
-
 
 
 // ---return and review  ----------------

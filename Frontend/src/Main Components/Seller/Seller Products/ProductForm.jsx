@@ -8,7 +8,6 @@ import { CloudUpload, Loader2, X } from "lucide-react";
 import { useCatogery } from "@/hooks/admin/useCategory";
 
 function ProductForm({ initialData = {}, onSubmit, loading }) {
-    // const { categories } = useSelector((store) => store.categories);
     const isEditMode = Boolean(initialData?._id);
     const { data: categories, } = useCatogery()
 
@@ -190,7 +189,7 @@ function ProductForm({ initialData = {}, onSubmit, loading }) {
                 </label>
             </div>
 
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" variant="secondary" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin" /> : "Save Product"}
             </Button>
         </form>

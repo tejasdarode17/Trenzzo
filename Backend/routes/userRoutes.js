@@ -1,5 +1,5 @@
 import express from "express";
-import { addAddress, addCart, addProductReview, addProductToWishlist, buyNow, checkOut, decreaseCartQuantity, deleteCart, deleteReview, editAddress, fetchCart, fetchProductDetails, fetchReviewsForProduct, fetchSearchProducts, fetchSearchSuggestions, fetchWishlist, getAllOrders, getOrderDetail, getUserAddresses, getUserReviews, removeItemFromCart, userChangePassword, userPersonalInfoChange, userReturnRequest } from "../controllers/userControllers.js";
+import { addAddress, addCart, addProductReview, addProductToWishlist, decreaseCartQuantity, deleteCart, deleteReview, editAddress, fetchCart, fetchCheckout, fetchProductDetails, fetchReviewsForProduct, fetchSearchProducts, fetchSearchSuggestions, fetchWishlist, getAllOrders, getOrderDetail, getUserAddresses, getUserReviews, initCheckout, removeItemFromCart, userChangePassword, userPersonalInfoChange, userReturnRequest } from "../controllers/userControllers.js";
 import { verifyUser } from "../middlewares/auth.js"
 
 const route = express.Router()
@@ -16,9 +16,10 @@ route.post("/decrease-quantity", verifyUser, decreaseCartQuantity)
 route.post("/remove-cart", verifyUser, removeItemFromCart)
 route.delete("/delete-cart", verifyUser, deleteCart)
 
-route.post("/buy-now", verifyUser, buyNow)
 route.get("/cart", verifyUser, fetchCart)
-route.get("/checkout", verifyUser, checkOut)
+
+route.post("/checkout/init", verifyUser, initCheckout)
+route.get("/checkout", verifyUser, fetchCheckout)
 
 route.get("/orders", verifyUser, getAllOrders)
 route.get("/order/:orderId", verifyUser, getOrderDetail)

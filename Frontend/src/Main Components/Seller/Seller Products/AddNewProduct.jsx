@@ -7,7 +7,7 @@ import { useSellerNewProduct } from '@/hooks/seller/useSellerNewProduct'
 const AddNewProduct = () => {
 
 
-    
+
 
     const { mutateAsync: addNewProduct, isPending: loading } = useSellerNewProduct()
     const navigate = useNavigate()
@@ -36,9 +36,9 @@ const AddNewProduct = () => {
     return (
         <div className="p-6 min-h-screen">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-semibold text-gray-800">Add New Product</h1>
-                <Button onClick={() => navigate(-1)} variant="outline">
-                    <StepBack></StepBack>Back
+                <h1 className="text-xl font-semibold text-gray-800">Add New Product</h1>
+                <Button size="icon" onClick={() => navigate(-1)} variant="secondary">
+                    <StepBack></StepBack>
                 </Button>
             </div>
 

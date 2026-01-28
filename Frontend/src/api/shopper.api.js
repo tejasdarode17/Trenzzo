@@ -1,120 +1,158 @@
-import axios from "axios";
+import api from "@/api/axiosInstance";
 
-//products api
+
+// =========================
+// Products API
+// =========================
+
 export async function fetchProductsAPI({ search, page = 1, sort = "relevance" }) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/search`,
-        {
-            params: { search, page, sort, },
-            withCredentials: true
-        }
-    );
-    return response?.data
+    const response = await api.get("/search", {
+        params: { search, page, sort }
+    });
+    return response?.data;
 }
 
 
-//orders api
+// =========================
+// Orders API
+// =========================
+
 export async function fetchOrdersAPI({ search, page }) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/orders`,
-        {
-            params: { search, page },
-            withCredentials: true,
-        }
-    )
+    const response = await api.get("/orders", {
+        params: { search, page }
+    });
     return response?.data;
 }
 
 export async function fetchOrderDetailAPI(orderId) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/${orderId}`,
-        { withCredentials: true, }
-    )
+    const response = await api.get(`/order/${orderId}`);
     return response?.data?.order;
 }
 
-//address api
+
+// =========================
+// Address API
+// =========================
+
 export async function fetchAddresses() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/fetch-addresses`,
-        { withCredentials: true }
-    );
-    return response.data
+    const response = await api.get("/fetch-addresses");
+    return response?.data;
 }
 
 export async function addAddressAPI(deliveryAddress) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/address`, deliveryAddress, {
-        withCredentials: true,
-    });
-    return response.data
+    const response = await api.post("/address", deliveryAddress);
+    return response?.data;
 }
 
 export async function editAddressAPI({ deliveryAddress, id }) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/address/${id}`, deliveryAddress, {
-        withCredentials: true,
-    });
-    return response.data
+    const response = await api.post(`/address/${id}`, deliveryAddress);
+    return response?.data;
 }
 
 
-//review api
+// =========================
+// Review API
+// =========================
+
 export async function fetchUserReviewsAPI() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/fetch/user/reviews`,
-        { withCredentials: true }
-    );
-    return response.data
+    const response = await api.get("/fetch/user/reviews");
+    return response?.data;
 }
 
 export async function addReviewAPI(reviewData) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/product/review`, reviewData,
-        { withCredentials: true }
-    );
-    return response.data;
-};
+    const response = await api.post("/product/review", reviewData);
+    return response?.data;
+}
 
 export async function deleteReviewAPI({ reviewID, productID }) {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/product/delete/review/${reviewID}`,
-        {
-            data: { productID },
-            withCredentials: true
-        }
-    );
-    return response.data
+    const response = await api.delete(`/product/delete/review/${reviewID}`, {
+        data: { productID }
+    });
+    return response?.data;
 }
 
 
-//wishlist api
+// =========================
+// Wishlist API
+// =========================
+
 export async function fetchWishlistAPI() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/wishlist`,
-        { withCredentials: true }
-    );
-    console.log(response.data);
-    return response.data.wishlist
+    const response = await api.get("/wishlist");
+    return response?.data?.wishlist;
 }
 
 export async function addProductToWishlist({ productID }) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-wishlist`,
-        { productID },
-        { withCredentials: true }
-    );
-
-    console.log(response.data);
-    return response.data
+    const response = await api.post("/add-wishlist", { productID });
+    return response?.data;
 }
 
 
-//below apis are called by both shopper and seller
+// =========================
+// Cart API
+// =========================
+
+export async function fetchCartAPI() {
+    const response = await api.get("/cart");
+    return response?.data;
+}
+
+export async function addToCartAPI({ productID, quantity, attributes }) {
+    const response = await api.post(
+        "/add-cart",
+        { productID, quantity, attributes }
+    );
+    return response?.data;
+}
+
+export async function decreaseCartQuantityAPI({ productID, attributes }) {
+    const response = await api.post(
+        "/decrease-quantity",
+        { productID, attributes }
+    );
+    return response?.data;
+}
+
+export async function removeItemFromCartAPI({ productID, attributes }) {
+    const response = await api.post(
+        "/remove-cart",
+        { productID, attributes }
+    );
+    return response?.data;
+}
+
+export async function clearCartAPI() {
+    const response = await api.delete("/delete-cart");
+    return response?.data;
+}
+
+
+// =========================
+// Checkout API
+// =========================
+
+export async function initCheckoutAPI(payload) {
+    const response = await api.post("/checkout/init", payload);
+    return response?.data;
+}
+
+export async function checkOutAPI() {
+    const response = await api.get("/checkout");
+    return response?.data?.checkout;
+}
+
+
+// =========================
+// Shared APIs (User + Seller)
+// =========================
+
 export async function fetchProductReviewsAPI({ productID }) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/fetch/reviews`,
-        {
-            params: { productID },
-            withCredentials: true
-        })
-    return response.data
+    const response = await api.get("/fetch/reviews", {
+        params: { productID }
+    });
+    return response?.data;
 }
 
 export async function fetchProductDetails({ slug }) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/product-details/${slug}`,
-        { withCredentials: true }
-    );
-    return response?.data
+    const response = await api.get(`/product-details/${slug}`);
+    return response?.data;
 }
-
-
-

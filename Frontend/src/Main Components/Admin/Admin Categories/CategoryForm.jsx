@@ -124,7 +124,7 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
 
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary" 
                     size="sm"
                     onClick={addAttribute}
                     className="w-fit flex items-center gap-1"
@@ -166,7 +166,7 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
 
             {/* Submit Button */}
             <div className="flex justify-center">
-                <Button type="submit" variant="outline" disabled={loading}>
+                <Button type="submit" variant="secondary" disabled={loading}>
                     {loading ? <Loader2 className="animate-spin" /> : id ? "Update" : "Save"}
                 </Button>
             </div>

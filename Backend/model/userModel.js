@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
     },
 
     email: {
@@ -14,15 +13,24 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
 
-    phoneNumber: {
-        type: Number,
-        unique: true
+
+    isVerified: {
+        type: Boolean,
+        default: false,
     },
+
+    // "E11000 duplicate key error collection: ecom.users index: phoneNumber_1 dup key: { phoneNumber: null }"
+    //above error was coming cuz more than one user cant have the same phone number one already have null new user cannot have null phone number :)
+    //so i added sparse 
+    // phoneNumber: {
+    //     type: Number,
+    //     unique: true,
+    //     sparse: true,
+    // },
 
     password: {
         type: String,
         required: true,
-        unique: true
     },
 
     addresses: [

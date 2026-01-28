@@ -1,30 +1,33 @@
-
-import { Outlet } from "react-router-dom"
+import Logo from "@/Main Components/Other/Logo";
+import { Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
     return (
-        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+        <div className="min-h-screen bg-white md:bg-gray-50 flex flex-col">
 
-            <div className="bg-blue-600 text-white p-10 flex flex-col justify-center items-start">
-                <h1 className="text-4xl font-bold mb-4">Shoply</h1>
-                <p className="text-lg">
-                    Your personalized shopping experience. Discover products, track orders, and shop smarter with AI.
-                </p>
-                <ul className="mt-6 space-y-2 list-disc list-inside text-sm">
-                    <li>🔍 Smart product recommendations</li>
-                    <li>🧠 AI-generated summaries & reviews</li>
-                    <li>⚡ Real-time stock and updates</li>
-                </ul>
-            </div>
+            {/* Main */}
+            <main className="flex-1 flex items-center justify-center px-4">
+                <div className="w-full max-w-[420px]">
 
-            {/* Form Right */}
-            <div className="p-10 flex justify-center items-center">
-                <div className="w-full max-w-md">
-                    <Outlet />
+                    {/* Logo */}
+                    <div className="flex justify-center mb-2 md:mb-8">
+                        <Logo />
+                    </div>
+
+                    {/* Content wrapper */}
+                    <div className=" w-full bg-white md:rounded-2xl md:shadow px-4 py-6 md:px-8 md:py-10 ">
+                        <Outlet />
+                    </div>
+
                 </div>
-            </div>
-        </div>
-    )
-}
+            </main>
 
-export default AuthLayout
+            {/* Footer (desktop only) */}
+            <footer className="hidden md:block text-xs text-gray-400 text-center py-4">
+                © 2024 Trenzzo. All rights reserved.
+            </footer>
+        </div>
+    );
+};
+
+export default AuthLayout;

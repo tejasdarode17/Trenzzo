@@ -24,7 +24,9 @@ const SelectedSeller = () => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <h1 className="text-2xl font-bold text-slate-800">{seller.username}</h1>
-                    <SellerVerificationBadge seller={seller} />
+                    <div className="hidden sm:inline">
+                        <SellerVerificationBadge seller={seller} />
+                    </div>
                 </div>
 
                 <ApproveRejectButton seller={seller} />

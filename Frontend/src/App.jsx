@@ -1,12 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Suspense, lazy, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import ProtectedRoutes from "./Main Components/Other/ProtectedRoutes"
 import { checkAuth } from "./Redux/authSlice"
 import { Loader2 } from "lucide-react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import VerifyOtp from "./Main Components/Other/VerifyOtp"
+import ProtectedRoutes from "./Main Components/Other/ProtectedRoutes"
 
-//ALl layouts 
+//ALl layouts   
 const AuthLayout = lazy(() => import("./Layouts/AuthLayout"))
 const ShopersLayout = lazy(() => import("./Layouts/ShopersLayout"))
 const SellerAuthLayout = lazy(() => import("./Layouts/SellerAuthLayout"))
@@ -78,6 +79,7 @@ const appRouter = createBrowserRouter([
     children: [
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
+      { path: "verify-otp", element: <VerifyOtp /> }
     ],
   },
 
@@ -91,6 +93,8 @@ const appRouter = createBrowserRouter([
     children: [
       { path: "login", element: <SellerLogin /> },
       { path: "register", element: <SellerRegister /> },
+      { path: "verify-otp", element: <VerifyOtp /> }
+
     ],
   },
 
@@ -104,6 +108,7 @@ const appRouter = createBrowserRouter([
     children: [
       { path: "login", element: <DeliveryLogin /> },
       { path: "register", element: <DeliveryRegistration /> },
+      { path: "verify-otp", element: <VerifyOtp /> }
     ],
   },
 
@@ -195,6 +200,8 @@ const appRouter = createBrowserRouter([
 
 
 
+
+
 const queryClient = new QueryClient()
 
 function App() {
@@ -208,7 +215,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Suspense
-        fallback={<div className="w-screen h-screen flex justify-center items-center"><Loader2></Loader2></div>}
+        fallback={<div className="w-screen h-screen flex justify-center items-center"><Loader2 className="animate-spin text-red-500"></Loader2></div>}
       >
         <RouterProvider router={appRouter} />
       </Suspense>

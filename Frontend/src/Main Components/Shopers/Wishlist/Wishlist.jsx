@@ -1,61 +1,64 @@
 import { useWishlist } from "@/hooks/shopper/useWishlist"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, ShoppingCart, Trash2, ArrowRight, Star, Truck } from "lucide-react"
-import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
-import { addToCartThunk } from "@/Redux/cartSlice"
+import { Heart, Trash2, Star, Truck } from "lucide-react"
+import { useSelector } from "react-redux"
+import { Navigate, useNavigate } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { addProductToWishlist } from "@/api/shopper.api"
+import WishlistSkeleton from "./WishlistSkelton"
+import { useAddToCart } from "@/hooks/shopper/useAddToCart"
 
 const Wishlist = () => {
-    const { data: wishlist } = useWishlist()
-    const dispatch = useDispatch()
+
+    const { isAuthenticated } = useSelector((store) => store.auth)
+    const { data: wishlist = [], isLoading } = useWishlist()
+
     const navigate = useNavigate()
-
-    const handleAddToCart = (product) => {
-        dispatch(addToCartThunk({
-            productID: product._id,
-            quantity: 1,
-            attributes: product.attributes
-        }));
-        navigate("/cart");
-    }
-
-    const handleViewProduct = (product) => {
-        navigate(`/product/${product?.slug}`)
-    }
-
-
     const queryClient = useQueryClient()
-    const { mutate: addToWishlist, isPending: wishlistAdding } = useMutation({
+
+    const { mutate: removeFromWishlist } = useMutation({
         mutationFn: addProductToWishlist,
-        onSuccess: () => {
-            queryClient.invalidateQueries(["wishlist"])
-        },
-        onError: (error) => {
-            console.log(error);
-            toast.error(error?.response?.data?.message || "Something went wrong on server")
-        }
+        onSuccess: () => queryClient.invalidateQueries(["wishlist"]),
     })
 
-    function handleRemoveFromWishlist(product) {
-        addToWishlist({ productID: product?._id })
+
+    if (!isAuthenticated) {
+        return <Navigate to="/" replace></Navigate>
     }
 
-    if (wishlist?.length === 0) {
+
+
+    const { mutate: addToCart } = useAddToCart()
+    function handleAddTocart(product) {
+        addToCart({
+            productID: product._id,
+            quantity: 1,
+            attributes: product.attributes,
+        })
+        navigate("/cart")
+    }
+
+
+    const goToProduct = (slug) => navigate(`/product/${slug}`)
+
+    if (isLoading) return <WishlistSkeleton />
+
+    if (!wishlist.length) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
-                <div className="text-center max-w-md mx-auto p-8">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="text-center max-w-md">
                     <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Heart className="w-10 h-10 text-pink-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Wishlist is Empty</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                        Your Wishlist is Empty
+                    </h2>
                     <p className="text-gray-600 mb-6">
-                        Save items you love for later. Add items to your wishlist to see them here.
+                        Save items you love and find them here later.
                     </p>
                     <Button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate("/")}
                         className="bg-amber-500 hover:bg-amber-600 text-white"
                     >
                         Start Shopping
@@ -66,117 +69,118 @@ const Wishlist = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-6xl mx-auto px-4">
+        <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4">
                 {/* Header */}
-                <div className="mb-8 flex items-center gap-4">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Wishlist</h1>
+                <div className="mb-6">
+                    <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                        My Wishlist ({wishlist.length})
+                    </h1>
                 </div>
 
-                {/* Wishlist Items */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {wishlist?.map((product) => (
+                {/* Grid */}
+                <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                    {wishlist.map((product) => (
                         <div
                             key={product._id}
-                            className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+                            className="bg-white rounded-xl border hover:shadow-md transition flex flex-col overflow-hidden"
                         >
-                            {/* Product Image */}
+                            {/* Image */}
                             <div
-                                className="relative h-48 bg-gray-100 cursor-pointer"
-                                onClick={() => handleViewProduct(product)}
+                                className="relative aspect-square bg-gray-100 cursor-pointer"
+                                onClick={() => goToProduct(product.slug)}
                             >
                                 <img
-                                    src={product?.images?.[0]?.url}
+                                    src={product.images?.[0]?.url}
                                     alt={product.name}
-                                    className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                                    className="w-full h-full object-cover"
                                 />
-                                {/* Remove Button */}
+
                                 <button
+                                    aria-label="Remove from wishlist"
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        handleRemoveFromWishlist(product)
+                                        removeFromWishlist({ productID: product._id })
                                     }}
-                                    className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    className="absolute top-2 right-2 bg-white p-2 rounded-full shadow hover:text-red-600 focus:outline-none"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
-                                {/* Out of Stock Overlay */}
+
                                 {product.outOfStock && (
-                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                        <span className="text-white font-semibold bg-red-600 px-3 py-1 rounded text-sm">
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                        <span className="text-white text-sm font-semibold">
                                             Out of Stock
                                         </span>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Product Details */}
-                            <div className="p-4 space-y-3">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {/* Content */}
+                            <div className="p-3 sm:p-4 flex flex-col flex-1 space-y-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {product.brand && (
+                                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
                                             {product.brand}
                                         </span>
-                                        <Badge className="bg-green-600 text-white px-2 py-0 text-xs h-5">
-                                            Assured
-                                        </Badge>
-                                    </div>
-                                    <h3
-                                        className="font-semibold text-gray-900 text-sm line-clamp-2 hover:text-amber-600 transition-colors cursor-pointer"
-                                        onClick={() => handleViewProduct(product)}
-                                    >
-                                        {product.brand} {product.name} {product.attributes?.storage}
-                                    </h3>
+                                    )}
+                                    <Badge className="bg-green-600 text-white text-xs h-5">
+                                        Assured
+                                    </Badge>
                                 </div>
 
+                                <h3
+                                    className="text-sm font-semibold line-clamp-2 cursor-pointer hover:text-amber-600"
+                                    onClick={() => goToProduct(product.slug)}
+                                >
+                                    {product.brand} {product.name} {product.attributes?.storage}
+                                </h3>
+
                                 {/* Rating */}
-                                <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs">
+                                <div className="flex items-center gap-2 text-xs">
+                                    <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded">
                                         <Star className="w-3 h-3 fill-current" />
-                                        <span className="font-semibold">4.5</span>
+                                        4.5
                                     </div>
-                                    <span className="text-gray-500 text-xs">1,200 ratings</span>
+                                    <span className="text-gray-500">1,200 ratings</span>
                                 </div>
 
                                 {/* Price */}
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900">
-                                            ₹{product.price?.toLocaleString("en-IN")}
+                                <div>
+                                    <p className="text-base sm:text-lg font-bold">
+                                        ₹{product.price?.toLocaleString("en-IN")}
+                                    </p>
+                                    {product.salePrice > product.price && (
+                                        <p className="text-xs text-gray-500 line-through">
+                                            ₹{product.salePrice.toLocaleString("en-IN")}
                                         </p>
-                                        {product.salePrice > 0 && (
-                                            <p className="text-sm text-gray-500 line-through">
-                                                ₹{product.salePrice.toLocaleString("en-IN")}
-                                            </p>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
 
-                                {/* Delivery Info */}
+                                {/* Delivery */}
                                 <div className="flex items-center gap-2 text-xs text-green-600">
                                     <Truck className="w-3 h-3" />
-                                    <span>Free delivery</span>
+                                    Free delivery
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex gap-2 pt-2">
+                                {/* Actions */}
+                                <div className="mt-auto flex gap-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="flex-1 border-gray-300 hover:bg-gray-50"
-                                        onClick={() => handleViewProduct(product)}
+                                        className="flex-1"
+                                        onClick={() => goToProduct(product.slug)}
                                     >
-                                        <ArrowRight className="w-3 h-3 mr-1" />
                                         View
                                     </Button>
+
                                     <Button
                                         size="sm"
-                                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
-                                        onClick={() => handleAddToCart(product)}
+                                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-60"
                                         disabled={product.outOfStock}
+                                        onClick={() => handleAddTocart(product)}
                                     >
-                                        <ShoppingCart className="w-3 h-3 mr-1" />
-                                        Add to Cart
+                                        Add To Cart
                                     </Button>
                                 </div>
                             </div>

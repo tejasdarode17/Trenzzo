@@ -3,13 +3,14 @@ import dotenv from "dotenv"
 dotenv.config()
 
 
-export function genrateToken(payload) {
-
-    return JWT.sign(payload, process.env.JWT_SECRET_KEY, {
-        expiresIn: "1d"
-    })
-
+export function generateAccessToken(payload) {
+    return JWT.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "1m" });
 }
+
+export function generateRefreshToken(payload) {
+    return JWT.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "7d" });
+}
+
 
 export function verifyToken(payload) {
     try {

@@ -9,16 +9,9 @@ export const usePostReview = () => {
 
         mutationFn: addReviewAPI,
 
-        onMutate: async (newReview) => {
-            await queryClient.cancelQueries(["userReviews"]);
-            const previousReviews = queryClient.getQueryData(["userReviews"]);
-            queryClient.setQueriesData(["userReviews"], (old) => ({ ...old, userReviews: [newReview, ...(old?.userReviews || [])] }))
-            return { previousReviews };
-        },
-
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries(["userReviews"]);
-            toast.success("Review added successfully!");
+            // this function should be run in componentn not in hook 
             setRating(0);
             setReview("");
             setImage(null);

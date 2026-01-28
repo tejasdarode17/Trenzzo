@@ -1,15 +1,20 @@
-import Banners from './Banners/Banners';
-import Categories from './Categories/Categories';
+import Banners from "./Banners/Banners";
+import Categories from "./Categories/Categories";
 
 const Home = () => {
     return (
-        <div>
-            <Categories></Categories>
-            <Banners></Banners>
+        <div className="flex flex-col bg-white">
+            {/* HERO / BANNERS FIRST ON MOBILE */}
+            <section>
+                <Banners />
+            </section>
+
+            {/* CATEGORIES */}
+            <section className="mt-2 md:mt-6">
+                <Categories />
+            </section>
         </div>
-    )
+    );
+};
 
-}
-
-
-export default Home
+export default Home;

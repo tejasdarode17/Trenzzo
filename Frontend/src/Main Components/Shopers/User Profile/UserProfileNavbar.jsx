@@ -1,102 +1,108 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { User, MapPin, Package, Settings, LogOut, Shield, ChevronRight } from 'lucide-react'
-import React from 'react'
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { toast } from "sonner";
+import { clearUser } from "@/Redux/authSlice";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { User, MapPin, Settings, LogOut } from "lucide-react";
+import MobileUserProfileNavbar from "./MobileUserProfileNavbar";
 
 const UserProfileNavbar = () => {
-    const { userData } = useSelector((store) => store.auth)
-    const location = useLocation()
-    const navigate = useNavigate()
+    const { userData } = useSelector((s) => s.auth);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const navItems = [
-        {
-            id: 'personal',
-            label: 'Personal Information',
-            icon: <User className="w-5 h-5" />,
-            path: '/account'
-        },
-        {
-            id: 'address',
-            label: 'Manage Addresses',
-            icon: <MapPin className="w-5 h-5" />,
-            path: '/account/address'
-        },
-        {
-            id: 'orders',
-            label: 'My Orders',
-            icon: <Package className="w-5 h-5" />,
-            path: '/orders'
-        },
-        {
-            id: 'settings',
-            label: 'Account Settings',
-            icon: <Settings className="w-5 h-5" />,
-            path: '/account/settings'
+    async function handleLogout() {
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {},
+                { withCredentials: true }
+            );
+            dispatch(clearUser());
+            navigate("/");
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Logout failed");
         }
-    ]
+    }
 
     return (
-        <Card className="m-0 p-0 border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-50 to-white p-6 border-b border-gray-200">
-                <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
-                        <User className="w-8 h-8 text-amber-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-600">Hello,</p>
-                        <h3 className="font-semibold text-gray-900 text-lg">{userData?.username}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{userData?.email}</p>
-                    </div>
+        <Card className="border-gray-200 shadow-sm">
+            {/* USER INFO (desktop only) */}
+            <div className="hidden lg:flex items-center gap-4 p-5 border-b">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-amber-600" />
+                </div>
+
+                <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">
+                        {userData?.username}
+                    </p>
+                    <p className="text-sm text-gray-500 truncate">
+                        {userData?.email}
+                    </p>
                 </div>
             </div>
 
-            {/* Navigation Items */}
-            <CardContent className="p-4">
-                <div className="space-y-1">
-                    {navItems.map((item) => {
-                        const isActive = location.pathname === item.path
-                        return (
-                            <Button
-                                key={item.id}
-                                variant="ghost"
-                                onClick={() => navigate(item.path)}
-                                className={`w-full justify-between p-3 h-auto rounded-lg ${isActive
-                                    ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200'
-                                    : 'hover:bg-gray-50 text-gray-700'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-md ${isActive ? 'bg-amber-100' : 'bg-gray-100'}`}>
-                                        {/* {React.cloneElement(item.icon, {
-                                            className: isActive ? 'text-amber-600' : 'text-gray-500'
-                                        })} */}
-                                        {item?.icon}
-                                    </div>
-                                    <span className="font-medium">{item.label}</span>
-                                </div>
-                                <ChevronRight className={`w-4 h-4 ${isActive ? 'text-amber-600' : 'text-gray-400'}`} />
-                            </Button>
-                        )
-                    })}
-                </div>
+            {/* MOBILE NAV */}
+            <MobileUserProfileNavbar
+                userData={userData}
+                currentPath={location.pathname}
+                onNavigate={navigate}
+                onLogout={handleLogout}
+            />
 
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                    <Button
-                        variant="ghost"
-                        className="w-full justify-start p-3 h-auto text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => {
-                            console.log('Logging out...')
-                        }}
-                    >
-                        <LogOut className="w-5 h-5 mr-3" />
-                        Logout
-                    </Button>
-                </div>
-            </CardContent>
+            {/* DESKTOP NAV */}
+            <div className="hidden lg:block p-3 space-y-1">
+                <NavButton
+                    icon={User}
+                    label="Profile"
+                    path="/account"
+                    currentPath={location.pathname}
+                    onClick={() => navigate("/account")}
+                />
+
+                <NavButton
+                    icon={MapPin}
+                    label="Address"
+                    path="/account/address"
+                    currentPath={location.pathname}
+                    onClick={() => navigate("/account/address")}
+                />
+
+                <NavButton
+                    icon={Settings}
+                    label="Settings"
+                    path="/account/settings"
+                    currentPath={location.pathname}
+                    onClick={() => navigate("/account/settings")}
+                />
+
+                <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="w-full justify-start gap-3 rounded-lg text-red-600 hover:bg-red-50"
+                >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                </Button>
+            </div>
         </Card>
-    )
-}
+    );
+};
 
-export default UserProfileNavbar
+export default UserProfileNavbar;
+
+function NavButton({ icon: Icon, label, path, currentPath, onClick }) {
+    const active = currentPath === path;
+    return (
+        <Button
+            variant="ghost"
+            onClick={onClick}
+            className={`w-full justify-start gap-3 rounded-lg ${active ? "bg-amber-50 text-amber-700" : "text-gray-700 hover:bg-gray-50"}`}
+        >
+            <Icon className="w-5 h-5" />
+            {label}
+        </Button>
+    );
+}

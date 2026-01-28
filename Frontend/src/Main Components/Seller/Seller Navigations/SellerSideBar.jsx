@@ -10,17 +10,16 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const SellerSidebar = () => {
-
-    const [openSheet, setOpenSheet] = useState(false)
-    const navigate = useNavigate()
+    const [openSheet, setOpenSheet] = useState(false);
+    const navigate = useNavigate();
 
     return (
         <>
             {/* Desktop Sidebar */}
-            <div className="hidden lg:flex flex-col w-64 min-h-screen bg-white text-gray-800 border-r border-gray-200 shadow-none">
+            <div className="hidden lg:flex flex-col w-64 min-h-full bg-white text-gray-800 border-r border-gray-200 shrink-0">
                 <div
-                    onClick={() => navigate("/seller")}
-                    className="flex gap-2 items-center px-6 py-5 text-xl font-semibold border-b border-gray-100 cursor-pointer"
+                    onClick={() => navigate("/admin")}
+                    className="flex gap-2 items-center px-6 py-5 text-lg font-semibold border-b border-gray-100 cursor-pointer"
                 >
                     <ChartNoAxesCombined className="text-blue-600" />
                     Seller Panel
@@ -29,30 +28,37 @@ const SellerSidebar = () => {
             </div>
 
             {/* Mobile Sidebar */}
-            <div className="lg:hidden">
+            <div className="lg:hidden fixed top-3 left-1 z-50">
                 <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+
                     <SheetTrigger asChild>
-                        <Menu onClick={() => setOpenSheet(true)} />
+                        <Button variant="ghost" size="icon">
+                            <Menu className="w-5 h-5" />
+                        </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-64">
-                        <SheetHeader>
+
+                    <SheetContent side="left" className="w-64 p-0">
+                        <SheetHeader className="border-b p-4">
                             <SheetTitle
-                                onClick={() => navigate("/seller")}
-                                className="flex gap-2 items-center mt-2"
+                                onClick={() => {
+                                    navigate("/admin")
+                                    setOpenSheet(false)
+                                }}
+                                className="flex gap-2 items-center cursor-pointer"
                             >
                                 <ChartNoAxesCombined />
                                 Seller Panel
                             </SheetTitle>
                         </SheetHeader>
+
                         <SideBarMenu setOpenSheet={setOpenSheet} />
                     </SheetContent>
+
                 </Sheet>
             </div>
         </>
     );
 };
-
-
 
 const SideBarMenu = ({ setOpenSheet }) => {
     const navigate = useNavigate();
@@ -60,16 +66,16 @@ const SideBarMenu = ({ setOpenSheet }) => {
     const location = useLocation();
     const { notifications, returnNotification } = useSelector((store) => store.seller);
 
-    async function handleLogout() {
+    const handleLogout = async () => {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, { withCredentials: true });
             dispatch(clearUser());
             navigate("/seller/auth/login");
         } catch (error) {
             console.log(error);
-            toast.error(error?.response?.data?.message);
+            toast.error(error?.response?.data?.message || "Logout failed");
         }
-    }
+    };
 
     const items = [
         { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/seller" },
@@ -90,18 +96,20 @@ const SideBarMenu = ({ setOpenSheet }) => {
                     }}
                     variant="ghost"
                     className={`flex items-center gap-3 w-full justify-start px-4 py-2 rounded-md text-sm font-medium transition-colors
-                                ${location.pathname === item.path ? "bg-blue-100 text-blue-700 hover:bg-blue-100" : "hover:bg-gray-100 text-gray-700"}`}
+                      ${location.pathname === item.path ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100 text-gray-700"}`}
                 >
                     <div className="relative flex items-center gap-3">
                         {item.icon}
                         {item.name}
-                        {item.name === "Orders" && notifications.unreadCount > 0 && (
-                            <span className="w-4 h-4 absolute -top-1 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+
+                        {/* Notification Badges */}
+                        {(item.name === "Orders" && notifications?.unreadCount > 0) && (
+                            <span className="absolute -top-1 -right-6 w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full flex items-center justify-center">
                                 {notifications.unreadCount}
                             </span>
                         )}
-                        {item.name === "Return Requests" && returnNotification.unreadCount > 0 && (
-                            <span className="w-4 h-4 absolute -top-1 -right-6 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                        {(item.name === "Return Requests" && returnNotification?.unreadCount > 0) && (
+                            <span className="absolute -top-1 -right-6 w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full flex items-center justify-center">
                                 {returnNotification.unreadCount}
                             </span>
                         )}
@@ -120,6 +128,5 @@ const SideBarMenu = ({ setOpenSheet }) => {
         </div>
     );
 };
-
 
 export default SellerSidebar;

@@ -24,7 +24,7 @@ const AddCarousal = () => {
         }
     })
 
-
+    
     function handleSubmit({ carousalType, carouselImages }) {
         addCarousel({ carousalType, carouselImages })
     }

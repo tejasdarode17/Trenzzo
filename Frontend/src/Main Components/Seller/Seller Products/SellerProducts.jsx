@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSellerProduct } from "@/hooks/seller/useSellerProduct";
 import { useCatogery } from "@/hooks/admin/useCategory";
+import { Package2, Plus } from "lucide-react";
 
 const SellerProducts = () => {
     const { userData } = useSelector((store) => store.auth);
@@ -47,15 +48,21 @@ const SellerProducts = () => {
     }
 
     return (
-        <div className="w-full p-6 min-h-screen">
-            <div>
+        <div className="w-full px-4 py-6 min-h-screen">
 
-                <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                    <h1 className="text-2xl font-semibold text-gray-800">Products List</h1>
-                    <div className="flex gap-2">
-                        <Button onClick={() => navigate("/seller/add-product")} variant="outline">Add Product</Button>
+            <div>
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3"> 
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <Package2 className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-blue-700 bg-clip-text text-transparent">
+                            Products
+                        </h1>
                     </div>
+                    <Button size="sm" onClick={() => navigate("/seller/add-product")} variant="secondary">Add Product <Plus></Plus> </Button>
                 </div>
+
 
                 <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
                     <Input

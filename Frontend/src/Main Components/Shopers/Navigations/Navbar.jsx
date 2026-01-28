@@ -1,62 +1,81 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, ListOrdered, LogOut, ShoppingCart, User } from "lucide-react";
+import { Heart, ListOrdered, LogOut, ShoppingCart, User, Search, } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "@/Redux/authSlice";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import SearchBar from "./SearchBar";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import MobileSearchbar from "./MobileSearchbar";
+import DesktopSearchbar from "./DesktopSearchbar";
+import Logo from "@/Main Components/Other/Logo";
+import { useCart } from "@/hooks/shopper/useCart";
 
 function Navbar() {
 
   const { isAuthenticated } = useSelector((store) => store.auth);
-  const { cart } = useSelector((store) => store.cart);
+  const [openMobileSearch, setOpenMobileSearch] = useState(false);
+
+  const { data, isLoading } = useCart();
+  const cart = data?.cart;
+
 
   return (
-    <nav className="bg-[#ffff] shadow sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-5 py-5 flex justify-between items-center">
-        <div className="flex items-center gap-6 w-1/2">
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-indigo-600">
-            Trenzzo
-          </Link>
+    <>
+      <nav className="bg-white sticky top-0 z-50 border-b md:shadow">
+        <div className="w-full md:max-w-7xl md:mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
 
-          {/* Search */}
-          <SearchBar></SearchBar>
+          {/* LEFT — Brand */}
+          <Logo></Logo>
 
-        </div>
+          {/* CENTER — Desktop Search */}
+          <div className="hidden md:flex flex-1 px-6">
+            <DesktopSearchbar />
+          </div>
 
-        <div className="flex gap-6 text-gray-700 font-medium items-center">
-
-          <Link
-            to="/cart"
-            className="relative flex items-center gap-2 hover:text-indigo-600"
-          >
-            <div className="relative">
-              <ShoppingCart size={22} />
-
+          <div className="hidden md:flex gap-5 items-center">
+            <Link to="/cart" className="relative">
+              <ShoppingCart size={22} className="hover:text-amber-500" />
               {cart?.items?.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                  {cart?.items?.length}
+                  {cart.items.length}
                 </span>
               )}
-            </div>
-            <span className="capitalize font-medium">Cart</span>
-          </Link>
-
-          {isAuthenticated ? (
-            <DropDownMenu></DropDownMenu>
-          ) : (
-            <Link to="/user/auth/login" className="hover:text-indigo-600">
-              Login
             </Link>
-          )}
+
+            {/* AUTH */}
+            {
+              isAuthenticated ? (
+                <div className="flex gap-2">
+                  <DropDownMenu />
+                </div>
+              ) : (
+                <Link to="/user/auth/login" className="hover:text-amber-500">Login</Link>
+              )
+            }
+          </div>
+
+          {/* RIGHT — Mobile Search Only */}
+          <div className="flex items-center gap-4 text-gray-700">
+            <button
+              className="md:hidden"
+              onClick={() => setOpenMobileSearch(true)}
+            >
+              <Search size={22} />
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* MOBILE SEARCH OVERLAY */}
+      {openMobileSearch && (
+        <MobileSearchbar onClose={() => setOpenMobileSearch(false)} />
+      )}
+    </>
   );
 }
+
+
 
 
 const DropDownMenu = () => {
@@ -83,10 +102,18 @@ const DropDownMenu = () => {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 hover:text-indigo-600 cursor-pointer">
           <User size={22} />
-          <span>{userData?.username || "User"}</span>
+          <span >{userData?.username || "User"}</span>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 p-2" align="end">
+
+        <DropdownMenuLabel>
+          <div className="flex gap-2">
+            <User size={22} />
+            <span >{userData?.username || "User"}</span>
+          </div>
+        </DropdownMenuLabel>
+
         <DropdownMenuGroup>
           <DropdownMenuItem className="p-2" asChild>
             <Link to="/account" className="flex items-center gap-4">
@@ -117,3 +144,8 @@ const DropDownMenu = () => {
 }
 
 export default Navbar;
+
+
+
+
+

@@ -1,11 +1,11 @@
-import React from 'react'
+import React from "react";
 
 const CartFooter = () => {
     return (
-        <div className="w-full mt-30 bg-[#fff] py-10 text-center text-gray-500 text-sm">
+        <footer className="w-full border-t border-gray-200 bg-gray-50 px-4 py-4 text-center text-xs text-gray-500 lg:py-6 lg:text-sm">
             © 2025 Shopper’s Hub. All rights reserved.
-        </div>
-    )
-}
+        </footer>
+    );
+};
 
-export default CartFooter
+export default CartFooter;

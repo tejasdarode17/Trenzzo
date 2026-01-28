@@ -3,56 +3,63 @@ import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
 
 function Footer() {
   return (
-    <footer className="h-full bg-[#212121]">
-      <div className="max-w-7xl mx-auto px-5 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm text-gray-300">
+    <footer className="bg-[#212121] text-gray-300">
 
-        {/* Company Info */}
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Trenzzo</h3>
-          <p className="mb-3">
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-5 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+
+        {/* Brand */}
+        <div className="text-center md:text-left">
+          <h3 className="text-lg font-semibold text-white mb-2">Trenzzo</h3>
+
+          {/* Hide long description on mobile */}
+          <p className="hidden md:block text-gray-400">
             Your one-stop destination for shopping — fashion, electronics,
             mobiles, and more.
           </p>
-          <div className="flex gap-3 text-gray-400 hover:text-white">
-            <a href="#"><Facebook size={18} /></a>
-            <a href="#"><Instagram size={18} /></a>
-            <a href="#"><Twitter size={18} /></a>
-            <a href="#"><Linkedin size={18} /></a>
+
+          {/* Socials */}
+          <div className="flex justify-center md:justify-start gap-4 mt-4">
+            <a className="hover:text-white" href="#"><Facebook size={22} /></a>
+            <a className="hover:text-white" href="#"><Instagram size={22} /></a>
+            <a className="hover:text-white" href="#"><Twitter size={22} /></a>
+            <a className="hover:text-white" href="#"><Linkedin size={22} /></a>
           </div>
         </div>
 
         {/* Categories */}
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Categories</h3>
+        <div className="text-center md:text-left">
+          <h3 className="text-white font-semibold mb-3">Categories</h3>
           <ul className="space-y-2">
-            <li><Link to="/category/mobiles" className="hover:text-indigo-400">Mobiles & Tablets</Link></li>
-            <li><Link to="/category/fashion" className="hover:text-indigo-400">Fashion</Link></li>
-            <li><Link to="/category/electronics" className="hover:text-indigo-400">Electronics</Link></li>
-            <li><Link to="/category/home" className="hover:text-indigo-400">Home & Furniture</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/category/mobiles">Mobiles</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/category/fashion">Fashion</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/category/electronics">Electronics</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/category/home">Home</Link></li>
           </ul>
         </div>
 
         {/* Support */}
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Customer Service</h3>
+        <div className="text-center md:text-left">
+          <h3 className="text-white font-semibold mb-3">Support</h3>
           <ul className="space-y-2">
-            <li><Link to="/help" className="hover:text-indigo-400">Help Center</Link></li>
-            <li><Link to="/returns" className="hover:text-indigo-400">Returns & Refunds</Link></li>
-            <li><Link to="/shipping" className="hover:text-indigo-400">Shipping Policy</Link></li>
-            <li><Link to="/contact" className="hover:text-indigo-400">Contact Us</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/help">Help Center</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/returns">Returns</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/shipping">Shipping</Link></li>
+            <li><Link className="hover:text-indigo-400" to="/contact">Contact</Link></li>
           </ul>
         </div>
 
-        {/* Contact Info */}
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Get in Touch</h3>
+        {/* Contact – Desktop only */}
+        <div className="hidden md:block">
+          <h3 className="text-white font-semibold mb-3">Get in Touch</h3>
           <p>Email: <span className="text-indigo-400">support@trenzzo.com</span></p>
           <p>Phone: +91 98765 43210</p>
           <p>Address: Mumbai, India</p>
         </div>
       </div>
 
-      <div className="text-gray-400 text-center py-4 text-sm border-t border-gray-700">
+      {/* Bottom bar */}
+      <div className="border-t border-gray-700 py-4 text-center text-xs text-gray-400">
         © {new Date().getFullYear()} <span className="text-white">Trenzzo</span>. All rights reserved.
       </div>
     </footer>
@@ -60,4 +67,3 @@ function Footer() {
 }
 
 export default Footer;
-

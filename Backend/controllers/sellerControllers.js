@@ -14,7 +14,7 @@ export async function addProduct(req, res) {
 
     const { name, category, images, brand, highlights, description, stock, price, salePrice, attributes, } = req.body;
     const sellerID = req.user.id;
-    
+
     try {
         if (!name || !category || !brand || !description || stock == null || price == null) {
             return res.status(400).json({
@@ -678,7 +678,7 @@ export async function fetchSellerStats(req, res) {
             .sort({ createdAt: -1 });
 
 
-        const products = await Product.countDocuments()
+        const products = await Product.countDocuments({ seller: sellerID });
 
         let totalRevenue = 0;
         let monthRevenue = 0;

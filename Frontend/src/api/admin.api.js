@@ -1,34 +1,35 @@
 import useUploadImage from "@/hooks/image/useUploadImage";
 import useUploadImages from "@/hooks/image/useUploadImages";
-import axios from "axios";
+import api from "@/api/axiosInstance";
+
+const { uploadImageToServer } = useUploadImage();
+const { uploadImagesToServer } = useUploadImages();
 
 
-const { uploadImageToServer } = useUploadImage()
-const { uploadImagesToServer } = useUploadImages()
-
-//carousel API
+// =========================
+// Carousel API
+// =========================
 
 export async function addCarouselAPI({ carousalType, carouselImages }) {
-    const images = await uploadImagesToServer(carouselImages)
+    const images = await uploadImagesToServer(carouselImages);
+
     const payload = {
         title: carousalType,
-        images: images
-    }
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/add-carousel`, payload, {
-        withCredentials: true,
-    });
-    return response?.data
+        images
+    };
+
+    const response = await api.post("/admin/add-carousel", payload);
+    return response?.data;
 }
 
 export async function deleteCarouselAPI(id) {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-carousel/${id}`, {
-        withCredentials: true,
-    });
-    return response?.data
+    const response = await api.delete(`/admin/delete-carousel/${id}`);
+    return response?.data;
 }
 
 export async function editCarouselAPI({ carousalType, carouselImages, id }) {
-    let uploadedImages = []
+    let uploadedImages = [];
+
     const newFiles = carouselImages?.filter(img => img instanceof File);
     const existingImages = carouselImages?.filter(img => img.url);
 
@@ -42,64 +43,63 @@ export async function editCarouselAPI({ carousalType, carouselImages, id }) {
     const payload = {
         title: carousalType,
         images: uploadedImages
-    }
+    };
 
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/edit-carousel/${id}`, payload, {
-        withCredentials: true,
-    })
-
-    return response?.data
+    const response = await api.post(`/admin/edit-carousel/${id}`, payload);
+    return response?.data;
 }
 
 
-//banner API
+// =========================
+// Banner API
+// =========================
+
 export async function addBannerAPI(bannerFrom) {
     const uploadedImage = await uploadImageToServer(bannerFrom?.image);
+
     const payload = {
         type: bannerFrom.type,
         image: uploadedImage,
         link: bannerFrom.link,
-    }
-    const respone = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/add-banner`, payload, {
-        withCredentials: true,
-    })
-    return respone?.data
+    };
+
+    const response = await api.post("/admin/add-banner", payload);
+    return response?.data;
 }
 
 export async function deleteBannerAPI(id) {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-banner/${id}`, {
-        withCredentials: true,
-    });
-    return response?.data
+    const response = await api.delete(`/admin/delete-banner/${id}`);
+    return response?.data;
 }
 
 
-//category API
+// =========================
+// Category API
+// =========================
+
 export async function addCategoryAPI(formData) {
     const uploadedImage = await uploadImageToServer(formData.image);
+
     const payload = {
         name: formData.name,
         description: formData.description,
         image: uploadedImage,
         attributes: formData.attributes
     };
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/add-category`,
-        payload,
-        { withCredentials: true, }
-    )
-    return response?.data
+
+    const response = await api.post("/admin/add-category", payload);
+    return response?.data;
 }
 
 export async function deleteCategoryAPI(id) {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-category/${id}`, {
-        withCredentials: true,
-    });
-    return response?.data
+    const response = await api.delete(`/admin/delete-category/${id}`);
+    return response?.data;
 }
 
 export async function editCategoryAPI({ formData, id }) {
     let uploadedImage = formData.image;
-    if (formData.image && formData.image instanceof File) {
+
+    if (formData.image instanceof File) {
         uploadedImage = await uploadImageToServer(formData.image);
     }
 
@@ -108,72 +108,63 @@ export async function editCategoryAPI({ formData, id }) {
         description: formData.description,
         image: uploadedImage,
         attributes: formData.attributes
-    }
+    };
 
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/edit-category/${id}`, payload, {
-        withCredentials: true,
-    })
-
-    return response.data
+    const response = await api.post(`/admin/edit-category/${id}`, payload);
+    return response?.data;
 }
 
 
-//seller API
+// =========================
+// Seller API
+// =========================
+
 export async function fetchSellersAPI({ status = "all", page = 1, search = "" }) {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/sellers`,
-        {
-            params: { status, page, search },
-            withCredentials: true
-        }
-    );
-    console.log(response.data);
-    return response.data
+    const response = await api.get("/admin/sellers", {
+        params: { status, page, search }
+    });
+    return response?.data;
 }
 
 export async function fetchSellerAPI(id) {
-    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/seller/${id}`,
-        { withCredentials: true }
-    );
-    return res.data
+    const response = await api.get(`/admin/seller/${id}`);
+    return response?.data;
 }
 
 export async function changeSellerStatusAPI({ sellerID, newStatus, message }) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/status-seller/${sellerID}`, { newStatus, message }, {
-        withCredentials: true,
-    });
-    console.log(response.data);
-    return response?.data?.sellers
-}
-
-
-//Stat Dashboard API
-export async function fetchAdminStats() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/stats`,
-        { withCredentials: true }
+    const response = await api.post(
+        `/admin/status-seller/${sellerID}`,
+        { newStatus, message }
     );
-    return response.data
+    return response?.data?.sellers;
 }
 
 
+// =========================
+// Dashboard Stats API
+// =========================
 
-//below apis are fetched by admin and user 
+export async function fetchAdminStats() {
+    const response = await api.get("/admin/stats");
+    return response?.data;
+}
+
+
+// =========================
+// Public APIs (Admin + User)
+// =========================
+
 export async function fetchCarouselsAPI() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/carousels`, {
-        withCredentials: true,
-    });
-    return response?.data
+    const response = await api.get("/carousels");
+    return response?.data;
 }
 
 export async function fetchBannersAPI() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/banners`, {
-        withCredentials: true,
-    });
-    return response?.data
+    const response = await api.get("/banners");
+    return response?.data;
 }
 
 export async function fetchCategoriesAPI() {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/category`, {
-        withCredentials: true,
-    });
-    return response?.data?.categories
+    const response = await api.get("/admin/category");
+    return response?.data?.categories;
 }
