@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import AddAddress from '../Address/AddAddress'
 import EditAddress from '../Address/EditAddress'
 import { useAddresses } from '@/hooks/shopper/useAddresses'
-import { useCheckout } from '@/hooks/shopper/useCheckOut'
+import { useCheckout } from '@/hooks/shopper/useCheckout'
 
 const CheckOut = () => {
     const { isAuthenticated } = useSelector((store) => store.auth)
