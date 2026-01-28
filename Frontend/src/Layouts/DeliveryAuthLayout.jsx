@@ -1,4 +1,4 @@
-import Logo from "@/Main Components/Other/Logo";
+import Logo from "@/ui/Others/Logo";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const DeliveryAuthLayout = () => {

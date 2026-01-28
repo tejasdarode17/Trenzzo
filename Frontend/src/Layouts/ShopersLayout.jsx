@@ -1,8 +1,8 @@
-import Navbar from "@/Main Components/Shopers/Navigations/Navbar";
-import Footer from "@/Main Components/Shopers/Footer";
-import MobileBottomNav from "@/Main Components/Shopers/Navigations/MobileBottomNav";
+import Navbar from "@/ui/Shopers/Navigations/Navbar";
+import Footer from "@/ui/Shopers/Footer";
+import MobileBottomNav from "@/ui/Shopers/Navigations/MobileBottomNav";
 import { Outlet, useLocation } from "react-router-dom";
-import CartFooter from "@/Main Components/Shopers/Cart/CartFooter";
+import CartFooter from "@/ui/Shopers/Cart/CartFooter";
 
 const ShopersLayout = () => {
     const location = useLocation();

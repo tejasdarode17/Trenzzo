@@ -1,5 +1,5 @@
-import SellerSidebar from '@/Main Components/Seller/Seller Navigations/SellerSideBar'
-import { addSellerNotification, addSellerReturnNotification, } from '@/Redux/sellerSlice'
+import SellerSidebar from '@/ui/Seller/SellerNavigations/SellerSideBar'
+import { addSellerNotification, addSellerReturnNotification, } from '@/redux/sellerSlice'
 import { connectSocket } from '@/utils/socket'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

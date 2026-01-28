@@ -1,71 +1,71 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Suspense, lazy, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { checkAuth } from "./Redux/authSlice"
+import { checkAuth } from "./redux/authSlice"
 import { Loader2 } from "lucide-react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import VerifyOtp from "./Main Components/Other/VerifyOtp"
-import ProtectedRoutes from "./Main Components/Other/ProtectedRoutes"
+import VerifyOtp from "./ui/Others/VerifyOtp"
+import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
 
 //ALl layouts   
-const AuthLayout = lazy(() => import("./Layouts/AuthLayout"))
-const ShopersLayout = lazy(() => import("./Layouts/ShopersLayout"))
-const SellerAuthLayout = lazy(() => import("./Layouts/SellerAuthLayout"))
-const SellerLayout = lazy(() => import("./Layouts/SellerLayout"))
-const AdminLayout = lazy(() => import("./Layouts/AdminLayout"))
-const DeliveryAuthLayout = lazy(() => import("./Layouts/DeliveryAuthLayout"))
-const DeliveryLayout = lazy(() => import("./Layouts/DeliveryLayout"))
+const AuthLayout = lazy(() => import("./layouts/AuthLayout"))
+const ShopersLayout = lazy(() => import("./layouts/ShopersLayout"))
+const SellerAuthLayout = lazy(() => import("./layouts/SellerAuthLayout"))
+const SellerLayout = lazy(() => import("./layouts/SellerLayout"))
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"))
+const DeliveryAuthLayout = lazy(() => import("./layouts/DeliveryAuthLayout"))
+const DeliveryLayout = lazy(() => import("./layouts/DeliveryLayout"))
 
 //  Shopper Pages
-const Login = lazy(() => import("./Main Components/Shopers/User Auth/UserLogin"))
-const Register = lazy(() => import("./Main Components/Shopers/User Auth/UserRegister"))
-const Home = lazy(() => import("./Main Components/Shopers/Home"))
-const ProductsLayout = lazy(() => import("./Main Components/Shopers/Products/ProductsLayout"))
-const ProductDetails = lazy(() => import("./Main Components/Shopers/Products/ProductDetails"))
-const Cart = lazy(() => import("./Main Components/Shopers/Cart/Cart"))
-const CheckOut = lazy(() => import("./Main Components/Shopers/Cart/CheckOut"))
-const Orders = lazy(() => import("./Main Components/Shopers/User Orders/Orders"))
-const OrderDetails = lazy(() => import("./Main Components/Shopers/User Orders/OrderDetails"))
-const Wishlist = lazy(() => import("./Main Components/Shopers/Wishlist/Wishlist"))
+const Login = lazy(() => import("./ui/Shopers/UserAuth/UserLogin"))
+const Register = lazy(() => import("./ui/Shopers/UserAuth/UserRegister"))
+const Home = lazy(() => import("./ui/Shopers/Home"))
+const ProductsLayout = lazy(() => import("./ui/Shopers/Products/ProductsLayout"))
+const ProductDetails = lazy(() => import("./ui/Shopers/Products/ProductDetails"))
+const Cart = lazy(() => import("./ui/Shopers/Cart/Cart"))
+const CheckOut = lazy(() => import("./ui/Shopers/Cart/CheckOut"))
+const Orders = lazy(() => import("./ui/Shopers/UserOrders/Orders"))
+const OrderDetails = lazy(() => import("./ui/Shopers/UserOrders/OrderDetails"))
+const Wishlist = lazy(() => import("./ui/Shopers/Wishlist/Wishlist"))
 
 //  User Profile
-const UserProfileLayout = lazy(() => import("./Main Components/Shopers/User Profile/UserProfileLayout"))
-const UserProfilePersonalInformation = lazy(() => import("./Main Components/Shopers/User Profile/UserProfilePersonalInformation"))
-const UserAddress = lazy(() => import("./Main Components/Shopers/User Profile/UserAddress"))
-const AccountSettings = lazy(() => import("./Main Components/Shopers/User Profile/AccountSetting"))
+const UserProfileLayout = lazy(() => import("./ui/Shopers/UserProfile/UserProfileLayout"))
+const UserProfilePersonalInformation = lazy(() => import("./ui/Shopers/UserProfile/UserProfilePersonalInformation"))
+const UserAddress = lazy(() => import("./ui/Shopers/UserProfile/UserAddress"))
+const AccountSettings = lazy(() => import("./ui/Shopers/UserProfile/AccountSetting"))
 
 //  Seller Pages
-const SellerRegister = lazy(() => import("./Main Components/Seller/Seller Auth/SellerRegister"))
-const SellerLogin = lazy(() => import("./Main Components/Seller/Seller Auth/SellerLogin"))
-const SellerDashboard = lazy(() => import("./Main Components/Seller/Seller Dashboard/SellerDashboard"))
-const SellerProducts = lazy(() => import("./Main Components/Seller/Seller Products/SellerProducts"))
-const AddNewProduct = lazy(() => import("./Main Components/Seller/Seller Products/AddNewProduct"))
-const EditProduct = lazy(() => import("./Main Components/Seller/Seller Products/EditProduct"))
-const SellerSingleProduct = lazy(() => import("./Main Components/Seller/Seller Products/SellerSingleProduct"))
-const SellerOrders = lazy(() => import("./Main Components/Seller/Seller Orders/SellerOrders"))
-const SellerOrderDetails = lazy(() => import("./Main Components/Seller/Seller Orders/SellerOrderDetails"))
-const SellerReturnRequests = lazy(() => import("./Main Components/Seller/Seller Orders/SellerReturnRequests"))
-const SellerAccount = lazy(() => import("./Main Components/Seller/Seller Profile/SellerAccount"))
+const SellerRegister = lazy(() => import("./ui/Seller/SellerAuth/SellerRegister"))
+const SellerLogin = lazy(() => import("./ui/Seller/SellerAuth/SellerLogin"))
+const SellerDashboard = lazy(() => import("./ui/Seller/SellerDashboard/SellerDashboard"))
+const SellerProducts = lazy(() => import("./ui/Seller/SellerProducts/SellerProducts"))
+const AddNewProduct = lazy(() => import("./ui/Seller/SellerProducts/AddNewProduct"))
+const EditProduct = lazy(() => import("./ui/Seller/SellerProducts/EditProduct"))
+const SellerSingleProduct = lazy(() => import("./ui/Seller/SellerProducts/SellerSingleProduct"))
+const SellerOrders = lazy(() => import("./ui/Seller/SellerOrders/SellerOrders"))
+const SellerOrderDetails = lazy(() => import("./ui/Seller/SellerOrders/SellerOrderDetails"))
+const SellerReturnRequests = lazy(() => import("./ui/Seller/SellerOrders/SellerReturnRequests"))
+const SellerAccount = lazy(() => import("./ui/Seller/SellerProfile/SellerAccount"))
 
 //  Admin Pages
-const AdminDashboard = lazy(() => import("./Main Components/Admin/Admin Dashboard/AdminDashboard"))
-const AdminCategory = lazy(() => import("./Main Components/Admin/Admin Categories/AdminCategory"))
-const AddCategory = lazy(() => import("./Main Components/Admin/Admin Categories/AddCategory"))
-const EditCategory = lazy(() => import("./Main Components/Admin/Admin Categories/EditCategory"))
-const AdminSellers = lazy(() => import("./Main Components/Admin/Manage Sellers/AdminSeller"))
-const SelectedSeller = lazy(() => import("./Main Components/Admin/Manage Sellers/SelectedSeller"))
-const AdminBanners = lazy(() => import("./Main Components/Admin/Banners/AdminBanners"))
-const AdminOrders = lazy(() => import("./Main Components/Admin/Admin Orders/AdminOrders"))
+const AdminDashboard = lazy(() => import("./ui/Admin/AdminDashboard/AdminDashboard"))
+const AdminCategory = lazy(() => import("./ui/Admin/AdminCategories/AdminCategory"))
+const AddCategory = lazy(() => import("./ui/Admin/AdminCategories/AddCategory"))
+const EditCategory = lazy(() => import("./ui/Admin/AdminCategories/EditCategory"))
+const AdminSellers = lazy(() => import("./ui/Admin/ManageSellers/AdminSeller"))
+const SelectedSeller = lazy(() => import("./ui/Admin/ManageSellers/SelectedSeller"))
+const AdminBanners = lazy(() => import("./ui/Admin/Banners/AdminBanners"))
+const AdminOrders = lazy(() => import("./ui/Admin/AdminOrders/AdminOrders"))
 
 //  Delivery Pages
-const DeliveryLogin = lazy(() => import("./Main Components/DeliveryPartner/Delivery Auth/DeliveryLogin"))
-const DeliveryRegistration = lazy(() => import("./Main Components/DeliveryPartner/Delivery Auth/DeliveryRegistration"))
-const DeliveryDashboard = lazy(() => import("./Main Components/DeliveryPartner/DeliveryDashboard"))
-const OngoingDeliveryOrders = lazy(() => import("./Main Components/DeliveryPartner/OngoingDeliveryOrders"))
-const DeliveryReturnOrders = lazy(() => import("./Main Components/DeliveryPartner/DeliveryReturnOrders"))
-const DeliveryAllOrders = lazy(() => import("./Main Components/DeliveryPartner/DeliveryAllOrders"))
+const DeliveryLogin = lazy(() => import("./ui/DeliveryPartner/DeliveryAuth/DeliveryLogin"))
+const DeliveryRegistration = lazy(() => import("./ui/DeliveryPartner/DeliveryAuth/DeliveryRegistration"))
+const DeliveryDashboard = lazy(() => import("./ui/DeliveryPartner/DeliveryDashboard"))
+const OngoingDeliveryOrders = lazy(() => import("./ui/DeliveryPartner/OngoingDeliveryOrders"))
+const DeliveryReturnOrders = lazy(() => import("./ui/DeliveryPartner/DeliveryReturnOrders"))
+const DeliveryAllOrders = lazy(() => import("./ui/DeliveryPartner/DeliveryAllOrders"))
 
-const ErrorPage = lazy(() => import("./Main Components/Other/ErrorPage"))
+const ErrorPage = lazy(() => import("./ui/Others/ErrorPage"))
 
 
 const appRouter = createBrowserRouter([
