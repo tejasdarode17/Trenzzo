@@ -1,7 +1,7 @@
 import express from "express";
 
 
-import { loginDeliveryPartner, loginSeller, loginUser, logout, registerDeliveryPartner, registerSeller, registerUser, verifyEmailOtp, checkAuth, getRefreshToken, resendEmailOtp, } from "../../controllers/Auth Controllers/authControllers.js";
+import { loginDeliveryPartner, loginSeller, loginUser, logout, registerDeliveryPartner, registerSeller, registerUser, verifyEmailOtp, checkAuth, getRefreshToken, resendEmailOtp, } from "../controllers/authControllers.js";
 import { verifyUser } from "../../middlewares/auth.js";
 
 const route = express.Router()

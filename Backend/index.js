@@ -5,7 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dbConnect from "./config/dbconnect.js";
 import sellerRouter from "./routes/sellerRoutes.js"
-import authRouter from "./routes/Auth Routes/authRoutes.js"
+import authRouter from "./routes/authRoutes.js"
 import imageRouter from "./routes/imageRoutes.js"
 import adminRouter from "./routes/adminRoutes.js"
 import userRouter from "./routes/userRoutes.js"
