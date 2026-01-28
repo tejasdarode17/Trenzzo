@@ -3,7 +3,6 @@ import http from "http"
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dbConnect from "./config/dbconnect.js";
 import sellerRouter from "./routes/sellerRoutes.js"
 import authRouter from "./routes/authRoutes.js"
 import imageRouter from "./routes/imageRoutes.js"
@@ -13,13 +12,14 @@ import paymentRouter from "./routes/paymentRoutes.js"
 import deliveryRouter from "./routes/deliveryPartnerRoute.js"
 import cloudinaryConfig from "./config/cloudinary.js";
 import { initSocket } from "./socket/socket.js";
+import dbConnect from "./config/dbConnect.js"
 
 dotenv.config();
 const app = express();
 const server = http.createServer(app)
 const PORT = process.env.PORT || 5000;
 
-dbConnect();
+dbConnect()
 cloudinaryConfig()
 
 app.use(
