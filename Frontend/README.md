@@ -39,8 +39,8 @@ httpOnly : true, mean it can only be acces by http JS cannot read cookie Protect
 secure : true, mean it can be acces only by the https not by http
 path = "/" mean cooke is sent to every route /cart/orders/profile/auth/refresh/admin
 
-sameSite — 
- “Who is allowed to send this cookie”
+sameSite —
+“Who is allowed to send this cookie”
 This is about who is making the request
 Strict
 “Only my own site can send this cookie”
@@ -64,3 +64,6 @@ Best for most apps
 
 None
 “Any site can send this cookie”
+
+# VITE_BACKEND_URL=https://trenzzo.onrender.com/api/v1
+# VITE_SOCKET_URL=https://trenzzo.onrender.com

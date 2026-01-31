@@ -29,4 +29,7 @@ export function verifyUser(req, res, next) {
 
 
 
+//nodemailer ke jaga pe resend use karna hai
+
+
 
