@@ -90,16 +90,16 @@ export async function loginUser(req, res) {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 15,
             path: "/"
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             path: "/"
         });
@@ -219,16 +219,16 @@ export async function loginSeller(req, res) {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 15,
             path: "/"
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             path: "/"
         });
@@ -342,16 +342,16 @@ export async function loginDeliveryPartner(req, res) {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 15,
             path: "/"
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             path: "/"
         });
@@ -453,16 +453,16 @@ export async function verifyEmailOtp(req, res) {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 15,
             path: "/"
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             path: "/"
         });
@@ -601,15 +601,15 @@ export async function checkAuth(req, res) {
 export async function logout(req, res) {
     res.clearCookie("accessToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
+        secure: true,
+        sameSite: "none",
         path: "/"
     });
 
     res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
+        secure: true,
+        sameSite: "none",
         path: "/"
     });
     return res.status(200).json({ success: false, message: "Logged out successfully" });
@@ -631,8 +631,8 @@ export async function getRefreshToken(req, res) {
 
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 15,
             path: "/"
         });
