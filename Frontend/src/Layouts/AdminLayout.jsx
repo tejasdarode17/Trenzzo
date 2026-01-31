@@ -1,7 +1,9 @@
 import { Outlet } from "react-router-dom"
 import AdminSidebar from "@/ui/Admin/AdminNavigation/AdminSidebar"
+import { useState } from "react"
 
 const AdminLayout = () => {
+    const [temp, useTemp] = useState()
     return (
         <div className="flex min-h-screen w-full">
             <div >
