@@ -2,8 +2,7 @@ import Logo from "@/ui/Others/Logo";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const DeliveryAuthLayout = () => {
-
-
+    const [temp, useTemp] = useState()
     return (
         <div className="min-h-screen bg-white md:bg-gray-50 flex flex-col">
             <main className="flex-1 flex items-center justify-center px-4">

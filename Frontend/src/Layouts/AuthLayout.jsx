@@ -1,7 +1,9 @@
 import Logo from "@/ui/Others/Logo";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
+    const [temp, useTemp] = useState()
     return (
         <div className="min-h-screen bg-white md:bg-gray-50 flex flex-col">
 
