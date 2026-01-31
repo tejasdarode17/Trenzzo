@@ -9,7 +9,6 @@ export function generateOTP() {
 }
 
 
-
 export async function sendEmailOtp({ email, role, payload }) {
 
     const otp = generateOTP();
