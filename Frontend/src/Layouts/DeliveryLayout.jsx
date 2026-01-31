@@ -1,5 +1,5 @@
 import DeliveryPartnerSidebar from '@/ui/DeliveryPartner/DeliverySidebar'
-import { fetchAllDeliveryOrders, fetchOngoingDeliveryOrders, fetchReturnOrders } from '@/redux/deliverySlice'
+import { fetchAllDeliveryOrders, fetchOngoingDeliveryOrders, fetchReturnOrders } from '@/redux_temp/deliverySlice'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { Outlet } from 'react-router-dom'

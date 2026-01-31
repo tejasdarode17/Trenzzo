@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { clearUser } from "@/redux/authSlice";
+import { clearUser } from "@/redux_temp/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, LayoutDashboard, Truck, ClipboardList, MapPin } from "lucide-react";

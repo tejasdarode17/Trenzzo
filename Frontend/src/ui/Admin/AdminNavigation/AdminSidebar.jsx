@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings2, Tag, Users } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { clearUser } from "@/redux/authSlice";
+import { clearUser } from "@/redux_temp/authSlice";
 
 const AdminSidebar = () => {
 

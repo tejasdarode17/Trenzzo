@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useDispatch } from "react-redux";
 import ErrorMessage from "./ErrorMessage";
-import { checkAuth } from "@/redux/authSlice";
+import { checkAuth } from "@/redux_temp/authSlice";
 
 const VerifyOtp = () => {
     const [otp, setOtp] = useState("");

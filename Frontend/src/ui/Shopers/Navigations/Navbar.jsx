@@ -3,7 +3,7 @@ import { Heart, ListOrdered, LogOut, ShoppingCart, User, Search, } from "lucide-
 import { toast } from "sonner";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUser } from "@/redux/authSlice";
+import { clearUser } from "@/redux_temp/authSlice";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import MobileSearchbar from "./MobileSearchbar";

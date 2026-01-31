@@ -3,7 +3,7 @@ import { FaBoxOpen, FaClipboardList } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
-import { clearUser } from "@/redux/authSlice";
+import { clearUser } from "@/redux_temp/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ChartNoAxesCombined, LayoutDashboard, LogOut, Menu, Settings } from "lucide-react";
 import { useState } from "react";

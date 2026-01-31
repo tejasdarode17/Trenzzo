@@ -1,3 +1,4 @@
+import { setUser } from "@/redux_temp/authSlice";
 import axios from "axios";
 
 const api = axios.create({
@@ -20,6 +21,7 @@ api.interceptors.response.use(
             try {
                 console.log("refresh fired");
                 await api.post("/auth/refresh");
+                setUser()
                 return api(originalRequest);
             } catch (refreshErr) {
                 console.log("refresh failed", refreshErr);

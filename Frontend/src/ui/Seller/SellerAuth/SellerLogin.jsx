@@ -1,5 +1,5 @@
 import ErrorMessage from "@/ui/Others/ErrorMessage";
-import { checkAuth, } from "@/redux/authSlice";
+import { checkAuth, } from "@/redux_temp/authSlice";
 import axios from "axios";
 import { Loader } from "lucide-react";
 import { useState } from "react";

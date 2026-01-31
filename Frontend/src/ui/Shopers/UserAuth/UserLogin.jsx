@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { checkAuth, } from "@/redux/authSlice";
+import { checkAuth, } from "@/redux_temp/authSlice";
 import { useDispatch } from "react-redux";
 import ErrorMessage from "@/ui/Others/ErrorMessage";
 
