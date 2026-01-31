@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { updateStatusOfOrder } from "@/redux_temp/deliverySlice";
+import { updateStatusOfOrder } from "@/redux/deliverySlice";
 import axios from "axios";
 import { Phone, MapPin, CheckCircle, Truck, Package, Box } from "lucide-react";
 import { useState } from "react";

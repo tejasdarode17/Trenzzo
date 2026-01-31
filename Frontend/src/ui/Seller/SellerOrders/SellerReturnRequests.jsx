@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { markSellerReturnNotificationsRead } from "@/redux_temp/sellerSlice";
+import { markSellerReturnNotificationsRead } from "@/redux/sellerSlice";
 import { Card } from "@/components/ui/card";
 import { Package, User, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

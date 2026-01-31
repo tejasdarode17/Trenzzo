@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { clearUser } from "@/redux_temp/authSlice";
+import { clearUser } from "@/redux/authSlice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { User, MapPin, Settings, LogOut } from "lucide-react";

@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Suspense, lazy, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { checkAuth } from "./redux_temp/authSlice"
+import { checkAuth } from "./redux/authSlice"
 import { Loader2 } from "lucide-react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import VerifyOtp from "./ui/Others/VerifyOtp"

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatDate } from "@/utils/formatDate";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { markSellerNotificationsRead } from "@/redux_temp/sellerSlice";
+import { markSellerNotificationsRead } from "@/redux/sellerSlice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

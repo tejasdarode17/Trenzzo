@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
-import { checkAuth, } from "@/redux_temp/authSlice";
+import { checkAuth, } from "@/redux/authSlice";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader } from "lucide-react";

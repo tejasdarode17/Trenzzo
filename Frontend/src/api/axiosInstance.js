@@ -1,4 +1,4 @@
-import { setUser } from "@/redux_temp/authSlice";
+import { setUser } from "@/redux/authSlice";
 import axios from "axios";
 
 const api = axios.create({
