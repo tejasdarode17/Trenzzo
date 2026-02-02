@@ -50,9 +50,9 @@ export async function createSuperAdminOnce() {
 
 //-----------------Categories Controllers----------------------------
 export async function createCatogery(req, res) {
+    const { name, image, description, attributes } = req.body
     try {
-        const { name, image, description, attributes } = req.body
-        
+
         const adminID = req.user.id
 
         if (!name || !image) {
@@ -89,6 +89,9 @@ export async function createCatogery(req, res) {
         });
 
     } catch (error) {
+        if (image) {
+            await deleteImage(image?.public_id)
+        }
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -99,8 +102,8 @@ export async function createCatogery(req, res) {
 
 export async function editCategory(req, res) {
     try {
-        const { id } = req.params;
         const { name, image, description, attributes } = req.body;
+        const { id } = req.params;
         const adminID = req.user.id;
 
         const admin = await Admin.findById(adminID);
