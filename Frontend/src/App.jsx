@@ -8,13 +8,13 @@ import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
 import MainLoader from "./ui/Others/MainLoader"
 
 //ALl layouts   
-const AuthLayout = lazy(() => import("./ui/Layouts/AuthLayout"))
-const ShopersLayout = lazy(() => import("./ui/Layouts/ShopersLayout"))
-const SellerAuthLayout = lazy(() => import("./ui/Layouts/SellerAuthLayout"))
-const SellerLayout = lazy(() => import("./ui/Layouts/SellerLayout"))
-const AdminLayout = lazy(() => import("./ui/Layouts/AdminLayout"))
-const DeliveryAuthLayout = lazy(() => import("./ui/Layouts/DeliveryAuthLayout"))
-const DeliveryLayout = lazy(() => import("./ui/Layouts/DeliveryLayout"))
+const AuthLayout = lazy(() => import("./ui/layouts/AuthLayout"))
+const ShopersLayout = lazy(() => import("./ui/layouts/ShopersLayout"))
+const SellerAuthLayout = lazy(() => import("./ui/layouts/SellerAuthLayout"))
+const SellerLayout = lazy(() => import("./ui/layouts/SellerLayout"))
+const AdminLayout = lazy(() => import("./ui/layouts/AdminLayout"))
+const DeliveryAuthLayout = lazy(() => import("./ui/layouts/DeliveryAuthLayout"))
+const DeliveryLayout = lazy(() => import("./ui/layouts/DeliveryLayout"))
 
 //  Shopper Pages
 const Login = lazy(() => import("./ui/Shopers/UserAuth/UserLogin"))
