@@ -52,7 +52,7 @@ export async function createSuperAdminOnce() {
 export async function createCatogery(req, res) {
     try {
         const { name, image, description, attributes } = req.body
-
+        
         const adminID = req.user.id
 
         if (!name || !image) {
