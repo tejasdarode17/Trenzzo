@@ -13,6 +13,7 @@ import deliveryRouter from "./routes/deliveryPartnerRoute.js"
 import cloudinaryConfig from "./config/cloudinary.js";
 import { initSocket } from "./socket/socket.js";
 import dbConnect from "./config/dbConnect.js"
+import { createSuperAdminOnce } from "./controllers/adminControllers.js";
 
 dotenv.config();
 const app = express();
@@ -52,5 +53,6 @@ app.use("/api/v1", deliveryRouter)
 
 initSocket(server)
 server.listen(PORT, () => {
+    createSuperAdminOnce()
     console.log("Server is running...")
 })

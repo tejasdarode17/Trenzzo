@@ -8,31 +8,45 @@ import deleteProductsByCategory from "../utils/deleteCategoriesProduct.js";
 import Carousel from "../model/carouselModel.js";
 import Bannner from "../model/bannerModel.js";
 import Order from "../model/orderModel.js";
+import dotenv from "dotenv"
+dotenv.config()
 
-async function createAdmin(req, res) {
+export async function createSuperAdminOnce() {
 
-    const adminName = "Tejas Darode"
-    const adminEmail = "tejasdarode17@gmail.com"
-    const adminPasword = "1234"
-    const role = "admin"
-
-
-    const exists = await Admin.findOne({ email: adminEmail });
-
-    if (exists) {
-        process.exit(0);
+    if (process.env.CREATE_SUPER_ADMIN !== "true") {
+        return;
     }
 
-    const hashedPassword = await bcrypt.hash(adminPasword, 10)
+    const adminName = process.env.SUPER_ADMIN_NAME
+    const adminEmail = process.env.SUPER_ADMIN_EMAIL
+    const adminPasword = process.env.SUPER_ADMIN_PASSWORD
+    const role = "admin"
 
-    const admin = await Admin.create({
+    if (!adminEmail || !adminPasword || !adminName) {
+        console.warn("❌ Super admin ENV variables missing");
+        return;
+    }
+
+    const exists = await Admin.findOne({ email: adminEmail });
+    if (exists) {
+        console.log(" Super admin already exists");
+        return;
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPasword, 10);
+
+    await Admin.create({
         name: adminName,
         email: adminEmail,
         password: hashedPassword,
         role: role
-    })
-    process.exit(0);
+    });
+
+    console.log("🚀 Super admin created");
 }
+
+
+
 
 //-----------------Categories Controllers----------------------------
 export async function createCatogery(req, res) {
