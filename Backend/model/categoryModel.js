@@ -4,10 +4,10 @@ const attributeSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        lowercase: true,
     },
-    required:
-    {
+    required: {
         type: Boolean,
         default: false
     },
