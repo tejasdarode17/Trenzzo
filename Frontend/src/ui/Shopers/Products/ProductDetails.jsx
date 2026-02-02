@@ -34,9 +34,6 @@ const ProductDetails = () => {
             queryClient.invalidateQueries(["wishlist"])
             setIsWishlisted((prev) => !prev)
         },
-        onError: (error) => {
-            console.log(error);
-        }
     })
 
     function handleAddWishlist() {

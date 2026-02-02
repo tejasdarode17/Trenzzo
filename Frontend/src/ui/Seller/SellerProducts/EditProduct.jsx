@@ -29,7 +29,7 @@ const EditProduct = () => {
             await editProduct({ productData, productImages })
             navigate(`/seller/product/${slug}`)
         } catch (err) {
-            console.log(err);
+            toast.error(err.response.data.message || "Server Error")
         }
     }
 

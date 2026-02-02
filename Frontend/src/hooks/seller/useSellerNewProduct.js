@@ -11,8 +11,7 @@ export function useSellerNewProduct() {
     return useMutation({
         mutationFn: addNewProductAPI,
 
-        onSuccess: (data) => {
-            console.log(data);
+        onSuccess: () => {
             queryClient.invalidateQueries(["sellerProducts"])
         },
 

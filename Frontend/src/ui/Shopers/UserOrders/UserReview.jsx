@@ -36,8 +36,13 @@ const UserReview = ({ productID, }) => {
                 image: uploadedImage,
             })
 
-        } catch (err) {
-            console.error(err);
+            setRating(0);
+            setReview("");
+            setImage(null);
+            setOpen(false);
+
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Server Error");
         }
     }
 

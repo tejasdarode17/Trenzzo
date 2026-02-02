@@ -60,11 +60,9 @@ const SideBarMenu = ({ setOpenSheet }) => {
     async function handleLogout() {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {}, { withCredentials: true });
-
             dispatch(clearUser());
             navigate("/delivery/auth/login");
         } catch (error) {
-            console.log(error);
             toast.error(error?.response?.data?.message || "Logout failed");
         }
     }

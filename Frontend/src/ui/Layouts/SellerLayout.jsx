@@ -18,7 +18,6 @@ const SellerLayout = () => {
         const socket = connectSocket({ userId: userData._id, role: "seller", })
 
         socket.on("new-order", (order) => {
-            console.log(order)
             dispatch(addSellerNotification({
                 type: "NEW_ORDER",
                 order,
@@ -27,7 +26,6 @@ const SellerLayout = () => {
         })
 
         socket.on("new-return-order", (order) => {
-            console.log(order)
             dispatch(addSellerReturnNotification({
                 type: "NEW_RETURN_ORDER",
                 order,

@@ -33,7 +33,7 @@ const UserReturn = ({ item, order }) => {
         } catch (error) {
             setLoading(false)
             setOpen(false)
-            console.log(error);
+            toast.error(error?.response?.data?.message || "Server Error")
         }
     }
 

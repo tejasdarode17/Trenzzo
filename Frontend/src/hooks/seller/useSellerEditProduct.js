@@ -6,8 +6,7 @@ export function useSellerEditProduct(id) {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: (payload) => editProductAPI({ ...payload, id }),
-        onSuccess: (data) => {
-            console.log(data);
+        onSuccess: () => {
             queryClient.invalidateQueries(["sellerProducts"])
         },
         onError: (err) => {

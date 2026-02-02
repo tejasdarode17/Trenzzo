@@ -6,8 +6,5 @@ export function useProductDetail({ slug }) {
         queryKey: ["productDetails", { slug }],
         queryFn: () => fetchProductDetails({ slug }),
         keepPreviousData: true,
-        onError: (error) => {
-            console.log(error);
-        }
     })
 }

@@ -56,7 +56,6 @@ export async function createOrder(req, res) {
         });
 
     } catch (err) {
-        console.error("CREATE ORDER ERROR:", err);
         return res.status(500).json({
             success: false,
             message: "Payment order creation failed",
@@ -165,7 +164,6 @@ export async function verifyPayment(req, res) {
         });
 
     } catch (err) {
-        console.error("VERIFY PAYMENT ERROR:", err);
         return res.status(500).json({
             message: "Server error",
             error: err.message

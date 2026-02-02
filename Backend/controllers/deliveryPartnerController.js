@@ -46,7 +46,6 @@ export async function fetchPartnerAllOrders(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: error.message
@@ -101,7 +100,6 @@ export async function fetchPartnerPendingOrders(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: error.message
@@ -166,7 +164,7 @@ export async function updateDeliveryStatus(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({
             success: false,
             message: error.message
@@ -284,7 +282,6 @@ export const pickupReturn = async (req, res) => {
         });
 
     } catch (error) {
-        console.log("PICKUP RETURN ERROR:", error);
         res.status(500).json({
             success: false,
             message: "Server error"

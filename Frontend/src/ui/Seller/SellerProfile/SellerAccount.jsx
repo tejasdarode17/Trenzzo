@@ -90,7 +90,6 @@ const SellerAccount = () => {
             setEditMode(false)
 
         } catch (error) {
-            console.log(error);
             setInfoError(error?.response?.data?.message || "Something went wrong on server")
         } finally {
             setLoadingInfo(false)

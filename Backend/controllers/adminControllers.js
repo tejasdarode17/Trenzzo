@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import Category from "../model/categoryModel.js";
 import Seller from "../model/sellerModel.js";
 import slugify from "slugify";
-import { deleteImage } from "../utils/cloudinaryHandler.js";
+import { deleteImage, deleteImages } from "../utils/cloudinaryHandler.js";
 import deleteProductsByCategory from "../utils/deleteCategoriesProduct.js";
 import Carousel from "../model/carouselModel.js";
 import Bannner from "../model/bannerModel.js";
@@ -20,7 +20,6 @@ async function createAdmin(req, res) {
     const exists = await Admin.findOne({ email: adminEmail });
 
     if (exists) {
-        console.log("✅ Admin already exists");
         process.exit(0);
     }
 
@@ -32,10 +31,7 @@ async function createAdmin(req, res) {
         password: hashedPassword,
         role: role
     })
-
-    console.log("🎉 Admin created:", admin.email);
     process.exit(0);
-
 }
 
 //-----------------Categories Controllers----------------------------
@@ -355,8 +351,8 @@ export async function changeSellerStatus(req, res) {
 //-----------------Carousel controllers----------------------------
 
 export async function createCarousel(req, res) {
+    const { title, images } = req.body;
     try {
-        const { title, images } = req.body;
         const adminID = req.user.id;
 
         if (!adminID || req.user.role !== "admin") {
@@ -383,8 +379,10 @@ export async function createCarousel(req, res) {
         });
 
     } catch (error) {
-        //we can run deleteImages() function here if error come while adding carousel cuz image is already uplaoded in cloudnary
-        console.log(error);
+        if (images?.length) {
+            const publicIDs = images.map(img => img.public_id);
+            await deleteImages(publicIDs);
+        }
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -408,7 +406,6 @@ export async function fetchCarousel(req, res) {
             carousels: carousels
         });
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -468,7 +465,6 @@ export async function editCarousel(req, res) {
 
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -522,8 +518,8 @@ export async function deleteCarousel(req, res) {
 
 export async function createBanner(req, res) {
 
+    const { type, image, link } = req.body
     try {
-        const { type, image, link } = req.body
 
         const adminID = req.user.id
 
@@ -553,6 +549,9 @@ export async function createBanner(req, res) {
 
 
     } catch (error) {
+        if (image) {
+            deleteImage(image.public_id)
+        }
         return res.status(500).json({
             success: false,
             message: "Server error",

@@ -60,7 +60,6 @@ const AccountSettings = () => {
             setShowNewPassword(false);
             setShowConfirmPassword(false);
         } catch (error) {
-            console.log(error);
             setError(error?.response?.data?.message || "Something Went wrong on server!")
         } finally {
             setLoading(false)

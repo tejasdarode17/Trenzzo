@@ -19,7 +19,6 @@ const DeleteCategory = ({ cat }) => {
             return { previousCategories }
         },
         onError: (err, _, context) => {
-            console.log(err);
             queryClient.setQueryData(["category"], context.previousCategories)
             toast.error("Failed to delete category")
         },

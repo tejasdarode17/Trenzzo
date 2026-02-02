@@ -36,7 +36,6 @@ const UserProfilePersonalInformation = () => {
             toast.success(response?.data?.message)
             setIsEditMode(false)
         } catch (error) {
-            console.log(error);
             setError(error?.response?.data?.message || "Something went wrong on server")
         } finally {
             setLoading(false)

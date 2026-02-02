@@ -6,9 +6,6 @@ export const useSellerOrderDetails = (orderId) => {
         queryKey: ["sellerOrderDetails", { orderId }],
         queryFn: () => fetchSellerOrderDetailsAPI(orderId),
         enabled: !!orderId,
-        onError: (err) => {
-            console.log(err);
-        }
     });
 };
 

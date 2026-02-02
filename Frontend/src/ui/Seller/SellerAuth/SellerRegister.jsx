@@ -45,6 +45,7 @@ const SellerRegister = () => {
 
             <form className="space-y-5" onSubmit={handleSellerRegistration}>
                 <input
+                    name="name"
                     placeholder="Full name"
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#E17100]/30 focus:border-[#E17100]"
                     onChange={(e) => setSellerInput({ ...sellerInput, name: e.target.value })}
@@ -59,6 +60,7 @@ const SellerRegister = () => {
                 />
 
                 <textarea
+                    name="address"
                     placeholder="Business address"
                     className="w-full px-4 py-3 border rounded-lg min-h-[90px] focus:ring-2 focus:ring-[#E17100]/30 focus:border-[#E17100]"
                     onChange={(e) => setSellerInput({ ...sellerInput, address: e.target.value })}

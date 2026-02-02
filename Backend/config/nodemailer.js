@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const sendMail = async ({ to, subject, html }) => {
+const sendMailFromNodemailer = async ({ to, subject, html }) => {
     try {
         await transporter.sendMail({
             from: `"Trenzzo" <${process.env.EMAIL_USER}>`,
@@ -21,10 +21,9 @@ const sendMail = async ({ to, subject, html }) => {
             html,
         });
     } catch (error) {
-        console.error("Email send failed:", error);
         throw new Error("Unable to send email");
     }
 };
 
 
-export default sendMail
+export default sendMailFromNodemailer

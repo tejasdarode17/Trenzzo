@@ -228,7 +228,7 @@ export async function editProduct(req, res) {
                 try {
                     await deleteImage(img.public_id);
                 } catch (err) {
-                    console.error("Image deletion failed:", err.message);
+                    e.error("Image deletion failed:", err.message);
                 }
             }
 
@@ -256,7 +256,7 @@ export async function editProduct(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+        e.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -295,7 +295,6 @@ export async function deleteProduct(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -352,7 +351,6 @@ export async function getAllSellerProducts(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -397,7 +395,6 @@ export async function getSellerSingleProduct(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -452,7 +449,6 @@ export async function toggleProductStatus(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -542,7 +538,6 @@ export async function fetchSellerOrders(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -606,7 +601,6 @@ export async function fetchSellerOrderDetails(req, res) {
 
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -653,7 +647,7 @@ export async function fetchRecetTenOrders(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -738,7 +732,7 @@ export async function fetchSellerStats(req, res) {
         })
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -777,7 +771,7 @@ export async function changeOrderStatus(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -836,7 +830,7 @@ export async function assignOrderToDeliveryPartner(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -1040,7 +1034,6 @@ export async function assignReturnOrderToDeliveryPartner(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1141,7 +1134,7 @@ export async function updateReturnStatusForSeller(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1193,7 +1186,6 @@ export async function sellerChangePassword(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1229,7 +1221,6 @@ export async function sellerPersonalInfoChange(req, res) {
 
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",

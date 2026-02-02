@@ -25,7 +25,6 @@ export async function fetchSearchSuggestions(req, res) {
         }).limit(10).select("name brand slug")
         return res.json({ success: true, products });
     } catch (error) {
-        console.error("Error in fetchSearchSuggestions:", error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -238,7 +237,6 @@ export async function getUserAddresses(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -361,7 +359,6 @@ export async function decreaseCartQuantity(req, res) {
         })
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -411,7 +408,6 @@ export async function removeItemFromCart(req, res) {
         })
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -612,7 +608,6 @@ export async function initCheckout(req, res) {
 
 
     } catch (error) {
-        console.error("CHECKOUT INIT ERROR:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to initialize checkout",
@@ -643,7 +638,6 @@ export async function fetchCheckout(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Failed to fetch checkout",
@@ -694,7 +688,6 @@ export async function getAllOrders(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 }
@@ -729,7 +722,6 @@ export async function getOrderDetail(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -754,7 +746,6 @@ export async function userReturnRequest(req, res) {
         }
 
         const item = order.items.find(i => i._id.toString() === itemId);
-        console.log(item.seller)
         if (!item) {
             return res.status(404).json({ success: false, message: "Order item not found" });
         }
@@ -793,7 +784,6 @@ export async function userReturnRequest(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 }
@@ -890,7 +880,6 @@ export async function deleteReview(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error"
@@ -978,7 +967,6 @@ export async function userChangePassword(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1012,7 +1000,6 @@ export async function userPersonalInfoChange(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1028,8 +1015,6 @@ export async function addProductToWishlist(req, res) {
 
     try {
         const { productID } = req.body
-        console.log(productID);
-
         const userID = req.user.id
 
         const user = await User.findById(userID)
@@ -1066,7 +1051,6 @@ export async function addProductToWishlist(req, res) {
 
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1097,7 +1081,6 @@ export async function fetchWishlist(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error"
@@ -1127,7 +1110,6 @@ export async function fetchReviewsForProduct(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ success: false, message: "Server error" });
     }
 }
@@ -1162,7 +1144,6 @@ export async function fetchProductDetails(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",

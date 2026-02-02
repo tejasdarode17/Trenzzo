@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "sonner";
 
 const useSearch = (query, delay = 400) => {
     const [results, setResults] = useState([]);
@@ -23,7 +24,7 @@ const useSearch = (query, delay = 400) => {
                 );
                 setResults(res?.data?.products || []);
             } catch (err) {
-                console.log(err);
+                toast.error(err?.response?.data?.message || "Server Error")
                 setResults([]);
             } finally {
                 setLoading(false);

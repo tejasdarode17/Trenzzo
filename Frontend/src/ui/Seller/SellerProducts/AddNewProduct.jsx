@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import ProductForm from './ProductForm'
 import { StepBack } from 'lucide-react'
 import { useSellerNewProduct } from '@/hooks/seller/useSellerNewProduct'
+import { toast } from 'sonner'
 
 const AddNewProduct = () => {
-
-
-
 
     const { mutateAsync: addNewProduct, isPending: loading } = useSellerNewProduct()
     const navigate = useNavigate()
@@ -29,7 +27,7 @@ const AddNewProduct = () => {
             navigate("/seller/products")
 
         } catch (err) {
-            console.log(err);
+            toast.error(err.response.data.message || "Server Error")
         }
     }
 

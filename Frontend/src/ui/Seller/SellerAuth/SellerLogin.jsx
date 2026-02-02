@@ -4,7 +4,7 @@ import axios from "axios";
 import { Loader } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link,} from "react-router-dom";
+import { Link, } from "react-router-dom";
 import { toast } from "sonner";
 
 const SellerLogin = () => {
@@ -45,6 +45,7 @@ const SellerLogin = () => {
                     <input
                         id="email"
                         type="email"
+                        name="email"
                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E17100]"
                         onChange={(e) => setSellerInput((prev) => ({ ...prev, email: e.target.value }))}
                     />

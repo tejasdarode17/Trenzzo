@@ -1,7 +1,7 @@
 import crypto from "crypto"
 import bcrypt from "bcrypt"
-import sendMail from "../config/nodemailer.js";
 import EmailOtp from "../model/emailOtpModel.js";
+import sendMailFromResend from "../config/resend.js";
 
 export function generateOTP() {
     const otp = crypto.randomInt(100000, 1000000);
@@ -26,13 +26,15 @@ export async function sendEmailOtp({ email, role, payload }) {
     });
 
     // 5. Send email
-    await sendMail({
+    await sendMailFromResend({
         to: email,
         subject: "Verify your email",
         html: `
-          <h2>Email Verification</h2>
-          <p>Your OTP is <strong>${otp}</strong></p>
-          <p>This OTP is valid for 10 minutes.</p>
+        <p>Hi,</p>
+        <p>Your Trenzzo verification code is:</p>
+        <h1>${otp}</h1>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you didn’t request this, ignore this email.</p>
         `,
     });
 }

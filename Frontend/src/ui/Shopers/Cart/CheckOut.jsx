@@ -75,7 +75,6 @@ const CheckOut = () => {
             const razor = new window.Razorpay(options);
             razor.open();
         } catch (error) {
-            console.log(error);
             toast.error("Payment Failed due to Server Error")
         }
     }

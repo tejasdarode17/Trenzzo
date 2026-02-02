@@ -6,8 +6,5 @@ export function useSellerStats() {
     return useQuery({
         queryKey: ["sellerStats"],
         queryFn: fetchSellerStatsAPI,
-        onError: (error) => {
-            console.log(error);
-        }
     })
 }

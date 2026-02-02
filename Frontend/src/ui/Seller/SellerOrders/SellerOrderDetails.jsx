@@ -14,8 +14,18 @@ import { sellerAssignDeliveryPartnerAPI, sellerUpdateDeliveryStatusAPI } from "@
 const SellerOrderDetails = () => {
     const navigate = useNavigate();
     const { id: orderId } = useParams();
-    const { data, isLoading: orderLoading } = useSellerOrderDetails(orderId);
+    const { data, isLoading: orderLoading, isError } = useSellerOrderDetails(orderId);
     const order = data?.order;
+
+
+    if (isError) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <p className="text-red-500">Error While fetching the Order Detail</p>
+            </div>
+        )
+    }
+
 
     if (!order) {
         return (
@@ -263,7 +273,7 @@ const DeliveryPartnerPicker = ({ order, item, onClose }) => {
     const [selectedPartner, setSelectedPartner] = useState(null);
     const queryClient = useQueryClient();
 
-    const { data } = useSellerDeliveryPartner();
+    const { data, isError: deliveryPartnerError, error, isLoading } = useSellerDeliveryPartner();
     useEffect(() => {
         setPartners(data?.partners);
     }, [data]);
@@ -274,7 +284,6 @@ const DeliveryPartnerPicker = ({ order, item, onClose }) => {
             queryClient.invalidateQueries(["sellerOrderDetails"]);
         },
         onError: (error) => {
-            console.log(error);
             toast.error(error?.response?.data?.message || "Something went Wrong on server");
         }
     });
@@ -285,7 +294,27 @@ const DeliveryPartnerPicker = ({ order, item, onClose }) => {
         onClose();
     }
 
-    if (loading) return <p className="text-center py-4">Loading...</p>;
+    if (loading) return <p className="text-center py-4">Assigning...</p>;
+    if (isLoading) return <p className="text-center py-4">Loading...</p>;
+
+    if (deliveryPartnerError) {
+        return (
+            <div className="flex flex-col items-center gap-3 p-4 bg-red-50 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+                <p className="text-sm text-red-700">
+                    {error?.response?.data?.message || "Failed to load delivery partners"}
+                </p>
+
+                <button
+                    onClick={refetch}
+                    className="text-sm text-red-600 underline"
+                >
+                    Try again
+                </button>
+            </div>
+        );
+    }
+
 
     return (
         <div className="space-y-2 max-h-60 overflow-y-auto">

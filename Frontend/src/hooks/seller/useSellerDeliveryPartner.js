@@ -6,8 +6,5 @@ export function useSellerDeliveryPartner() {
         queryKey: ["deliveryPartners"],
         queryFn: FetchDeliveryPartnersAPI,
         keepPreviousData: true,
-        onError: (error) => {
-            console.log(error);
-        }
     })
 }

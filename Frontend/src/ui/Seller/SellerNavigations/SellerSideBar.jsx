@@ -72,7 +72,6 @@ const SideBarMenu = ({ setOpenSheet }) => {
             dispatch(clearUser());
             navigate("/seller/auth/login");
         } catch (error) {
-            console.log(error);
             toast.error(error?.response?.data?.message || "Logout failed");
         }
     };

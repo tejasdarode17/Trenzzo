@@ -17,7 +17,6 @@ const AddBanner = () => {
             setOpen(false)
         },
         onError: (error) => {
-            console.log(error);
             toast.error(error?.respone?.data?.message || "Somwthing went wrong on server")
         }
     })

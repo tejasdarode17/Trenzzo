@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { changeSellerStatusAPI } from "@/api/admin.api";
+import { toast } from "sonner";
 
 const SellerManagement = ({ seller }) => {
     const [open, setOpen] = useState(false);
@@ -36,11 +37,11 @@ const SellerManagement = ({ seller }) => {
 
     async function handleDelete() {
         try {
-            console.log("Deleted seller:", seller?._id);
+            toast.success("Sorry You Cannot Delete Seller At the Momemt. This Feature is yet to build..")
             setOpen(false);
             setMessage("");
         } catch (error) {
-            console.error(error);
+            toast.error("Error")
         }
     }
 

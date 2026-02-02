@@ -10,7 +10,6 @@ export function useSellerReturn({ filter, page }) {
         keepPreviousData: true,
         onError: (error) => {
             toast.error(error?.response?.data?.message || "Something Went wrong on server")
-            console.log(error);
         },
     })
 }

@@ -14,7 +14,7 @@ const Cart = () => {
   const { isAuthenticated } = useSelector((s) => s.auth);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
+  
   const { data, isLoading } = useCart();
   const cart = data?.cart;
 

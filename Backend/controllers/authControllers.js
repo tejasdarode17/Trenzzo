@@ -7,6 +7,7 @@ import { generateOTP, sendEmailOtp } from "../utils/OtpHandler.js";
 import EmailOtp from "../model/emailOtpModel.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../utils/JWT_TokenHandler.js";
 import sendMail from "../config/nodemailer.js";
+import sendMailFromResend from "../config/resend.js";
 
 //user (shopper)
 export async function registerUser(req, res) {
@@ -45,7 +46,6 @@ export async function registerUser(req, res) {
         })
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -129,7 +129,6 @@ export async function loginUser(req, res) {
         }
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -176,7 +175,6 @@ export async function registerSeller(req, res) {
         })
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -252,7 +250,6 @@ export async function loginSeller(req, res) {
 
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -300,7 +297,6 @@ export async function registerDeliveryPartner(req, res) {
         })
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -364,7 +360,6 @@ export async function loginDeliveryPartner(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -479,7 +474,6 @@ export async function verifyEmailOtp(req, res) {
         });
 
     } catch (err) {
-        console.error("Verify OTP error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 }
@@ -525,7 +519,7 @@ export async function resendEmailOtp(req, res) {
 
         await record.save();
 
-        await sendMail({
+        await sendMailFromResend({
             to: safeEmail,
             subject: "Verify your email",
             html: `
@@ -541,7 +535,6 @@ export async function resendEmailOtp(req, res) {
         });
 
     } catch (err) {
-        console.error("Resend OTP error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 }
@@ -589,7 +582,6 @@ export async function checkAuth(req, res) {
 
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -640,7 +632,6 @@ export async function getRefreshToken(req, res) {
         return res.status(200).json({ success: true });
 
     } catch (err) {
-        console.log(err);
         return res.sendStatus(401);
     }
 }

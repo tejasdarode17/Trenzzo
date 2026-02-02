@@ -7,7 +7,6 @@ export const fetchOngoingDeliveryOrders = createAsyncThunk("fetch-ongoing-orders
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/pending-orders`,
             { withCredentials: true }
         );
-        // console.log(response?.data);
         return response.data.orders
     } catch (error) {
         return rejectWithValue(
@@ -21,7 +20,6 @@ export const fetchAllDeliveryOrders = createAsyncThunk("fetch-all-orders", async
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/all-orders`,
             { withCredentials: true }
         );
-        console.log(response?.data);
         return response.data.orders
     } catch (error) {
         return rejectWithValue(
@@ -35,7 +33,6 @@ export const fetchReturnOrders = createAsyncThunk("fetch-return-orders", async (
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/delivery/all-returns`,
             { withCredentials: true }
         );
-        console.log(response?.data);
         return response.data.items
     } catch (error) {
         return rejectWithValue(

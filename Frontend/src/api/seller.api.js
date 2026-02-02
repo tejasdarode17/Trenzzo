@@ -25,8 +25,7 @@ export async function fetchSellerProductDetailsAPI({ category, page, status, sea
 export async function addNewProductAPI({ productFromData, productImages }) {
     const uploadedImages = await uploadImagesToServer(productImages);
 
-    const response = await api.post(
-        "/seller/add-product",
+    const response = await api.post("/seller/add-product",
         { ...productFromData, images: uploadedImages }
     );
 
@@ -46,8 +45,7 @@ export async function editProductAPI({ productData, productImages, id }) {
         uploadedImages = existingImages;
     }
 
-    const response = await api.post(
-        `/seller/edit/product/${id}`,
+    const response = await api.post(`/seller/edit/product/${id}`,
         { ...productData, images: uploadedImages }
     );
 
@@ -60,8 +58,7 @@ export async function deleteProductAPI(id) {
 }
 
 export async function toggleProductStatusAPI({ id, newStatus }) {
-    const response = await api.post(
-        `/seller/active/product/${id}`,
+    const response = await api.post(`/seller/active/product/${id}`,
         { newStatus }
     );
     return response?.data;
@@ -85,8 +82,7 @@ export async function fetchSellerOrderDetailsAPI(orderId) {
 }
 
 export async function sellerUpdateDeliveryStatusAPI({ orderID, itemID }) {
-    const response = await api.post(
-        "/seller/order/status",
+    const response = await api.post("/seller/order/status",
         { orderID, itemID, newStatus: "packed" }
     );
     return response?.data;
@@ -98,8 +94,7 @@ export async function FetchDeliveryPartnersAPI() {
 }
 
 export async function sellerAssignDeliveryPartnerAPI({ orderID, itemID, partnerID }) {
-    const response = await api.post(
-        "/seller/assign/order",
+    const response = await api.post("/seller/assign/order",
         { orderID, itemID, partnerID }
     );
     return response?.data;
@@ -118,16 +113,14 @@ export async function fetchSellerReturnRequestsAPI({ filter, page }) {
 }
 
 export async function sellerAssingDeliveryPartnerToReturnAPI({ returnID, orderID, itemID, partnerID }) {
-    const response = await api.post(
-        "/seller/order/return",
+    const response = await api.post("/seller/order/return",
         { returnID, orderID, itemID, partnerID }
     );
     return response?.data;
 }
 
 export async function sellerUpdateReturnStatusAPI({ returnID, orderID, itemID, nextStatus }) {
-    const response = await api.post(
-        "/seller/return/update-status",
+    const response = await api.post("/seller/return/update-status",
         { returnID, orderID, itemID, nextStatus }
     );
     return response?.data;

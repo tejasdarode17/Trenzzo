@@ -1,11 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Suspense, lazy, useEffect } from "react"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { checkAuth } from "./redux/authSlice"
-import { Loader2 } from "lucide-react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import VerifyOtp from "./ui/Others/VerifyOtp"
 import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
+import MainLoader from "./ui/Others/MainLoader"
 
 //ALl layouts   
 const AuthLayout = lazy(() => import("./ui/Layouts/AuthLayout"))
@@ -199,24 +199,22 @@ const appRouter = createBrowserRouter([
 ])
 
 
-
-
-
 const queryClient = new QueryClient()
 
 function App() {
 
+  const { isAuthenticated } = useSelector((store) => store.auth)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(checkAuth())
-  }, [dispatch])
+    if (isAuthenticated) {
+      dispatch(checkAuth())
+    }
+  }, [dispatch, isAuthenticated])
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense
-        fallback={<div className="w-screen h-screen flex justify-center items-center"><Loader2 className="animate-spin text-red-500"></Loader2></div>}
-      >
+      <Suspense fallback={<MainLoader></MainLoader>}>
         <RouterProvider router={appRouter} />
       </Suspense>
     </QueryClientProvider>

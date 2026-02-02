@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -18,11 +18,11 @@ const VerifyOtp = () => {
     const { state } = useLocation();
 
     const email = state?.email;
-
-    if (!email) {
-        navigate("/user/auth/register");
-        return null;
-    }
+    useEffect(() => {
+        if (!email) {
+            navigate("/user/auth/register");
+        }
+    }, [])
 
     const handleVerify = async (e) => {
         e.preventDefault();
@@ -64,7 +64,6 @@ const VerifyOtp = () => {
 
             toast.success("OTP resent successfully");
         } catch (err) {
-            console.log(err);
             toast.error(err.response?.data?.message || "Failed to resend OTP");
         } finally {
             setResendLoading(false);
@@ -74,10 +73,10 @@ const VerifyOtp = () => {
     return (
         <form onSubmit={handleVerify} className="space-y-6">
             <div>
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1 className="text-xl text-center font-bold text-gray-900">
                     Verify your email
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-center  text-gray-600 mt-1">
                     We sent a 6-digit code to
                     <span className="font-medium"> {email}</span>
                 </p>

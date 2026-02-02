@@ -4,6 +4,7 @@ import { Phone, MapPin, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { updateReturnStatus } from "@/redux/deliverySlice";
+import { toast } from "sonner";
 
 const DeliveryReturnOrders = () => {
     const { allReturns, returnLoading } = useSelector((store) => store.delivery);
@@ -33,13 +34,11 @@ const DeliveryReturnOrders = () => {
                 { withCredentials: true }
             );
 
-            console.log(response.data);
-
             dispatch(updateReturnStatus({ returnId: R.returnRequest._id }))
             setButtonLoading(false);
 
         } catch (error) {
-            console.log(error);
+            toast.error(error?.response?.data?.message || "Error while picking up the product")
             setButtonLoading(false);
         }
     }

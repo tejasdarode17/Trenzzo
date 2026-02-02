@@ -92,7 +92,6 @@ const DropDownMenu = () => {
       dispatch(clearUser())
       navigate("/")
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message)
     }
   }
