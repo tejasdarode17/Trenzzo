@@ -6,7 +6,6 @@ import DeliveryPartner from "../model/deliveryPartnerModel.js";
 import { generateOTP, sendEmailOtp } from "../utils/OtpHandler.js";
 import EmailOtp from "../model/emailOtpModel.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../utils/JWT_TokenHandler.js";
-import sendMail from "../config/nodemailer.js";
 import sendMailFromResend from "../config/resend.js";
 
 //user (shopper)

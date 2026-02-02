@@ -14,14 +14,11 @@ import cloudinaryConfig from "./config/cloudinary.js";
 import { initSocket } from "./socket/socket.js";
 import dbConnect from "./config/dbConnect.js"
 import { createSuperAdminOnce } from "./controllers/adminControllers.js";
-
 dotenv.config();
+
 const app = express();
 const server = http.createServer(app)
 const PORT = process.env.PORT || 5000;
-
-dbConnect()
-cloudinaryConfig()
 
 app.use(
     cors({
@@ -36,7 +33,7 @@ app.use(
         ],
         credentials: true,
     })
-);
+)
 
 app.use(cookieParser());
 app.use(express.json());
@@ -51,8 +48,20 @@ app.use("/api/v1", paymentRouter)
 app.use("/api/v1", deliveryRouter)
 
 
-initSocket(server)
-server.listen(PORT, () => {
-    createSuperAdminOnce()
-    console.log("Server is running...")
+async function startServer() {
+    await dbConnect()
+    cloudinaryConfig()
+
+    await createSuperAdminOnce();
+
+    initSocket(server);
+
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    })
+}
+
+startServer().catch(err => {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
 })
