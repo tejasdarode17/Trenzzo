@@ -589,26 +589,11 @@ export async function checkAuth(req, res) {
     }
 }
 
-export async function logout(req, res) {
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/"
-    });
-
-    res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/"
-    });
-    return res.status(200).json({ success: false, message: "Logged out successfully" });
-}
 
 export async function getRefreshToken(req, res) {
 
     const token = req.cookies.refreshToken;
+    console.log(token + "getRefreshToken");
     if (!token) return res.sendStatus(401);
 
 
@@ -635,3 +620,21 @@ export async function getRefreshToken(req, res) {
     }
 }
 
+
+
+export async function logout(req, res) {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/"
+    });
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/"
+    });
+    return res.status(200).json({ success: false, message: "Logged out successfully" });
+}

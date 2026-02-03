@@ -7,7 +7,7 @@ export function verifyUser(req, res, next) {
 
     const token = req.cookies.accessToken
 
-    console.log(token);
+    console.log(token + "accestoen form middleware");
     
 
     if (!token) {

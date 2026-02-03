@@ -4,20 +4,16 @@ dotenv.config()
 
 
 export function generateAccessToken(payload) {
-    return JWT.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "15m" });
+    return JWT.sign(payload, process.env.JWT_ACCESS_KEY, { expiresIn: "15m" });
 }
 
 export function generateRefreshToken(payload) {
-    return JWT.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "7d" });
+    return JWT.sign(payload, process.env.JWT_REFRESH_KEY, { expiresIn: "7d" });
 }
 
 
-export function verifyToken(payload) {
-    try {
-        let data = JWT.verify(payload, process.env.JWT_SECRET_KEY)
-        return data
-    } catch (error) {
-        console.log(error);
-    }
+export function verifyToken(token) {
+    return JWT.verify(token, process.env.JWT_ACCESS_SECRET);
 }
+
 
