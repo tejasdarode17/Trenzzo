@@ -12,7 +12,7 @@ const AddCarousal = () => {
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient()
 
-    const { mutate: addCarousel, isPending: loading, isError: error } = useMutation({
+    const { mutate: addCarousel, isPending: loading, error } = useMutation({
         mutationFn: addCarouselAPI,
         onSuccess: () => {
             queryClient.invalidateQueries(["carousels"])
@@ -23,7 +23,7 @@ const AddCarousal = () => {
         }
     })
 
-    
+
     function handleSubmit({ carousalType, carouselImages }) {
         addCarousel({ carousalType, carouselImages })
     }

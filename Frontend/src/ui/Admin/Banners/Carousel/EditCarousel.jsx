@@ -11,7 +11,7 @@ const EditCarousal = ({ carousel }) => {
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient()
 
-    const { mutate: editCarousal, isPending: loading, isError: error } = useMutation({
+    const { mutate: editCarousal, isPending: loading,  error } = useMutation({
         mutationFn: editCarouselAPI,
         onSuccess: () => {
             queryClient.invalidateQueries(["carousels"])
