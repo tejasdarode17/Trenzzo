@@ -13,7 +13,7 @@ export function generateRefreshToken(payload) {
 
 
 export function verifyToken(token) {
-    return JWT.verify(token, process.env.JWT_ACCESS_SECRET);
+    return JWT.verify(token, process.env.JWT_REFRESH_KEY);
 }
 
 

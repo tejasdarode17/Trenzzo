@@ -596,7 +596,6 @@ export async function getRefreshToken(req, res) {
     console.log(token + "getRefreshToken");
     if (!token) return res.sendStatus(401);
 
-
     try {
         const decoded = verifyToken(token)
         const newAccessToken = generateAccessToken({

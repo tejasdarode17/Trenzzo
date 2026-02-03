@@ -18,7 +18,7 @@ export function verifyUser(req, res, next) {
     }
 
     try {
-        let decoded = JWT.verify(token, process.env.JWT_SECRET_KEY)
+        let decoded = JWT.verify(token, process.env.JWT_ACCESS_KEY)
         req.user = decoded
         next()
 
