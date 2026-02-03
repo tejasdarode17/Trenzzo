@@ -206,10 +206,9 @@ function App() {
   const { isAuthenticated } = useSelector((store) => store.auth)
   const dispatch = useDispatch()
 
+
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(checkAuth())
-    }
+    dispatch(checkAuth())
   }, [dispatch, isAuthenticated])
 
   return (
