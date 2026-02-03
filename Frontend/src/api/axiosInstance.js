@@ -10,6 +10,7 @@ api.interceptors.response.use(
     res => res,
     async err => {
         const originalRequest = err.config;
+
         if (
             err.response?.status === 401 &&
             !originalRequest._retry &&
@@ -17,6 +18,7 @@ api.interceptors.response.use(
         ) {
             originalRequest._retry = true;
             try {
+                console.log("refresh fired");
                 await api.post("/auth/refresh");
                 return api(originalRequest);
             } catch (refreshErr) {
