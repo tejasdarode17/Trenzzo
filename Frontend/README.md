@@ -67,3 +67,20 @@ None
 
 # VITE_BACKEND_URL=https://trenzzo.onrender.com/api/v1
 # VITE_SOCKET_URL=https://trenzzo.onrender.com
+
+
+
+const allowedOrigins = [
+  "https://trenzzo.vercel.app"
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
