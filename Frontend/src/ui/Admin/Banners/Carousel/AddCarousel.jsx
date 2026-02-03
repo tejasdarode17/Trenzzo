@@ -24,6 +24,8 @@ const AddCarousal = () => {
         }
     })
 
+    console.log(error + "Query error");
+
 
     function handleSubmit({ carousalType, carouselImages }) {
         addCarousel({ carousalType, carouselImages })

@@ -396,6 +396,7 @@ export async function createCarousel(req, res) {
         });
 
     } catch (error) {
+        console.log(error);
         if (images?.length) {
             const publicIDs = images.map(img => img.public_id);
             await deleteImages(publicIDs);
