@@ -1,32 +1,21 @@
-import axios from "axios";
+import api from "@/api/axiosInstance";
+
 
 const useUploadImage = () => {
-
     async function uploadImageToServer(file) {
-
         const formData = new FormData();
         formData.append("image", file);
 
-        try {
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/upload-image`, formData,
-                {
-                    withCredentials: true,
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-            return response.data.image; //response contains {image: {url, public_id} }
-        } catch (error) {
-            console.error("Upload failed:", error);
-            throw error;
-        }
+        const res = await api.post("/upload-image", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        return res.data.image; // { url, public_id }
     }
-    return { uploadImageToServer }
 
-}
+    return { uploadImageToServer };
+};
 
-
-
-export default useUploadImage
+export default useUploadImage;

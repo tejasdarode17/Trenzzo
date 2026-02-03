@@ -1,18 +1,11 @@
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, } from "@/components/ui/carousel";
 import { useBanners } from "@/hooks/admin/useBanners";
 import { useCarousels } from "@/hooks/admin/useCarousels";
 import Autoplay from "embla-carousel-autoplay";
 
 const Banners = () => {
     const { data: bannersData, isLoading: bannersLoading } = useBanners();
-    const { data: carouselsData, isLoading: carouselsLoading } =
-        useCarousels();
+    const { data: carouselsData, isLoading: carouselsLoading } = useCarousels();
 
     const mainCarousel = carouselsData?.carousels?.find(
         (c) => c?.title === "Main"

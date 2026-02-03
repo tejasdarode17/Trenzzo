@@ -43,7 +43,7 @@ const BannerForm = ({ onSubmit, loading, error }) => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="fixed">Below Front Page Carousel</SelectItem>
-                        <SelectItem value="sale">Some Where Else</SelectItem>
+                        {/* <SelectItem value="sale">Some Where Else</SelectItem> */}
                     </SelectContent>
                 </Select>
             </div>

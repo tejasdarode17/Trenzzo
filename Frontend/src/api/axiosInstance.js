@@ -6,8 +6,7 @@ const api = axios.create({
 });
 
 // Response Interceptor
-api.interceptors.response.use(
-    res => res,
+api.interceptors.response.use(res => res,
     async err => {
         const originalRequest = err.config;
 
@@ -18,7 +17,7 @@ api.interceptors.response.use(
         ) {
             originalRequest._retry = true;
             try {
-                // console.log("refresh fired");
+                console.log("refresh fired");
                 await api.post("/auth/refresh");
                 return api(originalRequest);
             } catch (refreshErr) {
