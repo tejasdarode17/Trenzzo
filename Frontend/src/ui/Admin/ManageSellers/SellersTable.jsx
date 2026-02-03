@@ -13,9 +13,9 @@ const SellersTable = ({ sellers = [], loading, pages, page, onPageChange }) => {
         <Card>
 
             {/* Header */}
-            <CardHeader className="sm:px-2">
+            {/* <CardHeader className="sm:px-2">
                 <CardTitle className="text-sm sm:text-base">Seller's List</CardTitle>
-            </CardHeader>
+            </CardHeader> */}
 
             {/* Content */}
             <CardContent className="p-0 sm:p-6 sm:pt-0">

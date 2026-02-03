@@ -1,14 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Pencil, Plus } from "lucide-react";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
 import DeleteCategory from "./DeleteCategory";
 import { useNavigate } from "react-router-dom";
 import { useCatogery } from "@/hooks/admin/useCategory";
@@ -46,11 +39,11 @@ const CategoryList = () => {
 
     return (
         <Card className="shadow-sm">
-            <CardHeader className="">
+            {/* <CardHeader className="">
                 <CardTitle className="text-sm font-semibold text-gray-700">
                     Category List
                 </CardTitle>
-            </CardHeader>
+            </CardHeader> */}
 
             <CardContent className="p-0 sm:p-4">
                 <Table>
