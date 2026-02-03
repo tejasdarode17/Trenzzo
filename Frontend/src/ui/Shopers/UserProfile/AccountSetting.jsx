@@ -1,8 +1,8 @@
+import api from '@/api/axiosInstance'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import axios from 'axios'
 import { Lock, Eye, EyeOff, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
@@ -43,13 +43,21 @@ const AccountSettings = () => {
             setLoading(true)
             setError("")
             setPasswordChanged(false)
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/change-password`,
+            // const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/change-password`,
+            //     {
+            //         currentPassword: formData.currentPassword,
+            //         newPassword: formData.newPassword
+            //     },
+            //     { withCredentials: true }
+            // )
+
+            const response = await api.post("/user/change-password",
                 {
                     currentPassword: formData.currentPassword,
                     newPassword: formData.newPassword
                 },
-                { withCredentials: true }
             )
+
             setPasswordChanged(true)
             setFormData({
                 currentPassword: "",

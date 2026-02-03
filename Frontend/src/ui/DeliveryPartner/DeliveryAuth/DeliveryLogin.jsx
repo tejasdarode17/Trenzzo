@@ -44,7 +44,7 @@ const DeliveryLogin = () => {
                 <Input
                     required
                     label="Email"
-                    htmlfor="email"
+                    htmlFor="email"
                     type="email"
                     placeholder="partner@example.com"
                     onChange={(e) => setInput((p) => ({ ...p, email: e.target.value }))}

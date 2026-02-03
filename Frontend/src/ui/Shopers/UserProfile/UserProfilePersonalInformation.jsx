@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { User, Mail, Edit, Save, X, AlertCircle, Loader2 } from 'lucide-react'
-import axios from 'axios'
 import { toast } from 'sonner'
+import api from '@/api/axiosInstance'
 
 const UserProfilePersonalInformation = () => {
     const { userData } = useSelector((store) => store.auth)
@@ -30,9 +30,7 @@ const UserProfilePersonalInformation = () => {
         try {
             setLoading(true)
             setError("")
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/info`, userFormData,
-                { withCredentials: true }
-            )
+            const response = await api.post("/user/info", userFormData)
             toast.success(response?.data?.message)
             setIsEditMode(false)
         } catch (error) {

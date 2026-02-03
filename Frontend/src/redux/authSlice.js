@@ -4,9 +4,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWithValue }) => {
     try {
         const res = await api.get("/user/check-auth");
-        console.log(res.data);
-
-        return res.data.user;
+        return res?.data?.user;
     } catch (error) {
         return rejectWithValue(
             error.response?.data?.message || "Something went wrong on server"

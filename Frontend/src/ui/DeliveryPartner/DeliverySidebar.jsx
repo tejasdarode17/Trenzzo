@@ -70,8 +70,8 @@ const SideBarMenu = ({ setOpenSheet }) => {
     const items = [
         { id: 1, name: "Dashboard", icon: <LayoutDashboard />, path: "/delivery" },
         { id: 2, name: "Ongoing Deliveries", icon: <ClipboardList />, path: "/delivery/ongoing-orders" },
-        { id: 2, name: "Rerurn Deliveries", icon: <ClipboardList />, path: "/delivery/return-orders" },
-        { id: 2, name: "All Orders", icon: <ClipboardList />, path: "/delivery/all-orders" },
+        { id: 3, name: "Rerurn Deliveries", icon: <ClipboardList />, path: "/delivery/return-orders" },
+        { id: 4, name: "All Orders", icon: <ClipboardList />, path: "/delivery/all-orders" },
     ];
 
     return (
@@ -79,7 +79,7 @@ const SideBarMenu = ({ setOpenSheet }) => {
 
             {items.map(item => (
                 <Button
-                    key={item.id}
+                    key={item?.id}
                     onClick={() => {
                         navigate(item.path);
                         if (setOpenSheet) setOpenSheet(false);

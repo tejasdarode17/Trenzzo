@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Phone, MapPin, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { updateReturnStatus } from "@/redux/deliverySlice";
 import { toast } from "sonner";
+import api from "@/api/axiosInstance";
 
 const DeliveryReturnOrders = () => {
     const { allReturns, returnLoading } = useSelector((store) => store.delivery);
@@ -25,19 +25,18 @@ const DeliveryReturnOrders = () => {
         try {
             setButtonLoading(true);
 
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/delivery/return/picked`,
+            const response = await api.post("/delivery/return/picked",
                 {
                     returnID: R.returnRequest._id,
                     orderID: R.order._id,
                     itemID: R.returnRequest.itemId
                 },
-                { withCredentials: true }
-            );
-
+            )
             dispatch(updateReturnStatus({ returnId: R.returnRequest._id }))
             setButtonLoading(false);
 
         } catch (error) {
+            console.log(error);
             toast.error(error?.response?.data?.message || "Error while picking up the product")
             setButtonLoading(false);
         }

@@ -10,7 +10,7 @@ const AddBanner = () => {
     const [open, setOpen] = useState(false)
     const queryClient = useQueryClient()
 
-    const { mutate: addBanner, isPending: loading, isError: error } = useMutation({
+    const { mutate: addBanner, isPending: loading, error } = useMutation({
         mutationFn: addBannerAPI,
         onSuccess: () => {
             queryClient.invalidateQueries(["banners"])

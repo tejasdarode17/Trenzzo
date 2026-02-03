@@ -4,12 +4,12 @@ import { Navigate, useNavigate, } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator";
-import axios from 'axios'
 import { toast } from 'sonner'
 import AddAddress from '../Address/AddAddress'
 import EditAddress from '../Address/EditAddress'
 import { useAddresses } from '@/hooks/shopper/useAddresses'
 import { useCheckout } from '@/hooks/shopper/useCheckout'
+import api from '@/api/axiosInstance'
 
 const CheckOut = () => {
     const { isAuthenticated } = useSelector((store) => store.auth)
@@ -42,9 +42,9 @@ const CheckOut = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/create-order`, {}, {
-                withCredentials: true,
-            });
+          
+            const response = await api.post("/create-order", {})
+
             const data = response.data
             const { amount, order } = data;
 
@@ -56,15 +56,15 @@ const CheckOut = () => {
                 description: "Payment",
                 order_id: order.id,
                 handler: async function (response) {
-                    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/verify-payment`,
+                    
+                    await api.post("/verify-payment",
                         {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_signature: response.razorpay_signature,
                             address: selectedAddress
                         },
-                        { withCredentials: true }
-                    );
+                    )
 
                     toast.success("Payment success ✅");
                     navigate("/")

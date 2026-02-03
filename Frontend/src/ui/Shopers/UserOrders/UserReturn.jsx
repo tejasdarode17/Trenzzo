@@ -3,9 +3,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import api from "@/api/axiosInstance";
 
 
 const UserReturn = ({ item, order }) => {
@@ -20,10 +20,11 @@ const UserReturn = ({ item, order }) => {
         try {
             e.preventDefault()
             setLoading(true)
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/return-req`,
+    
+            const response = await api.post("/return-req",
                 { itemId: item._id, orderId: order._id, reason },
-                { withCredentials: true }
-            );
+            )
+
             setLoading(false)
             setOpen(false)
             toast.success(response?.data?.message)

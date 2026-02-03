@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { Lock, Key, Eye, EyeOff, CheckCircle, AlertCircle, Loader2, Mail, User, Edit, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import axios from 'axios'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
+import api from '@/api/axiosInstance'
 
 const SellerAccount = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -51,12 +51,12 @@ const SellerAccount = () => {
             setLoading(true)
             setError("")
             setPasswordChanged(false)
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/seller/change-password`,
+
+            await api.post("/seller/change-password",
                 {
-                    currentPassword: formData.currentPassword,
-                    newPassword: formData.newPassword
+                    currentPassword: formData?.currentPassword,
+                    newPassword: formData?.newPassword
                 },
-                { withCredentials: true }
             )
 
             toast.success("Password changed successfully!")

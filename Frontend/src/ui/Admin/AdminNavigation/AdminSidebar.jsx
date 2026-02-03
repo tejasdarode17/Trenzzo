@@ -69,8 +69,7 @@ const SideBarMenu = ({ setOpenSheet }) => {
 
     async function handleLogout() {
         try {
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`,
-                {},
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/logout`, {},
                 { withCredentials: true }
             );
             dispatch(clearUser());

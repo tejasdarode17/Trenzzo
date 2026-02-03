@@ -1,6 +1,6 @@
+import api from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { updateStatusOfOrder } from "@/redux/deliverySlice";
-import axios from "axios";
 import { Phone, MapPin, CheckCircle, Truck, Package, Box } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -65,13 +65,10 @@ const OngoingDeliveryOrders = () => {
             else if (current === "out-for-delivery") status = "delivered";
             if (!status) return;
 
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/delivery/status`,
-                { orderId, itemId, status },
-                { withCredentials: true }
-            );
+            const response = await api.post("/delivery/status", { orderId, itemId, status })
+            dispatch(updateStatusOfOrder(response?.data?.item || {}))
+            setButtonLoading(false)
 
-            dispatch(updateStatusOfOrder(response?.data?.item || {}));
-            setButtonLoading(false);
         } catch (error) {
             toast.error(error.response.data.message || "Server Error")
             setButtonLoading(false);
