@@ -29,9 +29,9 @@ export const uploadImagesController = async (req, res) => {
                 url: r.secure_url,
                 public_id: r.public_id,
             })),
-        });
+        })
     } catch (error) {
-        res.status(500).json({ success: false, message: "Upload failed" });
+        res.status(500).json({ success: false, message: "Upload failed" })
     }
 };
 
