@@ -12,12 +12,10 @@ const { uploadImagesToServer } = useUploadImages();
 
 export async function addCarouselAPI({ carousalType, carouselImages }) {
     const images = await uploadImagesToServer(carouselImages);
-
-    const payload = {
+        const payload = {
         title: carousalType,
         images
     };
-
     const response = await api.post("/admin/add-carousel", payload);
     return response?.data;
 }

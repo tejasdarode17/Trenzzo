@@ -8,7 +8,7 @@ const Banners = () => {
     const { data: carouselsData, isLoading: carouselsLoading } = useCarousels();
 
     const mainCarousel = carouselsData?.carousels?.find(
-        (c) => c?.title === "Main"
+        (c) => c?.title === "main"
     );
 
     const saleBanner = bannersData?.banners?.find(

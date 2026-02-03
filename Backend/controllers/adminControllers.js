@@ -369,11 +369,15 @@ export async function changeSellerStatus(req, res) {
 
 export async function createCarousel(req, res) {
     const { title, images } = req.body;
+
     try {
         const adminID = req.user.id;
-
         if (!adminID || req.user.role !== "admin") {
             return res.status(403).json({ success: false, message: "You are not authorized" });
+        }
+
+        if (!title) {
+            return res.status(404).json({ success: false, message: "Title is required" });
         }
 
         const carousel = await Carousel.findOne({ title });

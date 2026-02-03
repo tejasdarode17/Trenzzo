@@ -10,6 +10,7 @@ const CarouselForm = ({ initialData = {}, onSubmit, loading, error }) => {
     const [carouselType, setCarouselType] = useState("");
     const [carouselImages, setCarouselImages] = useState([]);
 
+
     const id = initialData?._id;
 
     useEffect(() => {
@@ -41,7 +42,7 @@ const CarouselForm = ({ initialData = {}, onSubmit, loading, error }) => {
                             <SelectValue placeholder="Please Select Type" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Main">Main</SelectItem>
+                            <SelectItem value="main">Main</SelectItem>
                             {/* <SelectItem value="Category">Category</SelectItem> */}
                         </SelectContent>
                     </Select>
