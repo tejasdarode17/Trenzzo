@@ -1,7 +1,7 @@
 import crypto from "crypto"
 import bcrypt from "bcrypt"
 import EmailOtp from "../model/emailOtpModel.js";
-import sendMailFromResend from "../config/resend.js";
+import sendMailFromNodemailer from "../config/resend.js";
 
 export function generateOTP() {
     const otp = crypto.randomInt(100000, 1000000);
@@ -11,8 +11,13 @@ export function generateOTP() {
 
 export async function sendEmailOtp({ email, role, payload }) {
 
+    console.log("calledfromSendEmailOtp");
+    
     const otp = generateOTP();
     const otpHash = await bcrypt.hash(otp, 10);
+
+    console.log(otp);
+    
 
     await EmailOtp.deleteMany({ email, role });
 
@@ -26,7 +31,7 @@ export async function sendEmailOtp({ email, role, payload }) {
     });
 
     // 5. Send email
-    await sendMailFromResend({
+    await sendMailFromNodemailer({
         to: email,
         subject: "Verify your email",
         html: `

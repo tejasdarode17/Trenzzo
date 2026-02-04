@@ -6,7 +6,7 @@ import DeliveryPartner from "../model/deliveryPartnerModel.js";
 import { generateOTP, sendEmailOtp } from "../utils/OtpHandler.js";
 import EmailOtp from "../model/emailOtpModel.js";
 import { generateAccessToken, generateRefreshToken, verifyToken } from "../utils/JWT_TokenHandler.js";
-import sendMailFromResend from "../config/resend.js";
+import sendMailFromNodemailer from "../config/resend.js";
 
 //user (shopper)
 export async function registerUser(req, res) {
@@ -37,6 +37,8 @@ export async function registerUser(req, res) {
             password: hashPassword,
         }
 
+        console.log(safeEmail);
+        
         await sendEmailOtp({ email: safeEmail, role: "user", payload });
 
         return res.status(201).json({
@@ -174,6 +176,7 @@ export async function registerSeller(req, res) {
         })
 
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -518,7 +521,7 @@ export async function resendEmailOtp(req, res) {
 
         await record.save();
 
-        await sendMailFromResend({
+        await sendMailFromNodemailer({
             to: safeEmail,
             subject: "Verify your email",
             html: `
