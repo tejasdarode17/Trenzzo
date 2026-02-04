@@ -1,7 +1,7 @@
 import crypto from "crypto"
 import bcrypt from "bcrypt"
 import EmailOtp from "../model/emailOtpModel.js";
-import sendMailFromNodemailer from "../config/resend.js";
+import sendMailFromNodemailer from "../config/nodemailer.js";
 
 export function generateOTP() {
     const otp = crypto.randomInt(100000, 1000000);
