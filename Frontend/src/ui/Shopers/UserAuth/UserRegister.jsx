@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import ErrorMessage from "@/ui/Others/ErrorMessage";
+import { Loader2 } from "lucide-react";
 
 const UserRegister = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -65,7 +66,7 @@ const UserRegister = () => {
           disabled={loading}
           className="w-full bg-[#E17100] hover:bg-[#cf6500] text-white font-semibold py-3 rounded-lg transition disabled:opacity-70"
         >
-          {loading ? "Creating..." : "Create account"}
+          {loading ? <Loader2 className="animate-spin mx-auto"></Loader2> : "Create account"}
         </button>
       </form>
 

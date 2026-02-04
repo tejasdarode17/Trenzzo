@@ -4,6 +4,7 @@ import axios from "axios";
 import { checkAuth, } from "@/redux/authSlice";
 import { useDispatch } from "react-redux";
 import ErrorMessage from "@/ui/Others/ErrorMessage";
+import { Loader2 } from "lucide-react";
 
 const UserLogin = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -77,7 +78,7 @@ const UserLogin = () => {
           disabled={loading}
           className="w-full bg-[#E17100] hover:bg-[#cf6500] text-white font-semibold py-3 rounded-lg transition disabled:opacity-70"
         >
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? <Loader2 className="animate-spin mx-auto"></Loader2> : "Sign in"}
         </button>
       </form>
 

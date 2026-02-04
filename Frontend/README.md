@@ -66,21 +66,24 @@ None
 “Any site can send this cookie”
 
 # VITE_BACKEND_URL=https://trenzzo.onrender.com/api/v1
+
 # VITE_SOCKET_URL=https://trenzzo.onrender.com
 
-
-
 const allowedOrigins = [
-  "https://trenzzo.vercel.app"
+"https://trenzzo.vercel.app"
 ];
 
 app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
+origin: (origin, cb) => {
+if (!origin || allowedOrigins.includes(origin)) {
+cb(null, true);
+} else {
+cb(new Error("Not allowed by CORS"));
+}
+},
+credentials: true
 }));
+
+“SMTP requires outbound TCP connections, which are blocked on managed hosting free tiers. So I used a transactional email API instead.”
+
+Nodemailer uses SMTP, which requires opening a persistent TCP connection to an email server. On platforms like Render, outbound SMTP ports are blocked on free plans to prevent spam and protect IP reputation. Because the TCP connection never completes, Nodemailer times out. Email APIs work because they use HTTPS, which is allowed.

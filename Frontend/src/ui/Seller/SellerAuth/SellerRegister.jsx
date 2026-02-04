@@ -1,6 +1,6 @@
 import ErrorMessage from "@/ui/Others/ErrorMessage";
 import axios from "axios";
-import { Loader } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -76,7 +76,7 @@ const SellerRegister = () => {
                 {error && <ErrorMessage error={error}></ErrorMessage>}
 
                 <button disabled={loading} className="w-full bg-[#E17100] hover:bg-[#cf6500] text-white font-semibold py-3 rounded-lg">
-                    {loading ? <Loader className="animate-spin"></Loader> : " Register as Seller"}
+                    {loading ? <Loader2 className="mx-auto animate-spin"></Loader2> : " Register as Seller"}
                 </button>
             </form>
 

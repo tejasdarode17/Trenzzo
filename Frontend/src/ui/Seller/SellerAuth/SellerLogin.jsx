@@ -1,7 +1,7 @@
 import ErrorMessage from "@/ui/Others/ErrorMessage";
 import { checkAuth, } from "@/redux/authSlice";
 import axios from "axios";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, } from "react-router-dom";
@@ -67,7 +67,7 @@ const SellerLogin = () => {
                     type="submit"
                     className="w-full bg-[#E17100] text-white py-3 rounded-lg font-semibold"
                 >
-                    {loading ? <Loader className="aimate-spin"></Loader> : "Login"}
+                    {loading ? <Loader2 className="animate-spin mx-auto"></Loader2> : "Login"}
                 </button>
             </form>
 
