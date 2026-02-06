@@ -16,9 +16,8 @@ function Navbar() {
   const { isAuthenticated } = useSelector((store) => store.auth);
   const [openMobileSearch, setOpenMobileSearch] = useState(false);
 
-  const { data, isLoading } = useCart();
+  const { data } = useCart();
   const cart = data?.cart;
-
 
   return (
     <>
@@ -69,7 +68,7 @@ function Navbar() {
 
       {/* MOBILE SEARCH OVERLAY */}
       {openMobileSearch && (
-        <MobileSearchbar onClose={() => setOpenMobileSearch(false)} />
+        <MobileSearchbar onClose={setOpenMobileSearch} />
       )}
     </>
   );

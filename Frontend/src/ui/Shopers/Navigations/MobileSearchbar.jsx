@@ -2,10 +2,22 @@ import { useState } from "react";
 import useSearch from "@/hooks/shopper/useSearch";
 import SearchResults from "./SearchResult";
 import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const MobileSearchbar = ({ onClose }) => {
+    
     const [query, setQuery] = useState("");
     const { results, loading } = useSearch(query);
+
+    const navigate = useNavigate()
+
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            onClose(false)
+            e.preventDefault();
+            navigate(`/products?search=${encodeURIComponent(query)}`);
+        }
+    }
 
     return (
         <div className="fixed inset-0 bg-white z-[100] md:hidden">
@@ -15,6 +27,7 @@ const MobileSearchbar = ({ onClose }) => {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Search products"
                     className="flex-1 outline-none text-sm"
                 />

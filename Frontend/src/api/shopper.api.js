@@ -137,6 +137,7 @@ export async function initCheckoutAPI(payload) {
 
 export async function checkOutAPI() {
     const response = await api.get("/checkout");
+    console.log(response.data);
     return response?.data?.checkout;
 }
 

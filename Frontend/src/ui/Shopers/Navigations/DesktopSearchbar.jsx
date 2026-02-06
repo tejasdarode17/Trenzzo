@@ -38,7 +38,7 @@ const DesktopSearchbar = () => {
                         results={results}
                         loading={loading}
                         query={query}
-                        onClose={() => setOpen(false)}
+                        onClose={setOpen}
                     />
                 </div>
             )}

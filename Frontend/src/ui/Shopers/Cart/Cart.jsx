@@ -21,16 +21,20 @@ const Cart = () => {
   const { mutate: addToCart, isPending: addLoading } = useAddToCart();
 
   //below functonalities custom hook is not created cuz this functonilities is limited to this component only
+  //decreasing quantity from cart
   const { mutate: decreaseQty } = useMutation({
     mutationFn: decreaseCartQuantityAPI,
     onSuccess: () => queryClient.invalidateQueries(["cart"]),
   });
 
+  //removing item form cart
   const { mutate: removeItem } = useMutation({
     mutationFn: removeItemFromCartAPI,
     onSuccess: () => queryClient.invalidateQueries(["cart"]),
   });
 
+
+  //clering cart
   const { mutate: clearCart, isPending: clearing } = useMutation({
     mutationFn: clearCartAPI,
     onMutate: async () => {
@@ -57,12 +61,15 @@ const Cart = () => {
     }
   })
 
+
+  //add to checkout
   const { mutate: initCheckout, isPending: checkoutLoading } = useInitCheckout();
   function handleInitCheckout() {
     initCheckout({ source: "cart" })
     navigate("/checkout")
   }
 
+  //protection
   if (!isAuthenticated) return <Navigate to="/user/auth/login" replace />;
   if (isLoading) return <CartSkeleton />;
   if (!cart?.items?.length) return <EmptyCart />;

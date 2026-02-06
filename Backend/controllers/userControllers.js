@@ -24,6 +24,7 @@ export async function fetchSearchSuggestions(req, res) {
             ],
         }).limit(10).select("name brand slug")
         return res.json({ success: true, products });
+
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -516,12 +517,16 @@ export async function fetchCart(req, res) {
 
 export async function initCheckout(req, res) {
     try {
+
         const userId = req.user.id;
         const { source, productID, quantity = 1, attributes = {} } = req.body;
+
+        await Checkout.findOneAndDelete({ user: userId })
 
         if (!["cart", "buy_now"].includes(source)) {
             return res.status(400).json({ message: "Invalid checkout source" });
         }
+
 
         let items = [];
         let itemTotal = 0;
@@ -560,6 +565,7 @@ export async function initCheckout(req, res) {
         }
 
         if (source === "buy_now") {
+
             if (!productID) {
                 return res.status(400).json({ message: "Product ID required" });
             }
