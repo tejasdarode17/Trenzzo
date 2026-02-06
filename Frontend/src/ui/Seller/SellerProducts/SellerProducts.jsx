@@ -52,7 +52,7 @@ const SellerProducts = () => {
 
             <div>
                 <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-3"> 
+                    <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-lg">
                             <Package2 className="w-4 h-4 text-blue-600" />
                         </div>
@@ -109,33 +109,37 @@ const SellerProducts = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <ProductsTable products={products} productsLoading={productsLoading} />
 
-                <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 text-sm text-gray-600">
-                    <span>
-                        Showing {products?.length} items
-                    </span>
+                {
+                    pages > 1 && (
+                        <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 text-sm text-gray-600">
+                            <span>
+                                Showing {products?.length} items
+                            </span>
 
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={page === 1}
-                            onClick={() => setPage((p) => p - 1)}
-                        >
-                            Previous
-                        </Button>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === 1}
+                                    onClick={() => setPage((p) => p - 1)}
+                                >
+                                    Previous
+                                </Button>
 
-                        <span className="px-2">{page}</span>
+                                <span className="px-2">{page}</span>
 
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={page === pages}
-                            onClick={() => setPage((p) => p + 1)}
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === pages}
+                                    onClick={() => setPage((p) => p + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )
+                }
             </div>
         </div >
     );

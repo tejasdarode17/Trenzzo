@@ -17,6 +17,8 @@ import { createSuperAdminOnce } from "./controllers/adminControllers.js";
 dotenv.config();
 
 const app = express();
+
+// “Trust the first reverse proxy(Vercel) to tell the truth about the original request.”
 app.set("trust proxy", 1)
 
 const server = http.createServer(app)
@@ -67,4 +69,3 @@ startServer().catch(err => {
     console.error("❌ Failed to start server:", err);
     process.exit(1);
 })
- 

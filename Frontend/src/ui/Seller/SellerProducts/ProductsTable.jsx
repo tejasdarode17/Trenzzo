@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import ProductsActionButton from "./ProductsActionButtons";
 import SellerProductsTableShimmer from "./SellerProductsTableShimmer";
+import { Package, } from "lucide-react";
 
 const ProductsTable = ({ products, productsLoading }) => {
 
@@ -16,8 +17,19 @@ const ProductsTable = ({ products, productsLoading }) => {
 
     if (!products || products.length === 0) {
         return (
-            <div className="p-6 text-sm text-gray-500 text-center">
-                No products found
+            <div className="min-h-[calc(100vh-200px)] bg-gradient-to-br from-slate-50 to-blue-50/30 flex flex-col items-center justify-center px-4 py-12 sm:py-16">
+                <div className="max-w-md mx-auto text-center">
+                    <div className="flex justify-center items-center">
+                        <Package className="w-10 h-10 text-blue-600 " />
+                    </div>
+
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-blue-700 bg-clip-text text-transparent my-3">
+                        No Products Found
+                    </h2>
+                    <p className="text-slate-600 mb-6 max-w-sm mx-auto">
+                        It looks like you haven't added any products yet.
+                    </p>
+                </div>
             </div>
         );
     }

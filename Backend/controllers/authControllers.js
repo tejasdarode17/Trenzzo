@@ -382,7 +382,10 @@ export async function verifyEmailOtp(req, res) {
             return res.status(400).json({ message: "Missing fields" });
         }
 
-        //  (preventing race condition)
+        // Atomically fetch + increment attempts so the same OTP
+        // cannot be verified twice in parallel (prevents race conditions)
+        // findOneAndUpdate is atomic → once one request matches the OTP, others cannot see it
+        // “Once Req A’s findOneAndUpdate hits MongoDB, the OTP is no longer matchable — even if Req A’s JS code is still running.”
         const record = await EmailOtp.findOneAndUpdate(
             {
                 email: email.toLowerCase(),
@@ -505,7 +508,7 @@ export async function resendEmailOtp(req, res) {
         const lastSent = record.updatedAt || record.createdAt;
         const diff = Date.now() - new Date(lastSent).getTime();
 
-        if (diff < 30 * 1000) {
+        if (diff < 60 * 1000) {
             return res.status(429).json({
                 message: "Please wait before requesting OTP again.",
             });
@@ -515,7 +518,7 @@ export async function resendEmailOtp(req, res) {
         const otpHash = await bcrypt.hash(otp, 10);
 
         record.otpHash = otpHash;
-        record.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        record.expiresAt = new Date(Date.now() + 1 * 60 * 1000);
         record.attempts = 0;
         record.isUsed = false;
 
@@ -527,7 +530,7 @@ export async function resendEmailOtp(req, res) {
             html: `
                 <h2>Email Verification</h2>
                 <p>Your OTP is <strong>${otp}</strong></p>
-                <p>This OTP is valid for 10 minutes.</p>
+                <p>This OTP is valid for 1 minute.</p>
             `,
         });
 

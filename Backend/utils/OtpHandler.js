@@ -14,8 +14,6 @@ export async function sendEmailOtp({ email, role, payload }) {
     const otp = generateOTP();
     const otpHash = await bcrypt.hash(otp, 10);
 
-    console.log(otp);
-
 
     await EmailOtp.deleteMany({ email, role });
 
@@ -24,7 +22,7 @@ export async function sendEmailOtp({ email, role, payload }) {
         role,
         payload,
         otpHash,
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 1 * 60 * 1000),
         isUsed: false,
     });
 

@@ -87,3 +87,9 @@ credentials: true
 “SMTP requires outbound TCP connections, which are blocked on managed hosting free tiers. So I used a transactional email API instead.”
 
 Nodemailer uses SMTP, which requires opening a persistent TCP connection to an email server. On platforms like Render, outbound SMTP ports are blocked on free plans to prevent spam and protect IP reputation. Because the TCP connection never completes, Nodemailer times out. Email APIs work because they use HTTPS, which is allowed.
+
+// “I prevent race conditions by using MongoDB’s atomic findOneAndUpdate with strict filters.Only one request can match and update an unused, unexpired OTP, so concurrent verification attempts cannot reuse the same OTP.”
+
+
+
+“Vercel terminates HTTPS and forwards HTTP to backend → trust proxy”
