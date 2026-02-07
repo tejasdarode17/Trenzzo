@@ -16,6 +16,7 @@ import { useAddToCart } from "@/hooks/shopper/useAddToCart";
 import { useInitCheckout } from "@/hooks/shopper/useInitCheckout";
 
 const ProductDetails = () => {
+
     const [mainImage, setMainImage] = useState(null)
     const navigate = useNavigate()
     const { slug } = useParams()
@@ -281,9 +282,6 @@ const ProductDetails = () => {
                                     </div>
                                 </div>
                             </div>
-
-
-
 
                             <div className="hidden lg:flex gap-3">
                                 <Button

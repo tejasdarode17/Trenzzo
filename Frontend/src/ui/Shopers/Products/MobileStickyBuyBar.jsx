@@ -2,7 +2,8 @@ import { Loader2, ShoppingCart, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const MobileStickyBuyBar = ({ onAddToCart, addToCartLoading, onBuyNow, onBuyNowLoading, product }) => {
-    // Safe price formatting
+   
+    
     const price = product?.price || 0;
     const salePrice = product?.salePrice || 0;
 
