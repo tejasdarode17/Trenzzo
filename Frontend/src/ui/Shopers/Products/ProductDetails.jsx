@@ -1,7 +1,7 @@
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, Truck, Calendar, FileText, ShoppingCart, Zap } from "lucide-react";
+import { ChevronRight, Share2, Heart, Shield, Star, CheckCircle, XCircle, AlertTriangle, Truck, Calendar, FileText, ShoppingCart, Zap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProductDetail } from "@/hooks/shopper/useProductDetail";
@@ -57,15 +57,20 @@ const ProductDetails = () => {
     }
 
 
-    const { mutate: initCheckout, isLoading: initLoading } = useInitCheckout();
+    const { mutate: initCheckout, isPending: onBuyNowLoading } = useInitCheckout();
     function handleBuyNow(productID, quantity, attributes) {
         initCheckout({
             source: "buy_now",
             productID,
             quantity,
             attributes,
-        });
-        navigate("/checkout")
+        },
+            {
+                onSuccess: () => {
+                    navigate("/checkout?source=buy_now");
+                }
+            }
+        )
     }
 
 
@@ -157,7 +162,7 @@ const ProductDetails = () => {
                                 disabled={wishlistAdding}
                             >
                                 <Heart className={`w-3 h-3 mr-1 ${isWishlisted ? "text-red-500 fill-red-500" : ""}`} />
-                                {wishlistAdding ? "Adding..." : "Wishlist"}
+                                {wishlistAdding ? <Loader2 className="animate-spin mx-auto"></Loader2> : "Wishlist"}
                             </Button>
                         </div>
 
@@ -288,15 +293,23 @@ const ProductDetails = () => {
                                     onClick={addToCart}
                                     className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 text-sm"
                                 >
-                                    <ShoppingCart className="w-4 h-4 mr-2" />
-                                    Add to Cart
+                                    {addToCartLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
+                                        <>
+                                            <ShoppingCart className="w-4 h-4 mr-2" />
+                                            "Add""
+                                        </>
+                                    )}
                                 </Button>
                                 <Button
                                     onClick={() => handleBuyNow(product._id, 1, product.attributes)}
                                     className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 text-sm"
                                 >
-                                    <Zap className="w-4 h-4 mr-2" />
-                                    Buy Now
+                                    {onBuyNowLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
+                                        <>
+                                            <Zap className="w-4 h-4 mr-2" />
+                                            "buyNow"
+                                        </>
+                                    )}
                                 </Button>
                             </div>
 
@@ -327,7 +340,9 @@ const ProductDetails = () => {
             {/* Mobile Sticky Buy Bar - Fixed */}
             <MobileStickyBuyBar
                 onAddToCart={addToCart}
+                addToCartLoading={addToCartLoading}
                 onBuyNow={() => handleBuyNow(product._id, 1, product.attributes)}
+                onBuyNowLoading={onBuyNowLoading}
                 product={product}
             />
 

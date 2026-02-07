@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft, CheckCircle, AlertTriangle, Receipt, Sparkles, Shield, } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft, CheckCircle, AlertTriangle, Receipt, Sparkles, Shield, Loader2, } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmptyCart from "./EmptyCart";
 import CartSkeleton from "./CartSkeleton";
@@ -14,7 +14,7 @@ const Cart = () => {
   const { isAuthenticated } = useSelector((s) => s.auth);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const { data, isLoading } = useCart();
   const cart = data?.cart;
 
@@ -65,8 +65,14 @@ const Cart = () => {
   //add to checkout
   const { mutate: initCheckout, isPending: checkoutLoading } = useInitCheckout();
   function handleInitCheckout() {
-    initCheckout({ source: "cart" })
-    navigate("/checkout")
+    initCheckout(
+      { source: "cart" },
+      {
+        onSuccess: () => {
+          navigate("/checkout?source=cart");
+        },
+      }
+    );
   }
 
   //protection
@@ -332,7 +338,7 @@ const Cart = () => {
                   size="lg"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
+                  {checkoutLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : "Proceed to Checkout"}
                 </Button>
 
                 {/* Security Info */}

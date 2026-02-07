@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Navigate, useNavigate, } from 'react-router-dom'
+import { Navigate, useNavigate, useSearchParams, } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, CheckCircle } from "lucide-react"
+import { ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner'
 import AddAddress from '../Address/AddAddress'
@@ -13,12 +13,14 @@ import api from '@/api/axiosInstance'
 
 const CheckOut = () => {
     const { isAuthenticated } = useSelector((store) => store.auth)
+
     const { data } = useAddresses()
     const userAddresses = data?.addresses || []
     const [selectedAddress, setSelectedAddress] = useState((userAddresses || []).find((a) => a.isDefault === true) ?? null)
     const [visibleSection, setVisibleSection] = useState(selectedAddress ? "summary" : "address")
 
     const navigate = useNavigate()
+
 
     useEffect(() => {
         const def = userAddresses?.find(a => a?.isDefault);
@@ -42,7 +44,7 @@ const CheckOut = () => {
         }
 
         try {
-          
+
             const response = await api.post("/create-order", {})
 
             const data = response.data
@@ -56,7 +58,7 @@ const CheckOut = () => {
                 description: "Payment",
                 order_id: order.id,
                 handler: async function (response) {
-                    
+
                     await api.post("/verify-payment",
                         {
                             razorpay_payment_id: response.razorpay_payment_id,
@@ -255,13 +257,14 @@ const CheckoutAddressSection = ({ visibleSection, setVisibleSection, selectedAdd
                             address={selectedAddress}
                         />
                     )}
+
                 </div>
             ) : (
                 <div className="px-4 sm:px-6 py-3 sm:py-4">
                     {selectedAddress ? (
                         <p className="text-gray-700 text-sm sm:text-base break-words">
                             Deliver to: <strong>{selectedAddress?.name}</strong>,{" "}
-                            {selectedAddress?.address}, {selectedAddress?.city}
+                            {selectedAddress?.address}, {selectedAddress?.locality} ,  {selectedAddress?.pinCode}, {selectedAddress?.city}
                         </p>
                     ) : (
                         <div className="border border-red-300 bg-red-50 p-3 sm:p-4 rounded-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
@@ -288,9 +291,21 @@ const CheckoutAddressSection = ({ visibleSection, setVisibleSection, selectedAdd
 };
 
 const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayment }) => {
-    const { data: checkOut } = useCheckout()
+
+    const [searchParams] = useSearchParams()
+    const source = searchParams.get("source")
+    const { data: checkOut, isLoading } = useCheckout(source)
+
     const { data } = useAddresses()
     const userAddresses = data?.addresses || []
+
+    if (isLoading) {
+        return (
+            <div className='w-full flex justify-center items-center'>
+                <Loader2 className='animate-spin'></Loader2>
+            </div>
+        )
+    }
 
     return (
         <div className="bg-white rounded-lg border shadow-sm w-full">
@@ -325,16 +340,20 @@ const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayme
                                     <p className="font-medium text-gray-900 text-xs sm:text-sm line-clamp-2 break-words">
                                         {item?.product?.brand} {item?.product?.name}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {item?.product?.attributes?.storage} • {item?.attributes?.colour} {item?.attributes?.quantity}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <p className="font-semibold text-sm sm:text-base">
-                                            ₹{item?.lockedPrice?.toLocaleString("en-IN")} x {item.quantity}
-                                        </p>
-                                        <p className="font-semibold text-sm sm:text-base">
-                                            ₹{(item?.lockedPrice * item.quantity)?.toLocaleString("en-IN")}
-                                        </p>
+                                    {/* <p className="text-xs text-gray-500 mt-1">
+                                        {item?.product?.attributes?.storage}  {item?.attributes?.colour} {item?.attributes?.quantity}
+                                    </p> */}
+                                    <div className="flex items-center justify-between py-2">
+                                        <div className="flex items-center space-x-2 text-muted-foreground">
+                                            <span className="font-medium">₹{item?.lockedPrice?.toLocaleString("en-IN")}</span>
+                                            <span>×</span>
+                                            <span>Qty {item?.quantity}</span>
+                                        </div>
+                                        <div className="font-semibold text-right">
+                                            <p className="text-sm sm:text-base">
+                                                ₹{(item?.lockedPrice * item?.quantity)?.toLocaleString("en-IN")}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -356,7 +375,11 @@ const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayme
 }
 
 const RightOrderSummaryInCheckout = ({ handlePayment, selectedAddress, userAddresses }) => {
-    const { data: checkOut } = useCheckout()
+
+    const [searchParams] = useSearchParams()
+    const source = searchParams.get("source")
+    const { data: checkOut } = useCheckout(source)
+
     return (
         <div className="bg-white rounded-lg border shadow-md w-full">
             {/* Card Header */}
@@ -387,14 +410,14 @@ const RightOrderSummaryInCheckout = ({ handlePayment, selectedAddress, userAddre
                 </div>
 
                 {/* Delivery Info */}
-                {selectedAddress && (
+                {/* {selectedAddress && (
                     <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-sm text-gray-600 mb-1">Delivering to:</p>
                         <p className="text-sm font-medium text-gray-900 truncate">
-                            {selectedAddress?.name}, {selectedAddress?.city}
+                            {selectedAddress?.name}, {selectedAddress?.locality}
                         </p>
                     </div>
-                )}
+                )} */}
 
                 <Separator className="my-3 sm:my-4" />
 

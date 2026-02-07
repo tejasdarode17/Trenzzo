@@ -12,6 +12,8 @@ const Products = () => {
     const sort = searchParams.get("sort") || "relevance";
     const page = Number(searchParams.get("page") || 1);
 
+
+    // bas yahape category bhejni hai 
     const { data, isLoading } = useProducts({ search, sort, page });
 
     const products = data?.products || [];

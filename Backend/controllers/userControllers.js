@@ -36,6 +36,11 @@ export async function fetchSearchSuggestions(req, res) {
 
 export async function fetchSearchProducts(req, res) {
     try {
+
+        //yahape reciver karni hai aur fetch karna hai 
+
+        //category ki id aygi 
+
         const { search, page = 1, sort = "relevance" } = req.query;
         const limit = 10
 

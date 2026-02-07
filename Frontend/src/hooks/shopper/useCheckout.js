@@ -1,9 +1,9 @@
 import { checkOutAPI } from "@/api/shopper.api";
 import { useQuery } from "@tanstack/react-query";
 
-export function useCheckout() {
+export function useCheckout(source) {
     return useQuery({
-        queryKey: ["checkout"],
+        queryKey: ["checkout", source],
         queryFn: checkOutAPI,
         staleTime: 0,
     });

@@ -1,7 +1,7 @@
-import { ShoppingCart, Zap } from "lucide-react";
+import { Loader2, ShoppingCart, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const MobileStickyBuyBar = ({ onAddToCart, onBuyNow, product }) => {
+const MobileStickyBuyBar = ({ onAddToCart, addToCartLoading, onBuyNow, onBuyNowLoading, product }) => {
     // Safe price formatting
     const price = product?.price || 0;
     const salePrice = product?.salePrice || 0;
@@ -37,8 +37,12 @@ const MobileStickyBuyBar = ({ onAddToCart, onBuyNow, product }) => {
                         className="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 min-w-[100px]"
                         disabled={!product}
                     >
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        Add
+                        {addToCartLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
+                            <>
+                                <ShoppingCart className="w-4 h-4 mr-2" />
+                                "Add""
+                            </>
+                        )}
                     </Button>
 
                     <Button
@@ -46,8 +50,12 @@ const MobileStickyBuyBar = ({ onAddToCart, onBuyNow, product }) => {
                         className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 min-w-[100px]"
                         disabled={!product}
                     >
-                        <Zap className="w-4 h-4 mr-2" />
-                        Buy
+                        {onBuyNowLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
+                            <>
+                                <Zap className="w-4 h-4 mr-2" />
+                                "buyNow"
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>
@@ -56,3 +64,4 @@ const MobileStickyBuyBar = ({ onAddToCart, onBuyNow, product }) => {
 };
 
 export default MobileStickyBuyBar;
+
