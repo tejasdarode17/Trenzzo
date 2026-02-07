@@ -17,6 +17,8 @@ import { useInitCheckout } from "@/hooks/shopper/useInitCheckout";
 
 const ProductDetails = () => {
 
+    const [hello, setHellp] = useState()
+
     const [mainImage, setMainImage] = useState(null)
     const navigate = useNavigate()
     const { slug } = useParams()
