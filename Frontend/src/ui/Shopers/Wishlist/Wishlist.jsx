@@ -29,14 +29,15 @@ const Wishlist = () => {
 
 
 
-    const { mutate: addToCart } = useAddToCart()
+    const { mutate: addToCart, isPending: addToCartLoading } = useAddToCart()
     function handleAddTocart(product) {
         addToCart({
             productID: product._id,
             quantity: 1,
             attributes: product.attributes,
-        })
-        navigate("/cart")
+        },
+            { onSuccess: () => navigate("/cart") }
+        )
     }
 
 
@@ -180,7 +181,11 @@ const Wishlist = () => {
                                         disabled={product.outOfStock}
                                         onClick={() => handleAddTocart(product)}
                                     >
-                                        Add To Cart
+                                        {addToCartLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
+                                            <>
+                                                <ShoppingCart className="w-4 h-4 mr-2" />
+                                            </>
+                                        )}
                                     </Button>
                                 </div>
                             </div>
