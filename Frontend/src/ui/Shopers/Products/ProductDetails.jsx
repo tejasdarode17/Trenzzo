@@ -52,8 +52,9 @@ const ProductDetails = () => {
             productID: product._id,
             quantity: 1,
             attributes: product.attributes
-        })
-        navigate("/cart");
+        },
+            { onSuccess: () => navigate("/cart") }
+        )
     }
 
 
@@ -65,11 +66,7 @@ const ProductDetails = () => {
             quantity,
             attributes,
         },
-            {
-                onSuccess: () => {
-                    navigate("/checkout?source=buy_now");
-                }
-            }
+            { onSuccess: () => navigate("/checkout?source=buy_now") }
         )
     }
 
@@ -296,7 +293,7 @@ const ProductDetails = () => {
                                     {addToCartLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
                                         <>
                                             <ShoppingCart className="w-4 h-4 mr-2" />
-                                            "Add""
+                                            Add To Cart
                                         </>
                                     )}
                                 </Button>
@@ -307,7 +304,7 @@ const ProductDetails = () => {
                                     {onBuyNowLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
                                         <>
                                             <Zap className="w-4 h-4 mr-2" />
-                                            "buyNow"
+                                            Buy now
                                         </>
                                     )}
                                 </Button>

@@ -40,7 +40,6 @@ const MobileStickyBuyBar = ({ onAddToCart, addToCartLoading, onBuyNow, onBuyNowL
                         {addToCartLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
                             <>
                                 <ShoppingCart className="w-4 h-4 mr-2" />
-                                "Add""
                             </>
                         )}
                     </Button>
@@ -53,7 +52,7 @@ const MobileStickyBuyBar = ({ onAddToCart, addToCartLoading, onBuyNow, onBuyNowL
                         {onBuyNowLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (
                             <>
                                 <Zap className="w-4 h-4 mr-2" />
-                                "buyNow"
+                                Buy Now
                             </>
                         )}
                     </Button>

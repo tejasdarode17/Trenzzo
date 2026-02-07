@@ -7,7 +7,7 @@ export function useCart() {
     return useQuery({
         queryKey: ["cart"],
         queryFn: fetchCartAPI,
-        enabled: isAuthenticated
+        enabled: isAuthenticated,
     })
 }
 

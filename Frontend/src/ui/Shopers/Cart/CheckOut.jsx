@@ -294,20 +294,14 @@ const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayme
 
     const [searchParams] = useSearchParams()
     const source = searchParams.get("source")
-    const { data: checkOut, isLoading } = useCheckout(source)
+    const { data: checkOut, isFetching, isLoading } = useCheckout(source)
 
     const { data } = useAddresses()
     const userAddresses = data?.addresses || []
 
-    if (isLoading) {
-        return (
-            <div className='w-full flex justify-center items-center'>
-                <Loader2 className='animate-spin'></Loader2>
-            </div>
-        )
-    }
 
     return (
+
         <div className="bg-white rounded-lg border shadow-sm w-full">
             <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 bg-amber-500 text-white rounded-t-lg">
                 <p className="font-semibold text-sm sm:text-base">2. ORDER SUMMARY</p>
@@ -327,36 +321,40 @@ const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayme
                 <div className="p-4 sm:p-6 space-y-4">
                     {
                         checkOut?.items?.map((item) => (
-                            <div
-                                key={item?.product._id}
-                                className="flex gap-3 sm:gap-4 border-b border-gray-100 pb-3"
-                            >
-                                <img
-                                    src={item?.product?.images?.[0]?.url}
-                                    alt={item?.product?.name}
-                                    className="w-14 h-14 sm:w-16 sm:h-16 object-contain flex-shrink-0"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 text-xs sm:text-sm line-clamp-2 break-words">
-                                        {item?.product?.brand} {item?.product?.name}
-                                    </p>
-                                    {/* <p className="text-xs text-gray-500 mt-1">
-                                        {item?.product?.attributes?.storage}  {item?.attributes?.colour} {item?.attributes?.quantity}
-                                    </p> */}
-                                    <div className="flex items-center justify-between py-2">
-                                        <div className="flex items-center space-x-2 text-muted-foreground">
-                                            <span className="font-medium">₹{item?.lockedPrice?.toLocaleString("en-IN")}</span>
-                                            <span>×</span>
-                                            <span>Qty {item?.quantity}</span>
+                            <>
+                                {
+                                    isLoading ? (
+                                        <div className='w-full h-full flex justify-center items-center'>
+                                            <Loader2 className='animate-spin'></Loader2>
                                         </div>
-                                        <div className="font-semibold text-right">
-                                            <p className="text-sm sm:text-base">
-                                                ₹{(item?.lockedPrice * item?.quantity)?.toLocaleString("en-IN")}
-                                            </p>
+                                    ) : (
+                                        <div key={item?.product._id} className="flex gap-3 sm:gap-4 border-b border-gray-100 pb-3">
+                                            <img
+                                                src={item?.product?.images?.[0]?.url}
+                                                alt={item?.product?.name}
+                                                className="w-14 h-14 sm:w-16 sm:h-16 object-contain flex-shrink-0"
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-gray-900 text-xs sm:text-sm line-clamp-2 break-words">
+                                                    {item?.product?.brand} {item?.product?.name}
+                                                </p>
+                                                <div className="flex items-center justify-between py-2">
+                                                    <div className="flex items-center space-x-2 text-muted-foreground">
+                                                        <span className="font-medium">₹{item?.lockedPrice?.toLocaleString("en-IN")}</span>
+                                                        <span>×</span>
+                                                        <span>Qty {item?.quantity}</span>
+                                                    </div>
+                                                    <div className="font-semibold text-right">
+                                                        <p className="text-sm sm:text-base">
+                                                            ₹{(item?.lockedPrice * item?.quantity)?.toLocaleString("en-IN")}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
+                                    )
+                                }
+                            </>
                         ))
                     }
 
@@ -409,16 +407,6 @@ const RightOrderSummaryInCheckout = ({ handlePayment, selectedAddress, userAddre
                     <p>₹{checkOut?.finalPayable?.toLocaleString("en-IN")}</p>
                 </div>
 
-                {/* Delivery Info */}
-                {/* {selectedAddress && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-600 mb-1">Delivering to:</p>
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                            {selectedAddress?.name}, {selectedAddress?.locality}
-                        </p>
-                    </div>
-                )} */}
-
                 <Separator className="my-3 sm:my-4" />
 
                 {/* Button */}
@@ -440,5 +428,6 @@ const RightOrderSummaryInCheckout = ({ handlePayment, selectedAddress, userAddre
         </div>
     );
 };
+
 
 export default CheckOut

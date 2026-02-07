@@ -15,7 +15,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useCart();
+  const { data, isLoading, isFetching } = useCart();
   const cart = data?.cart;
 
   const { mutate: addToCart, isPending: addLoading } = useAddToCart();
@@ -206,27 +206,29 @@ const Cart = () => {
                             </p>
                           )}
                         </div>
+
                       </div>
 
                       {/* Quantity Controls & Mobile Price */}
                       <div className="mt-4 flex items-center justify-between">
                         <div className="lg:hidden">
-                          <p className="font-bold text-base text-gray-900">
+                          <p className="font-bold text-xs text-gray-900">
                             ₹{(p.product.price * p.quantity).toLocaleString("en-IN")}
                           </p>
                           {p.quantity > 1 && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               ₹{p.product.price.toLocaleString("en-IN")} each
                             </p>
                           )}
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
+                          <div className="flex items-center bg-gray-100 rounded-md px-1.5 py-0.5 lg:px-2 lg:py-1">
+
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-7 w-7"
+                              className="h-6 w-6 lg:h-7 lg:w-7"
                               disabled={p.quantity === 1}
                               onClick={() =>
                                 decreaseQty({
@@ -238,14 +240,14 @@ const Cart = () => {
                               <Minus className="w-3 h-3" />
                             </Button>
 
-                            <span className="px-2 min-w-[28px] text-center font-medium text-sm">
+                            <span className="px-1.5 text-xs lg:text-sm min-w-[20px] text-center font-medium">
                               {p.quantity}
                             </span>
 
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-7 w-7"
+                              className="h-6 w-6 lg:h-7 lg:w-7"
                               disabled={addLoading || p.quantity >= p.product.stock}
                               onClick={() =>
                                 addToCart({
@@ -257,6 +259,7 @@ const Cart = () => {
                             >
                               <Plus className="w-3 h-3" />
                             </Button>
+
                           </div>
 
                           <Button
@@ -278,6 +281,9 @@ const Cart = () => {
                   </div>
                 ))}
               </div>
+
+
+
 
               {/* Mobile Continue Shopping Button */}
               <div className="mt-6 lg:hidden">
@@ -388,3 +394,67 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
+
+
+// const QuantityUpdate = () => {
+//   return (
+//     <div className="mt-4 flex items-center justify-between">
+//       <div className="lg:hidden">
+//         <p className="font-bold text-base text-gray-900">
+//           ₹{(p.product.price * p.quantity).toLocaleString("en-IN")}
+//         </p>
+//         {p.quantity > 1 && (
+//           <p className="text-xs text-gray-500">
+//             ₹{p.product.price.toLocaleString("en-IN")} each
+//           </p>
+//         )}
+//       </div>
+
+//       <div className="flex items-center gap-2">
+//         {/* Quantity Select */}
+//         <Select
+//           value={String(p.quantity)}
+//           onValueChange={(value) =>
+//             updateQty({
+//               productID: p.product._id,
+//               quantity: Number(value),
+//               attributes: p.product.attributes,
+//             })
+//           }
+//         >
+//           <SelectTrigger className="w-[80px] h-8">
+//             <SelectValue />
+//           </SelectTrigger>
+
+//           <SelectContent>
+//             {Array.from(
+//               { length: p.product.stock },
+//               (_, i) => i + 1
+//             ).map((qty) => (
+//               <SelectItem key={qty} value={String(qty)}>
+//                 {qty}
+//               </SelectItem>
+//             ))}
+//           </SelectContent>
+//         </Select>
+
+//         {/* Remove item */}
+//         <Button
+//           size="icon"
+//           variant="ghost"
+//           className="h-8 w-8 text-red-600 hover:bg-red-50"
+//           onClick={() =>
+//             removeItem({
+//               productID: p.product._id,
+//               attributes: p.product.attributes,
+//             })
+//           }
+//         >
+//           <Trash2 className="w-4 h-4" />
+//         </Button>
+//       </div>
+//     </div>
+//   )
+// }
