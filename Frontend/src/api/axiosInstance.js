@@ -19,7 +19,6 @@ api.interceptors.response.use(res => res,
                 await api.post("/auth/refresh");
                 return api(originalRequest);
             } catch (refreshErr) {
-                console.log("refresh failed", refreshErr);
                 return Promise.reject(refreshErr);
             }
         }

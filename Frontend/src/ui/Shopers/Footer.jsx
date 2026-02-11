@@ -43,9 +43,9 @@ function Footer() {
           <h3 className="text-white font-semibold mb-3">Support</h3>
           <ul className="space-y-2">
             <li><Link className="hover:text-indigo-400" to="/help">Help Center</Link></li>
-            <li><Link className="hover:text-indigo-400" to="/returns">Returns</Link></li>
-            <li><Link className="hover:text-indigo-400" to="/shipping">Shipping</Link></li>
-            <li><Link className="hover:text-indigo-400" to="/contact">Contact</Link></li>
+            {/* <li><Link className="hover:text-indigo-400" to="/returns">Returns</Link></li> */}
+            {/* <li><Link className="hover:text-indigo-400" to="/shipping">Shipping</Link></li> */}
+            {/* <li><Link className="hover:text-indigo-400" to="/contact">Contact</Link></li> */}
           </ul>
         </div>
 

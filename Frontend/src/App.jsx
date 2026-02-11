@@ -7,7 +7,6 @@ import VerifyOtp from "./ui/Others/VerifyOtp"
 import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
 import MainLoader from "./ui/Others/MainLoader"
 
-
 //ALl layouts   
 const AuthLayout = lazy(() => import("./ui/Layouts/AuthLayout"))
 const ShopersLayout = lazy(() => import("./ui/Layouts/ShopersLayout"))
@@ -28,6 +27,7 @@ const CheckOut = lazy(() => import("./ui/Shopers/Cart/CheckOut"))
 const Orders = lazy(() => import("./ui/Shopers/UserOrders/Orders"))
 const OrderDetails = lazy(() => import("./ui/Shopers/UserOrders/OrderDetails"))
 const Wishlist = lazy(() => import("./ui/Shopers/Wishlist/Wishlist"))
+const HelpCenter = lazy(() => import("./ui/Shopers/HelpCenter"))
 
 //  User Profile
 const UserProfileLayout = lazy(() => import("./ui/Shopers/UserProfile/UserProfileLayout"))
@@ -129,6 +129,7 @@ const appRouter = createBrowserRouter([
       { path: "orders", element: <Orders /> },
       { path: "order/:id", element: <OrderDetails /> },
       { path: "wishlist", element: <Wishlist /> },
+      { path: "help", element: <HelpCenter /> },
 
       {
         path: "account",

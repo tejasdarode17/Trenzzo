@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 const Trending = () => {
 
     const { data: products, isLoading } = useTrending()
-    const skeletonCount = 8;
+    const skeletonCount = 4;
 
     return (
         <section className="mb-4 md:mt-8 px-3 md:px-6">

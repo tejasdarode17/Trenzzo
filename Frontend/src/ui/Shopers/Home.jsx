@@ -1,4 +1,4 @@
-import Banners from "./Banners/Banners";
+import { MainCarousel, SaleBanner } from "./Banners/Banners";
 import Categories from "./Categories/Categories";
 import Trending from "./Trending/Trending";
 
@@ -7,7 +7,11 @@ const Home = () => {
         <div className="flex flex-col bg-white">
             {/* HERO / BANNERS FIRST ON MOBILE */}
             <section>
-                <Banners />
+                <MainCarousel />
+            </section>
+
+            <section>
+                <SaleBanner />
             </section>
 
             {/* CATEGORIES */}

@@ -3,43 +3,27 @@ import { useBanners } from "@/hooks/admin/useBanners";
 import { useCarousels } from "@/hooks/admin/useCarousels";
 import Autoplay from "embla-carousel-autoplay";
 
-const Banners = () => {
-    const { data: bannersData, isLoading: bannersLoading } = useBanners();
-    const { data: carouselsData, isLoading: carouselsLoading } = useCarousels();
 
+export const MainCarousel = () => {
+
+    const { data: carouselsData, isLoading: carouselsLoading } = useCarousels();
     const mainCarousel = carouselsData?.carousels?.find(
         (c) => c?.title === "main"
     );
 
-    const saleBanner = bannersData?.banners?.find(
-        (b) => b?.type === "sale"
-    );
-
-    return (
-        <div className="flex flex-col">
-            {mainCarousel && (
-                <MainCarousel
-                    mainCarousel={mainCarousel}
-                    loading={carouselsLoading}
-                />
-            )}
-
-            {saleBanner && (
-                <SaleBanner
-                    saleBanner={saleBanner}
-                    loading={bannersLoading}
-                />
-            )}
-        </div>
-    );
-};
-
-/* ================= MAIN CAROUSEL ================= */
-
-const MainCarousel = ({ mainCarousel, loading }) => {
-    if (loading) {
+    if (carouselsLoading) {
         return (
-            <div className="w-full h-[180px] md:h-[320px] bg-gray-200 animate-pulse" />
+            <div className="relative w-full overflow-hidden">
+                <div className="w-full h-[180px] md:h-[320px] bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse">
+                    <div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent"
+                        style={{
+                            animation: 'shimmer 1.5s infinite',
+                            backgroundSize: '200% 100%',
+                        }}
+                    />
+                </div>
+            </div>
         );
     }
 
@@ -76,10 +60,27 @@ const MainCarousel = ({ mainCarousel, loading }) => {
 
 /* ================= SALE BANNER ================= */
 
-const SaleBanner = ({ saleBanner, loading }) => {
-    if (loading) {
+export const SaleBanner = () => {
+
+    const { data: bannersData, isLoading: bannersLoading } = useBanners();
+    const saleBanner = bannersData?.banners?.find(
+        (b) => b?.type === "fixed"
+    )
+
+    if (bannersLoading) {
         return (
-            <div className="w-full h-[100px] md:h-[160px] bg-gray-200 animate-pulse" />
+            <div className="relative w-full mt-2 overflow-hidden rounded-md">
+                <div className="w-full h-[100px] md:h-[160px] bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse">
+                    {/* Shimmer overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 to-transparent animate-[shimmer_1.5s_infinite] bg-[length:200%_100%]" />
+
+                    {/* Optional content placeholders */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                        <div className="h-4 w-2/3 bg-gray-200/50 rounded-full animate-pulse" />
+                        <div className="h-3 w-1/2 bg-gray-200/50 rounded-full animate-pulse" />
+                    </div>
+                </div>
+            </div>
         );
     }
 
@@ -91,7 +92,6 @@ const SaleBanner = ({ saleBanner, loading }) => {
                 className="w-full h-[100px] md:h-[160px] object-cover"
             />
         </a>
-    );
-};
+    )
+}
 
-export default Banners;
