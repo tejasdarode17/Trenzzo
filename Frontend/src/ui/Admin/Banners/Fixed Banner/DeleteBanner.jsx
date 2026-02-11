@@ -34,7 +34,7 @@ const DeleteBanner = ({ banner }) => {
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                    <AlertDialogTitle>Delete Banner</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This banner will be permanently deleted
                     </AlertDialogDescription>

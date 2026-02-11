@@ -6,7 +6,7 @@ import { Loader2, Trash } from "lucide-react"
 import { useState } from "react"
 
 const DeleteCarousel = ({ carousel }) => {
-    const [open, setOpen] = useState(false) 
+    const [open, setOpen] = useState(false)
     const queryClient = useQueryClient()
 
     const { mutate: deleteCarousel, isPending: loading, isError: error } = useMutation({
@@ -33,7 +33,7 @@ const DeleteCarousel = ({ carousel }) => {
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                    <AlertDialogTitle>Delete Carousel</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This Carousel will be permanently deleted
                     </AlertDialogDescription>
