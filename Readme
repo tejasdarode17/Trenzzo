@@ -1,333 +1,95 @@
-🛍️ Trenzzo - MERN Stack E-Commerce Platform
+## 🛒 Trenzzo MERN Multi-Vendor E-Commerce Platform ##
+A production-grade, multi-vendor e-commerce application built using the MERN stack, supporting Admin, Seller, and Shopper roles, real-time notifications, secure authentication, OTP verification, and online payments.
+This project focuses on real-world architecture, not demo-level CRUD.
 
-<div align="center">
-https://res.cloudinary.com/demo/image/upload/v1/trenzzo/logo <!-- Add your logo URL here -->
+## 🚀 Live Deployment ##
+Frontend → Vercel
+Backend → Render
+Database → MongoDB Atlas
+ℹ️ Backend may cold-start on inactivity (Render free tier).
 
-A Production-Grade Multi-Vendor E-Commerce Platform
-https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=vercel
-https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white
-https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white
-https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
-https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white
+## 👥 User Roles & Capabilities ##
+## 🛡️ Admin
+Full system control
+Category CRUD
+Carousel & banner management
+Seller approval / deletion
+Platform moderation
 
-⚠️ Note: Backend hosted on Render free tier - may spin down after 15 minutes of inactivity. Initial load might take 30-60 seconds.
+## 🏪 Seller
+Product management
+Order handling
+Receives real-time order notifications
 
-</div>
-📋 Table of Contents
-Overview
+## 🛍️ Shopper (User)
+Browse products
+Secure checkout
+Order placement & tracking
 
-User Roles & Features
+## ✨ Key Features
+## 🔐 Authentication & Authorization
+JWT-based authentication
+OTP email verification using Resend
+Used instead of Nodemailer due to Render free-tier SMTP restrictions
+Role-based access control (RBAC)
 
-Tech Stack
+## 💳 Payments
+## Razorpay integration (Test Mode)
+Backend-generated payment orders
+Secure payment verification using Razorpay signature
+Orders are created only after successful verification
 
-Architecture
+## 🔔 Real-Time Notifications
+Socket.IO integration
+Sellers receive instant notifications when a new order is placed
 
-Installation & Setup
+## ☁️ Media Management
+Product images uploaded to Cloudinary
+Optimized storage and fast delivery
 
-Environment Variables
+## ⚡ API & State Management
+## TanStack Query
+API caching
+Background re-fetching
+Error & loading state handling
 
-API Documentation
+## Redux Toolkit
+Global client-side state management
 
+## 🎨 UI / UX
+ShadCN/UI
+Tailwind CSS
+Fully responsive design (desktop & mobile)
+
+## 🧠 Architecture Highlights
+Secure JWT authentication flow
+OTP verification via email
+Razorpay payment intent created on backend
+Payment signature verified before order creation
+WebSocket events emitted after successful order placement
+Clean separation of concerns (controllers, routes, services)
+
+## 🧱 Tech Stack
+## Frontend
+React
+TanStack Query
+Redux Toolkit
+Tailwind CSS
+ShadCN/UI
+Socket.IO Client
+Razorpay Checkout
+
+## Backend
+Node.js
+Express.js
+MongoDB + Mongoose
+JWT Authentication
+Razorpay API
+Socket.IO
+Resend (OTP emails)
+Cloudinary
 Deployment
+Vercel (Frontend)
+Render (Backend)
+MongoDB Atlas (Database)
 
-Screenshots
-
-Contributing
-
-License
-
-🎯 Overview
-Trenzzo is a comprehensive multi-vendor e-commerce solution built with the MERN stack. It provides a seamless shopping experience for customers while offering powerful management tools for sellers and administrators. The platform features real-time notifications, secure payment processing, and a responsive, modern UI.
-
-✨ Key Highlights
-✅ Multi-vendor architecture with role-based access control
-
-✅ Real-time order notifications via Socket.IO
-
-✅ Secure OTP authentication using Resend API
-
-✅ Test mode payments with Razorpay integration
-
-✅ Cloudinary-powered media management
-
-✅ Responsive design with Tailwind CSS & ShadCN/UI
-
-✅ Optimized performance with TanStack Query
-
-👥 User Roles & Features
-🛡️ Admin
-Full platform control and monitoring
-
-Feature Description
-📊 Dashboard Platform analytics and metrics
-📁 Category Management Create, read, update, delete categories
-🎪 Carousel Management Control homepage banners and carousels
-🖼️ Banner Management Create and manage promotional banners
-👤 Seller Management Approve/reject seller registrations, remove sellers
-📦 Order Overview View all platform orders
-👁️ Monitoring Track platform health and user activity
-🏪 Seller
-Product and order management
-
-Feature Description
-📦 Product Management Add, edit, delete products with images
-🖼️ Bulk Image Upload Multiple product images via Cloudinary
-📋 Order Management View and update order status
-🔔 Real-time Notifications Instant alerts on new orders (Socket.IO)
-📈 Sales Dashboard Track earnings and order history
-👤 Shopper (Customer)
-Shopping experience
-
-Feature Description
-🔍 Product Browsing Category-wise product filtering
-🛒 Cart Management Add/remove items, quantity updates
-💳 Secure Checkout Address management, order summary
-💰 Test Payments Razorpay test mode integration
-📦 Order Tracking View order history and status
-👤 Profile Management Update personal details
-🛠️ Tech Stack
-Frontend
-javascript
-{
-"core": ["React 18", "Vite", "React Router DOM"],
-"state": ["Redux Toolkit", "TanStack Query"],
-"styling": ["Tailwind CSS", "ShadCN/UI", "Framer Motion"],
-"real-time": ["Socket.IO Client"],
-"http": ["Axios"],
-"forms": ["React Hook Form", "Zod"],
-"notifications": ["React Hot Toast"],
-"payment": ["Razorpay SDK"],
-"deployment": "Vercel"
-}
-Backend
-javascript
-{
-"runtime": "Node.js",
-"framework": "Express.js",
-"database": "MongoDB with Mongoose",
-"auth": ["JWT", "bcryptjs"],
-"real-time": "Socket.IO",
-"email": "Resend API",
-"media": "Cloudinary SDK",
-"payments": "Razorpay",
-"deployment": "Render"
-}
-🏗️ Architecture
-text
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│ Client │────▶│ Backend │────▶│ Database │
-│ (React) │◀────│ (Express) │◀────│ (MongoDB) │
-└─────────────┘ └─────────────┘ └─────────────┘
-│ │ │
-│ │ │
-▼ ▼ ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│ Cloud │ │ External │ │ Real- │
-│ Services │ │ APIs │ │ Time │
-├─────────────┤ ├─────────────┤ ├─────────────┤
-│ • Cloudinary│ │ • Razorpay │ │ Socket.IO │
-│ • Vercel │ │ • Resend │ │ (Orders) │
-└─────────────┘ └─────────────┘ └─────────────┘
-📦 Installation & Setup
-Prerequisites
-Node.js (v16+)
-
-MongoDB Atlas account
-
-Cloudinary account
-
-Razorpay test account
-
-Resend API key
-
-🔧 Local Development
-Clone the repository
-
-bash
-git clone https://github.com/yourusername/trenzzo.git
-cd trenzzo
-Backend Setup
-
-bash
-cd backend
-npm install
-cp .env.example .env
-
-# Fill in your environment variables
-
-npm run dev
-Frontend Setup
-
-bash
-cd frontend
-npm install
-cp .env.example .env
-
-# Fill in your environment variables
-
-npm run dev
-Access the application
-
-text
-Frontend: http://localhost:5173
-Backend: http://localhost:5000
-🔐 Environment Variables
-Backend (.env)
-env
-
-# Server
-
-PORT=5000
-NODE_ENV=development
-
-# Database
-
-MONGODB_URI=your_mongodb_connection_string
-
-# JWT
-
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE=7d
-
-# Cloudinary
-
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
-# Razorpay (Test Mode)
-
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-
-# Resend (Email OTP)
-
-RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=notifications@yourdomain.com
-
-# Frontend URL
-
-FRONTEND_URL=http://localhost:5173
-Frontend (.env)
-env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
-VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-💳 Razorpay Test Mode
-The platform uses Razorpay in test mode for payment processing. Test mode allows you to simulate transactions without real money.
-
-Test Card Details
-text
-Card Number: 4111 1111 1111 1111
-Expiry: Any future date (MM/YY)
-CVV: Any 3 digits
-OTP: 1234 (if prompted)
-Test UPI ID
-text
-success@razorpay
-Test NetBanking
-text
-Any bank - use "success" as credentials
-Test Wallet
-text
-Use any amount - transaction will be marked as successful
-⚠️ Important: All transactions in test mode are simulated. No real money is transferred.
-
-📚 API Documentation
-Authentication Endpoints
-Method Endpoint Description Access
-POST /api/auth/register User registration Public
-POST /api/auth/login User login Public
-POST /api/auth/send-otp Send OTP via email Public
-POST /api/auth/verify-otp Verify OTP Public
-Category Endpoints
-Method Endpoint Description Access
-GET /api/category Get all categories Public
-POST /api/category Create category Admin
-PUT /api/category/:id Update category Admin
-DELETE /api/category/:id Delete category Admin
-Product Endpoints
-Method Endpoint Description Access
-GET /api/product Get products Public
-POST /api/product Create product Seller
-PUT /api/product/:id Update product Seller
-DELETE /api/product/:id Delete product Seller/Admin
-Order Endpoints
-Method Endpoint Description Access
-POST /api/order Create order User
-GET /api/order/my-orders Get user orders User
-GET /api/order/seller Get seller orders Seller
-PUT /api/order/:id/status Update order status Seller/Admin
-Full API Documentation →
-
-🚢 Deployment
-Frontend (Vercel)
-bash
-cd frontend
-npm run build
-vercel --prod
-Backend (Render)
-Push code to GitHub
-
-Create new Web Service on Render
-
-Connect repository
-
-Set environment variables
-
-Deploy
-
-Database (MongoDB Atlas)
-Create cluster
-
-Set up database user
-
-Configure network access
-
-Get connection string
-
-📸 Screenshots
-
-<div align="center">
-Homepage	Products	Checkout
-https://via.placeholder.com/300x200?text=Homepage	https://via.placeholder.com/300x200?text=Products	https://via.placeholder.com/300x200?text=Checkout
-Seller Dashboard	Admin Panel	Mobile View
-https://via.placeholder.com/300x200?text=Seller+Dashboard	https://via.placeholder.com/300x200?text=Admin+Panel	https://via.placeholder.com/300x200?text=Mobile+View
-</div>
-🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-Fork the repository
-
-Create your feature branch (git checkout -b feature/amazing-feature)
-
-Commit your changes (git commit -m 'Add some amazing feature')
-
-Push to the branch (git push origin feature/amazing-feature)
-
-Open a Pull Request
-
-📝 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-🙏 Acknowledgements
-ShadCN/UI for beautiful components
-
-TanStack Query for data synchronization
-
-Socket.IO for real-time features
-
-Razorpay for payment gateway
-
-Resend for email services
-
-Cloudinary for media management
-
-<div align="center">
-Made with ❤️ by [Your Name]
-
-⬆ Back to Top
-
-</div> ```
