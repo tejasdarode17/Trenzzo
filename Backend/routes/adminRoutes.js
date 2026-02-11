@@ -5,7 +5,6 @@ import { changeSellerStatus, createBanner, createCarousel, createCatogery, delet
 const route = express.Router()
 
 route.post("/admin/add-category", verifyUser, createCatogery)
-route.get("/admin/category", getAllCategories)
 route.post("/admin/edit-category/:id", verifyUser, editCategory)
 route.delete("/admin/delete-category/:id", verifyUser, deleteCatogery)
 
@@ -16,14 +15,21 @@ route.post("/admin/status-seller/:id", verifyUser, changeSellerStatus)
 
 
 route.post("/admin/add-carousel", verifyUser, createCarousel)
-route.get("/carousels", fetchCarousel)
 route.post("/admin/edit-carousel/:id", verifyUser, editCarousel)
 route.delete("/admin/delete-carousel/:id", verifyUser, deleteCarousel)
 
 route.post("/admin/add-banner", verifyUser, createBanner)
-route.get("/banners", fetchBanners)
 route.delete("/admin/delete-banner/:id", verifyUser, deleteBanner)
 
+
+
+
+
+
+// below apis access by admin and user
+route.get("/admin/category", getAllCategories)
+route.get("/carousels", fetchCarousel)
+route.get("/banners", fetchBanners)
 
 
 export default route

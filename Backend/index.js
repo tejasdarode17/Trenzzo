@@ -14,6 +14,8 @@ import cloudinaryConfig from "./config/cloudinary.js";
 import { initSocket } from "./socket/socket.js";
 import dbConnect from "./config/dbConnect.js"
 import { createSuperAdminOnce } from "./controllers/adminControllers.js";
+import { guestSession } from "./middlewares/guestSessionID.js";
+import { tryAuth } from "./middlewares/auth.js";
 dotenv.config();
 
 const app = express();
@@ -39,7 +41,11 @@ app.use(
     })
 )
 
+export const viewedCache = new Map()
+
 app.use(cookieParser());
+app.use(tryAuth)
+app.use(guestSession)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 

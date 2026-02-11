@@ -3,11 +3,7 @@ import api from "@/api/axiosInstance";
 
 const { uploadImagesToServer } = useUploadImages();
 
-
-// =========================
 // Products API
-// =========================
-
 export async function fetchSellerProductAPI({ category, page, status, search }) {
     const response = await api.get("/seller/products", {
         params: { category, page, status, search }
@@ -15,12 +11,11 @@ export async function fetchSellerProductAPI({ category, page, status, search }) 
     return response?.data;
 }
 
-export async function fetchSellerProductDetailsAPI({ category, page, status, search, id }) {
-    const response = await api.get(`/seller/products/${id}`, {
-        params: { category, page, status, search }
-    });
+export async function fetchSellerProductDetails({ slug }) {
+    const response = await api.get(`/seller/product-details/${slug}`);
     return response?.data;
 }
+
 
 export async function addNewProductAPI({ productFromData, productImages }) {
     const uploadedImages = await uploadImagesToServer(productImages);
@@ -65,10 +60,7 @@ export async function toggleProductStatusAPI({ id, newStatus }) {
 }
 
 
-// =========================
 // Orders API
-// =========================
-
 export async function fetchSellerOrdersAPI({ range, page }) {
     const response = await api.get("/seller/all-orders", {
         params: { range, page }
@@ -101,10 +93,7 @@ export async function sellerAssignDeliveryPartnerAPI({ orderID, itemID, partnerI
 }
 
 
-// =========================
 // Returns API
-// =========================
-
 export async function fetchSellerReturnRequestsAPI({ filter, page }) {
     const response = await api.get("/seller/returns", {
         params: { filter, page }
@@ -127,10 +116,7 @@ export async function sellerUpdateReturnStatusAPI({ returnID, orderID, itemID, n
 }
 
 
-// =========================
 // Stats API
-// =========================
-
 export async function fetchSellerStatsAPI() {
     const response = await api.get("/seller/stats");
     return response?.data;

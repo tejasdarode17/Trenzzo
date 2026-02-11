@@ -17,14 +17,15 @@ import { useInitCheckout } from "@/hooks/shopper/useInitCheckout";
 
 const ProductDetails = () => {
 
-    const [hello, setHellp] = useState()
-
     const [mainImage, setMainImage] = useState(null)
     const navigate = useNavigate()
     const { slug } = useParams()
 
-    const { data, isLoading: productLoading } = useProductDetail({ slug })
+    const { data, isLoading: productLoading, error } = useProductDetail({ slug })
     const product = data?.product
+    console.log(error);
+    console.log(product);
+
 
     const { data: wishlist } = useWishlist()
     const hasWishlisted = wishlist?.some((id) => id === product?._id)
@@ -180,7 +181,7 @@ const ProductDetails = () => {
                                     <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
                                         {product?.brand}
                                     </span>
-                                    {product.isAssured && (
+                                    {product?.isAssured && (
                                         <Badge className="bg-green-600 text-white px-2 py-0 text-xs h-5">
                                             <Shield className="w-2 h-2 mr-1" />
                                             Assured
@@ -246,12 +247,12 @@ const ProductDetails = () => {
 
                             {/* Stock Status */}
                             <div className="p-3 rounded-lg border border-gray-200 text-sm">
-                                {product.outOfStock ? (
+                                {product?.outOfStock ? (
                                     <div className="flex items-center gap-2 text-red-600">
                                         <XCircle className="w-4 h-4" />
                                         <span className="font-medium">Out of Stock</span>
                                     </div>
-                                ) : product.stock < 5 ? (
+                                ) : product?.stock < 5 ? (
                                     <div className="flex items-center gap-2 text-orange-600">
                                         <AlertTriangle className="w-4 h-4" />
                                         <div>
@@ -298,7 +299,7 @@ const ProductDetails = () => {
                                     )}
                                 </Button>
                                 <Button
-                                    onClick={() => handleBuyNow(product._id, 1, product.attributes)}
+                                    onClick={() => handleBuyNow(product?._id, 1, product?.attributes)}
                                     className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 text-sm"
                                 >
                                     {onBuyNowLoading ? <Loader2 className="animate-spin mx-auto"></Loader2> : (

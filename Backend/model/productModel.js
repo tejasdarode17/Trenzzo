@@ -106,9 +106,25 @@ const productSchema = new mongoose.Schema({
         default: 0
     },
 
+    views: {
+        type: Number,
+        default: 0,
+        index: true
+    }
+
 },
     { timestamps: true }
 );
+
+
+// below run when this method called 
+// product.save()
+// Product.create()
+
+//not when this method called 
+// Product.updateOne()
+// Product.findByIdAndUpdate()
+// Product.updateMany()
 
 
 productSchema.pre("save", function (next) {

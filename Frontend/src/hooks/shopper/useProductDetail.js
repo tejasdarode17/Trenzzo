@@ -1,10 +1,10 @@
-import { fetchProductDetails } from "@/api/shopper.api";
+import { fetchProductDetailsAPI } from "@/api/shopper.api";
 import { useQuery } from "@tanstack/react-query";
 
 export function useProductDetail({ slug }) {
     return useQuery({
         queryKey: ["productDetails", { slug }],
-        queryFn: () => fetchProductDetails({ slug }),
+        queryFn: () => fetchProductDetailsAPI({ slug }),
         keepPreviousData: true,
     })
 }

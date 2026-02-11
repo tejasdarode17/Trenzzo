@@ -8,6 +8,8 @@ import bcrypt from "bcrypt"
 import { deleteImage } from "../utils/cloudinaryHandler.js";
 import { getIO } from "../socket/socket.js";
 import Checkout from "../model/checkoutModel.js";
+import RecentlyViewed from "../model/recentlyViewdModel.js";
+import { viewedCache } from "../index.js";
 
 //-------- Search and Product-----------
 export async function fetchSearchSuggestions(req, res) {
@@ -37,25 +39,32 @@ export async function fetchSearchSuggestions(req, res) {
 export async function fetchSearchProducts(req, res) {
     try {
 
-        //yahape reciver karni hai aur fetch karna hai 
-
-        //category ki id aygi 
-
-        const { search, page = 1, sort = "relevance" } = req.query;
+        const { search, page = 1, sort = "relevance", category } = req.query;
         const limit = 10
 
-        if (!search) {
-            return res.json({ success: false, products: [] });
-        }
+        // const query = {
+        //     active: true,
+        //     $or: [
+        //         { name: { $regex: search, $options: "i" } },
+        //         { brand: { $regex: search, $options: "i" } },
+        //     ],
+        // };
 
         const query = {
             active: true,
-            // outOfStock: false,
-            $or: [
+        };
+
+        if (search) {
+            query.$or = [
                 { name: { $regex: search, $options: "i" } },
                 { brand: { $regex: search, $options: "i" } },
-            ]
-        };
+            ];
+        }
+
+        if (category) {
+            query.category = category;
+        }
+
 
         let sortOptions = {}
         if (sort === "price_high_to_low") sortOptions = { price: -1 }
@@ -64,12 +73,13 @@ export async function fetchSearchProducts(req, res) {
 
         const skip = (Number(page) - 1) * Number(limit)
 
-        const products = await Product.find(query)
+        let products = await Product.find(query)
             .sort(sortOptions)
             .skip(skip)
             .limit(limit)
             .populate("seller")
             .populate("category")
+
 
         const total = await Product.countDocuments(query);
 
@@ -93,6 +103,67 @@ export async function fetchSearchProducts(req, res) {
         });
 
     } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+export async function fetchProductDetails(req, res) {
+    try {
+
+        const slug = req?.params?.slug;
+        const sessionID = req?.guestSessionId
+
+        if (!slug) {
+            return res.status(400).json({
+                success: false,
+                message: "Slug is required"
+            });
+        }
+
+        const product = await Product?.findOne({ slug })
+            .populate("seller")
+            .populate("category");
+
+        const viewerId = req?.user?.id || sessionID;
+        if (!viewedCache.has(product._id.toString())) {
+            viewedCache.set(product._id.toString(), new Set());
+        }
+
+        const viewers = viewedCache.get(product._id.toString());
+        if (!viewers.has(viewerId)) {
+            viewers.add(viewerId);
+            product.views++;
+            await product.save();
+        }
+
+        if (req.user?.id) {
+            await RecentlyViewed.updateOne(
+                { user: req.user.id, product: product._id },
+                { $set: { viewedAt: new Date() } },
+                //upsert means create if missing
+                { upsert: true }
+            );
+        }
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Product details fetched",
+            product
+        });
+
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -1021,7 +1092,6 @@ export async function userPersonalInfoChange(req, res) {
 
 
 //--------------wishlist ------------------
-
 export async function addProductToWishlist(req, res) {
 
     try {
@@ -1100,6 +1170,93 @@ export async function fetchWishlist(req, res) {
 }
 
 
+//---------------recetlyViewd----------------------
+export async function fetchRecentlyViewed(req, res) {
+    try {
+        const userId = req.user?.id; // only for logged-in users
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User must be logged in to fetch recently viewed products",
+            });
+        }
+
+        const recentViews = await RecentlyViewed.find({ user: userId })
+            .sort({ viewedAt: -1 })      // newest first
+            .limit(10)                   // only last 10
+            .populate({
+                path: "product",
+                populate: ["seller", "category"], // optional: populate details
+            });
+
+        const allViews = await RecentlyViewed.find({ user: userId }).sort({ viewedAt: -1 });
+        const idsToKeep = recentViews.map(rv => rv._id);
+        const idsToDelete = allViews
+            .filter(rv => !idsToKeep.includes(rv._id))
+            .map(rv => rv._id);
+
+        if (idsToDelete.length > 0) {
+            await RecentlyViewed.deleteMany({ _id: { $in: idsToDelete } });
+        }
+
+        const products = recentViews.map(rv => rv.product);
+
+        return res.json({
+            success: true,
+            message: "Recently viewed products fetched",
+            products,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
+//-------------trending------------------
+export async function fetchTrendingProducts(req, res) {
+    try {
+        const limit = Number(req.query.limit) || 10;
+        const days = Number(req.query.days) || 7;
+
+        const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+        const products = await Product.find({
+            active: true,
+            views: { $gte: 1 },
+            updatedAt: { $gte: fromDate }
+        })
+            .sort({ views: -1, updatedAt: -1 })
+            .limit(limit)
+            .populate("category")
+            .populate("seller");
+
+        return res.status(200).json({
+            success: true,
+            message: "Trending products fetched",
+            count: products.length,
+            products
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch trending products",
+        });
+    }
+}
+
+
+
+
+
+
+
 // ------------------------------------------------------------------
 //this api used by seller as well as user 
 export async function fetchReviewsForProduct(req, res) {
@@ -1124,44 +1281,5 @@ export async function fetchReviewsForProduct(req, res) {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 }
-
-export async function fetchProductDetails(req, res) {
-    try {
-
-        const slug = req?.params?.slug;
-
-        if (!slug) {
-            return res.status(400).json({
-                success: false,
-                message: "Slug is required"
-            });
-        }
-
-        const product = await Product?.findOne({ slug })
-            .populate("seller")
-            .populate("category");
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found"
-            });
-        }
-
-        return res.json({
-            success: true,
-            message: "Product details fetched",
-            product
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Server error",
-            error: error.message,
-        });
-    }
-}
-
 
 

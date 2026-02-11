@@ -9,6 +9,7 @@ import Carousel from "../model/carouselModel.js";
 import Bannner from "../model/bannerModel.js";
 import Order from "../model/orderModel.js";
 import dotenv from "dotenv"
+import Product from "../model/productModel.js";
 dotenv.config()
 
 export async function createSuperAdminOnce() {
@@ -695,4 +696,5 @@ async function adminFetchAllOrders(req, res) {
         });
     }
 }
+
 

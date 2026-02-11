@@ -9,7 +9,7 @@ import DeliveryPartner from "../model/deliveryPartnerModel.js";
 import Return from "../model/returnModel.js";
 import bcrypt from "bcrypt"
 
-
+// -------Product Apis-----------
 export async function addProduct(req, res) {
 
     const { name, category, images, brand, highlights, description, stock, price, salePrice, attributes, } = req.body;
@@ -359,20 +359,22 @@ export async function getAllSellerProducts(req, res) {
     }
 }
 
-export async function getSellerSingleProduct(req, res) {
-    try {
-        const sellerID = req.user.id;
-        const { id } = req.params;
+export async function fetchSellerProductDetails(req, res) {
 
-        if (req.user.role !== "seller") {
-            return res.status(403).json({
+    try {
+
+        const slug = req?.params?.slug;
+
+        if (!slug) {
+            return res.status(400).json({
                 success: false,
-                message: "You are not authorized"
+                message: "Slug is required"
             });
         }
 
-        const product = await Product.findById(id)
-            .populate("category", "name _id");
+        const product = await Product?.findOne({ slug })
+            .populate("seller")
+            .populate("category");
 
         if (!product) {
             return res.status(404).json({
@@ -381,20 +383,14 @@ export async function getSellerSingleProduct(req, res) {
             });
         }
 
-        if (product.seller.toString() !== sellerID) {
-            return res.status(403).json({
-                success: false,
-                message: "Unauthorized"
-            });
-        }
-
-        return res.status(200).json({
+        return res.json({
             success: true,
-            message: "Product fetched successfully",
+            message: "Product details fetched",
             product
         });
 
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -456,6 +452,7 @@ export async function toggleProductStatus(req, res) {
         });
     }
 }
+
 
 // --------Orders Apis----------------------------------
 export async function fetchSellerOrders(req, res) {

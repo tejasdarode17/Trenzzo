@@ -1,21 +1,21 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { StepBack, Edit, Tag, Package, Star, BarChart3 } from 'lucide-react'
-import { useProductDetail } from '@/hooks/shopper/useProductDetail'
 import ProductReviews from '@/ui/Shopers/Products/ProductReviews'
 import { useEffect, useState } from 'react'
 import SellerProductsDetailsShimmer from './SellerProductsDetailsShimmer'
+import { useSellerProductDetails } from '@/hooks/seller/useSellerProductDetails'
 
-const SellerSingleProduct = () => {
+const SellerProductDetails = () => {
     const { slug } = useParams()
-    const { data, isLoading: loading } = useProductDetail({ slug })
+    const { data, isLoading: loading } = useSellerProductDetails({ slug })
     const product = data?.product
     const [mainImage, setMainImage] = useState("")
     const navigate = useNavigate()
 
     useEffect(() => {
         if (product?.images?.length) {
-            setMainImage(product.images[0].url)
+            setMainImage(product?.images[0].url)
         }
     }, [product])
 
@@ -76,9 +76,9 @@ const SellerSingleProduct = () => {
                             </div>
 
                             {/* Thumbnails */}
-                            {product.images?.length > 1 && (
+                            {product?.images?.length > 1 && (
                                 <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-3">
-                                    {product.images.map((image, index) => (
+                                    {product?.images.map((image, index) => (
                                         <img
                                             key={index}
                                             onClick={() => setMainImage(image.url || "")}
@@ -100,7 +100,7 @@ const SellerSingleProduct = () => {
                             {/* Title */}
                             <div>
                                 <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
-                                    {product.name}
+                                    {product?.name}
                                 </h2>
 
                                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-slate-600 mt-2 text-sm sm:text-base">
@@ -110,7 +110,7 @@ const SellerSingleProduct = () => {
                                     {product?.brand && (
                                         <>
                                             <span>•</span>
-                                            <span className="font-medium">{product.brand}</span>
+                                            <span className="font-medium">{product?.brand}</span>
                                         </>
                                     )}
                                 </div>
@@ -121,25 +121,25 @@ const SellerSingleProduct = () => {
 
                                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-xl shadow">
                                     <p className="text-xl sm:text-2xl font-bold">
-                                        ₹{product.price?.toLocaleString("en-IN")}
+                                        ₹{product?.price?.toLocaleString("en-IN")}
                                     </p>
                                 </div>
 
                                 <div className={`px-3 py-2 rounded-lg border flex items-center gap-2 font-semibold text-sm
-                                    ${product.stock > 10
+                                    ${product?.stock > 10
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                        : product.stock > 0
+                                        : product?.stock > 0
                                             ? "bg-amber-50 text-amber-700 border-amber-200"
                                             : "bg-rose-50 text-rose-700 border-rose-200"
                                     }`}>
                                     <Package size={14} />
-                                    Stock: {product.stock}
+                                    Stock: {product?.stock}
                                 </div>
 
                             </div>
 
                             {/* Highlights */}
-                            {product.highlights?.length > 0 && (
+                            {product?.highlights?.length > 0 && (
                                 <div className="space-y-3">
                                     <h3 className="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
                                         <Star size={16} className="text-amber-500" />
@@ -147,7 +147,7 @@ const SellerSingleProduct = () => {
                                     </h3>
 
                                     <div className="space-y-2">
-                                        {product.highlights.map((line, index) => (
+                                        {product?.highlights?.map((line, index) => (
                                             <div key={index} className="flex items-start gap-3">
                                                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                                                 <p className="text-slate-700 text-sm sm:text-base">{line}</p>
@@ -161,7 +161,7 @@ const SellerSingleProduct = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3 pt-2">
 
                                 <Button
-                                    onClick={() => navigate(`/seller/edit-product/${product.slug}`)}
+                                    onClick={() => navigate(`/seller/edit-product/${product?.slug}`)}
                                     className="bg-blue-600 hover:bg-blue-700 text-white shadow w-full"
                                 >
                                     <Edit size={16} className="mr-2" />
@@ -201,7 +201,7 @@ const SellerSingleProduct = () => {
                     </div>
 
                     <p className="text-slate-700 leading-relaxed text-sm sm:text-base">
-                        {product.description || "No description available."}
+                        {product?.description || "No description available."}
                     </p>
                 </div>
 
@@ -213,4 +213,4 @@ const SellerSingleProduct = () => {
     )
 }
 
-export default SellerSingleProduct
+export default SellerProductDetails

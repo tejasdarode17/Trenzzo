@@ -53,8 +53,8 @@ function Footer() {
         <div className="hidden md:block">
           <h3 className="text-white font-semibold mb-3">Get in Touch</h3>
           <p>Email: <span className="text-indigo-400">support@trenzzo.com</span></p>
-          <p>Phone: +91 98765 43210</p>
-          <p>Address: Mumbai, India</p>
+          <p>Phone: +91 8605605058</p>
+          <p>Address: Nagpur, Maharashtra, 441106, India</p>
         </div>
       </div>
 

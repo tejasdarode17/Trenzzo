@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings2, Tag, Users } from "lucide-react";
+import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings2, ShieldAlert, ShowerHeadIcon, Tag, Users } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { clearUser } from "@/redux/authSlice";
@@ -81,10 +81,10 @@ const SideBarMenu = ({ setOpenSheet }) => {
 
     const items = [
         { id: 1, name: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin" },
-        // { id: 4, name: "Reports", icon: <FileText size={18} />, path: "/admin/reports" },
         { id: 6, name: "Sellers", icon: <Users size={18} />, path: "/admin/sellers" },
         { id: 3, name: "Categories", icon: <Tag size={18} />, path: "/admin/category" },
         { id: 7, name: "Banners", icon: <ImageIcon size={18} />, path: "/admin/banners" },
+        // { id: 4, name: "Reports", icon: <FileText size={18} />, path: "/admin/reports" },
     ];
 
     return (

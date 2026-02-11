@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useCatogery } from "@/hooks/admin/useCategory";
 
 const Categories = () => {
+
     const { data: categories, isLoading } = useCatogery();
     const navigate = useNavigate();
 
@@ -16,7 +17,7 @@ const Categories = () => {
                         <button
                             key={cat._id}
                             onClick={() =>
-                                navigate(`/products?category=${cat.slug}`)
+                                navigate(`/products?category=${cat.slug}&catID=${cat._id}`)
                             }
                             className="flex flex-col items-center min-w-[72px] active:scale-95 transition"
                         >
@@ -41,7 +42,7 @@ const Categories = () => {
                     <div
                         key={cat._id}
                         onClick={() =>
-                            navigate(`/products?category=${cat.slug}`)
+                            navigate(`/products?category=${cat.slug}&catID=${cat._id}`)
                         }
                         className="flex flex-col items-center text-center p-3 rounded-lg hover:shadow-md cursor-pointer transition"
                     >

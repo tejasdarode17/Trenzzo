@@ -1,5 +1,6 @@
 import Banners from "./Banners/Banners";
 import Categories from "./Categories/Categories";
+import Trending from "./Trending/Trending";
 
 const Home = () => {
     return (
@@ -13,6 +14,10 @@ const Home = () => {
             <section className="mt-2 md:mt-6">
                 <Categories />
             </section>
+
+
+            <Trending />
+
         </div>
     );
 };

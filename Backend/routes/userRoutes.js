@@ -1,5 +1,5 @@
 import express from "express";
-import { addAddress, addCart, addProductReview, addProductToWishlist, decreaseCartQuantity, deleteCart, deleteReview, editAddress, fetchCart, fetchCheckout, fetchProductDetails, fetchReviewsForProduct, fetchSearchProducts, fetchSearchSuggestions, fetchWishlist, getAllOrders, getOrderDetail, getUserAddresses, getUserReviews, initCheckout, removeItemFromCart, userChangePassword, userPersonalInfoChange, userReturnRequest } from "../controllers/userControllers.js";
+import { addAddress, addCart, addProductReview, addProductToWishlist, decreaseCartQuantity, deleteCart, deleteReview, editAddress, fetchCart, fetchCheckout, fetchProductDetails, fetchReviewsForProduct, fetchSearchProducts, fetchSearchSuggestions, fetchTrendingProducts, fetchWishlist, getAllOrders, getOrderDetail, getUserAddresses, getUserReviews, initCheckout, removeItemFromCart, userChangePassword, userPersonalInfoChange, userReturnRequest } from "../controllers/userControllers.js";
 import { verifyUser } from "../middlewares/auth.js"
 
 const route = express.Router()
@@ -36,10 +36,14 @@ route.post("/user/info", verifyUser, userPersonalInfoChange)
 route.post("/add-wishlist", verifyUser, addProductToWishlist)
 route.get("/wishlist", verifyUser, fetchWishlist)
 
-
-//below routes are access by seller as well as user
-route.get("/fetch/reviews", fetchReviewsForProduct)
 route.get("/product-details/:slug", fetchProductDetails)
+
+
+route.get("/products/trending", fetchTrendingProducts);
+
+
+//below route are access by user as well as seller
+route.get("/fetch/reviews", fetchReviewsForProduct)
 
 
 export default route

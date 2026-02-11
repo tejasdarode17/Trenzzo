@@ -15,7 +15,7 @@ const SearchResults = ({ results, loading, onClose, query }) => {
         onClose(false);
         navigate(`/products?search=${encodeURIComponent(query)}`);
     }
-
+    
     return (
         <ul>
             {results.map((item) => (

@@ -1,22 +1,21 @@
 import api from "@/api/axiosInstance";
 
 
-// =========================
 // Products API
-// =========================
-
-export async function fetchProductsAPI({ search, page = 1, sort = "relevance" }) {
+export async function fetchProductsAPI({ search, page = 1, sort = "relevance", category }) {
     const response = await api.get("/search", {
-        params: { search, page, sort }
+        params: { search, page, sort, category }
     });
     return response?.data;
 }
 
+export async function fetchProductDetailsAPI({ slug }) {
+    const response = await api.get(`/product-details/${slug}`);
+    return response?.data;
+}
 
-// =========================
+
 // Orders API
-// =========================
-
 export async function fetchOrdersAPI({ search, page }) {
     const response = await api.get("/orders", {
         params: { search, page }
@@ -30,10 +29,8 @@ export async function fetchOrderDetailAPI(orderId) {
 }
 
 
-// =========================
-// Address API
-// =========================
 
+// Address API
 export async function fetchAddresses() {
     const response = await api.get("/fetch-addresses");
     return response?.data;
@@ -50,10 +47,7 @@ export async function editAddressAPI({ deliveryAddress, id }) {
 }
 
 
-// =========================
 // Review API
-// =========================
-
 export async function fetchUserReviewsAPI() {
     const response = await api.get("/fetch/user/reviews");
     return response?.data;
@@ -72,10 +66,7 @@ export async function deleteReviewAPI({ reviewID, productID }) {
 }
 
 
-// =========================
 // Wishlist API
-// =========================
-
 export async function fetchWishlistAPI() {
     const response = await api.get("/wishlist");
     return response?.data?.wishlist;
@@ -87,10 +78,7 @@ export async function addProductToWishlist({ productID }) {
 }
 
 
-// =========================
 // Cart API
-// =========================
-
 export async function fetchCartAPI() {
     const response = await api.get("/cart");
     return response?.data;
@@ -126,10 +114,8 @@ export async function clearCartAPI() {
 }
 
 
-// =========================
-// Checkout API
-// =========================
 
+// Checkout API
 export async function initCheckoutAPI(payload) {
     const response = await api.post("/checkout/init", payload);
     return response?.data;
@@ -141,19 +127,18 @@ export async function checkOutAPI() {
     return response?.data?.checkout;
 }
 
+//trending api
 
-// =========================
-// Shared APIs (User + Seller)
-// =========================
+export async function fetchTrendingAPI() {
+    const response = await api.get("/products/trending")
+    return response?.data?.products
+}
 
+
+// Shared API (User + Seller)
 export async function fetchProductReviewsAPI({ productID }) {
     const response = await api.get("/fetch/reviews", {
         params: { productID }
     });
-    return response?.data;
-}
-
-export async function fetchProductDetails({ slug }) {
-    const response = await api.get(`/product-details/${slug}`);
     return response?.data;
 }

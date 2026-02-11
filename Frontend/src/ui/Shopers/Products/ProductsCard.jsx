@@ -6,7 +6,7 @@ const ProductCard = ({ product }) => {
 
     return (
         <div
-            onClick={() => navigate(`/product/${product.slug}`)}
+            onClick={() => navigate(`/product/${product?.slug}`)}
             className="group cursor-pointer border rounded-md p-2 md:p-3 bg-white transition active:scale-[0.98]"
         >
             {/* Image */}
@@ -21,7 +21,7 @@ const ProductCard = ({ product }) => {
             {/* Brand + Assured */}
             <div className="flex items-center gap-2 mt-2">
                 <span className="text-[10px] md:text-xs bg-gray-100 px-2 py-0.5 rounded">
-                    {product.brand}
+                    {product?.brand}
                 </span>
 
                 <span className="bg-green-600 text-white text-[10px] md:text-xs px-2 py-0.5 flex items-center gap-1 rounded">
@@ -32,13 +32,13 @@ const ProductCard = ({ product }) => {
 
             {/* Name */}
             <h3 className="text-xs md:text-sm font-medium mt-2 line-clamp-2">
-                {product.name}
+                {product?.name}
             </h3>
 
             {/* Price + Delivery */}
             <div className="flex justify-between items-center mt-2">
                 <p className="text-base md:text-lg font-bold">
-                    ₹{product.price.toLocaleString("en-IN")}
+                    ₹{product?.price?.toLocaleString("en-IN")}
                 </p>
 
                 <div className="flex items-center gap-1 text-green-600 text-[10px] md:text-xs">

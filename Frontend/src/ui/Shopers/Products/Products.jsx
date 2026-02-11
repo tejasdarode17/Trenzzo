@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/shopper/useProducts";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ProductCard from "./ProductsCard";
 import ProductSkeleton from "./ProductSkelton";
 
@@ -11,10 +11,9 @@ const Products = () => {
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "relevance";
     const page = Number(searchParams.get("page") || 1);
+    const category = searchParams.get("catID")
 
-
-    // bas yahape category bhejni hai 
-    const { data, isLoading } = useProducts({ search, sort, page });
+    const { data, isLoading } = useProducts({ search, sort, page, category });
 
     const products = data?.products || [];
     const totalPages = data?.totalPages || 1;
@@ -26,6 +25,14 @@ const Products = () => {
             return prev;
         });
     }
+
+
+    if (products.length == 0 && isLoading == false) {
+        return (
+            <NoProductsFound></NoProductsFound>
+        )
+    }
+
 
     return (
         <div className="px-2 md:px-5 pb-4 mt-2">
@@ -42,8 +49,8 @@ const Products = () => {
                     ? Array.from({ length: skeletonCount }).map((_, i) => (
                         <ProductSkeleton key={i} />
                     ))
-                    : products.map(product => (
-                        <ProductCard key={product._id} product={product} />
+                    : products?.map(product => (
+                        <ProductCard key={product?._id} product={product} />
                     ))}
             </div>
 
@@ -83,5 +90,39 @@ const Products = () => {
         </div>
     );
 };
+
+
+
+
+const NoProductsFound = () => {
+
+    const navigate = useNavigate();
+
+    return (
+        <div className="w-full flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-4">
+                <SearchX className="w-8 h-8 text-gray-400" />
+            </div>
+
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                No products found
+            </h2>
+
+            <p className="text-sm text-gray-500 mt-2 max-w-sm">
+                Try changing your search or filters.
+            </p>
+
+            {/* <Button
+                variant="outline"
+                className="mt-5"
+                onClick={() => navigate("/products")}
+            >
+                Browse all products
+            </Button> */}
+        </div>
+    );
+};
+
+
 
 export default Products;

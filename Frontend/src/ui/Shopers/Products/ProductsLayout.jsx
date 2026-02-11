@@ -3,6 +3,7 @@ import Products from "./Products";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
+
 const ProductsLayout = () => {
     const [showFilters, setShowFilters] = useState(false);
 

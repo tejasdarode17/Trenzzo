@@ -7,6 +7,7 @@ import VerifyOtp from "./ui/Others/VerifyOtp"
 import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
 import MainLoader from "./ui/Others/MainLoader"
 
+
 //ALl layouts   
 const AuthLayout = lazy(() => import("./ui/Layouts/AuthLayout"))
 const ShopersLayout = lazy(() => import("./ui/Layouts/ShopersLayout"))
@@ -41,7 +42,7 @@ const SellerDashboard = lazy(() => import("./ui/Seller/SellerDashboard/SellerDas
 const SellerProducts = lazy(() => import("./ui/Seller/SellerProducts/SellerProducts"))
 const AddNewProduct = lazy(() => import("./ui/Seller/SellerProducts/AddNewProduct"))
 const EditProduct = lazy(() => import("./ui/Seller/SellerProducts/EditProduct"))
-const SellerSingleProduct = lazy(() => import("./ui/Seller/SellerProducts/SellerSingleProduct"))
+const SellerProductDetails = lazy(() => import("./ui/Seller/SellerProducts/SellerProductDetails"))
 const SellerOrders = lazy(() => import("./ui/Seller/SellerOrders/SellerOrders"))
 const SellerOrderDetails = lazy(() => import("./ui/Seller/SellerOrders/SellerOrderDetails"))
 const SellerReturnRequests = lazy(() => import("./ui/Seller/SellerOrders/SellerReturnRequests"))
@@ -153,7 +154,7 @@ const appRouter = createBrowserRouter([
       { path: "products", element: <SellerProducts /> },
       { path: "add-product", element: <AddNewProduct /> },
       { path: "edit-product/:slug", element: <EditProduct /> },
-      { path: "product/:slug", element: <SellerSingleProduct /> },
+      { path: "product/:slug", element: <SellerProductDetails /> },
       { path: "orders", element: <SellerOrders /> },
       { path: "order/:id", element: <SellerOrderDetails /> },
       { path: "returns", element: <SellerReturnRequests /> },
