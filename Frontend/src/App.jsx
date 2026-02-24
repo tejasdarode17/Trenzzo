@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import VerifyOtp from "./ui/Others/VerifyOtp"
 import ProtectedRoutes from "./ui/Others/ProtectedRoutes"
 import MainLoader from "./ui/Others/MainLoader"
+import AuthRequired from "./ui/Shopers/AuthRequired"
 
 //ALl layouts   
 const AuthLayout = lazy(() => import("./ui/Layouts/AuthLayout"))
@@ -80,7 +81,7 @@ const appRouter = createBrowserRouter([
     children: [
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
-      { path: "verify-otp", element: <VerifyOtp /> }
+      { path: "verify-otp", element: <VerifyOtp /> },
     ],
   },
 
@@ -95,7 +96,6 @@ const appRouter = createBrowserRouter([
       { path: "login", element: <SellerLogin /> },
       { path: "register", element: <SellerRegister /> },
       { path: "verify-otp", element: <VerifyOtp /> }
-
     ],
   },
 
@@ -130,6 +130,7 @@ const appRouter = createBrowserRouter([
       { path: "order/:id", element: <OrderDetails /> },
       { path: "wishlist", element: <Wishlist /> },
       { path: "help", element: <HelpCenter /> },
+      { path: "auth-required", element: <AuthRequired /> },
 
       {
         path: "account",

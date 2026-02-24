@@ -16,7 +16,7 @@ const Orders = () => {
 
     const navigate = useNavigate();
 
-    if (!isAuthenticated) return <Navigate to="/" replace />;
+    if (!isAuthenticated) return <Navigate to="/auth-required" replace />;
 
     useEffect(() => {
         const timer = setTimeout(() => {

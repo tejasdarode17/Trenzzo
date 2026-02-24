@@ -24,7 +24,7 @@ const Wishlist = () => {
 
 
     if (!isAuthenticated) {
-        return <Navigate to="/" replace></Navigate>
+        return <Navigate to="/auth-required" replace></Navigate>
     }
 
 

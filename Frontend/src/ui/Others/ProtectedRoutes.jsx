@@ -24,30 +24,30 @@ const ProtectedRoutes = ({ children }) => {
         }
     }
 
-    // if seller is login and try to access the any auth pages again
+    // if seller is login and try to access the any auth or other user pages pages again
     if (role === "seller") {
-        if (path.startsWith("/seller/auth") || path.startsWith("/user/auth") || path.startsWith("/delivery/auth") || path === "/") {
+        if (path.startsWith("/seller/auth") || path.startsWith("/user/auth") || path.startsWith("/delivery/auth") || path.startsWith("/admin") || path === "/" || path.startsWith("/auth-required")) {
             return <Navigate to="/seller" replace />;
         }
     }
 
-    // if deliveryPartner is login and try to access the  auth pages again
+    // if deliveryPartner is login and try to access the auth pages again
     if (role === "deliveryPartner") {
-        if (path.startsWith("/delivery/auth") || path.startsWith("/user/auth") || path.startsWith("/seller/auth") || path === "/") {
+        if (path.startsWith("/delivery/auth") || path.startsWith("/user/auth") || path.startsWith("/seller/auth") || path.startsWith("/seller") || path.startsWith("/admin") || path === "/" || path.startsWith("/auth-required") ) {
             return <Navigate to="/delivery" replace />;
         }
     }
 
 
     if (role === "user") {
-        if (path.startsWith("/seller") || path.startsWith("/user/auth") || path.startsWith("/admin") || path.startsWith("/delivery")) {
+        if (path.startsWith("/seller") || path.startsWith("/user/auth") || path.startsWith("/delivery/auth") || path.startsWith("/admin") || path.startsWith("/delivery") || path.startsWith("/auth-required")) {
             return <Navigate to="/" replace />;
         }
     }
 
     if (role === "admin") {
         if (path === "/") return <Navigate to="/admin" replace />;
-        if (path.startsWith("/seller") || path.startsWith("/user/auth")) {
+        if (path.startsWith("/seller") || path.startsWith("/user/auth") || path.startsWith("/auth-required") || path.startsWith("/delivery/auth") || path.startsWith("/seller/auth")) {
             return <Navigate to="/admin" replace />;
         }
     }

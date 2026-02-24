@@ -16,10 +16,10 @@ const Categories = () => {
                                 key={index}
                                 className="flex flex-col items-center min-w-[72px]"
                             >
-                                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse relative overflow-hidden">
+                                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-gray-100 via-gray-50 to-gray-300 animate-pulse relative overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-[shimmer_1.5s_infinite] bg-[length:200%_100%]" />
                                 </div>
-                                <div className="mt-2 w-12 h-3 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 rounded-full animate-pulse relative overflow-hidden">
+                                <div className="mt-2 w-12 h-3 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-300 rounded-full animate-pulse relative overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shimmer_1.5s_infinite] bg-[length:200%_100%]" />
                                 </div>
                             </div>

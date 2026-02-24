@@ -76,7 +76,7 @@ const Cart = () => {
   }
 
   //protection
-  if (!isAuthenticated) return <Navigate to="/user/auth/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/auth-required" replace />;
   if (isLoading) return <CartSkeleton />;
   if (!cart?.items?.length) return <EmptyCart />;
 

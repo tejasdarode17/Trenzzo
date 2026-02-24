@@ -14,7 +14,7 @@ export const MainCarousel = () => {
     if (carouselsLoading) {
         return (
             <div className="relative w-full overflow-hidden">
-                <div className="w-full h-[180px] md:h-[320px] bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse">
+                <div className="w-full h-[180px] md:h-[320px] bg-gradient-to-r from-gray-100 via-gray-50 to-gray-400 animate-pulse">
                     <div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent"
                         style={{
