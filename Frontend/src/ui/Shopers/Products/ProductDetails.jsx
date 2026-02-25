@@ -14,6 +14,8 @@ import MobileStickyBuyBar from "./MobileStickyBuyBar";
 import ProductReviews from "./ProductReviews";
 import { useAddToCart } from "@/hooks/shopper/useAddToCart";
 import { useInitCheckout } from "@/hooks/shopper/useInitCheckout";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
 
 const ProductDetails = () => {
 
@@ -21,11 +23,10 @@ const ProductDetails = () => {
     const navigate = useNavigate()
     const { slug } = useParams()
 
+    const { isAuthenticated } = useSelector((s) => s.auth);
+
     const { data, isLoading: productLoading, error } = useProductDetail({ slug })
     const product = data?.product
-    console.log(error);
-    console.log(product);
-
 
     const { data: wishlist } = useWishlist()
     const hasWishlisted = wishlist?.some((id) => id === product?._id)
@@ -41,7 +42,11 @@ const ProductDetails = () => {
     })
 
     function handleAddWishlist() {
-        addToWishlist({ productID: product?._id })
+        if (isAuthenticated) {
+            addToWishlist({ productID: product?._id })
+        } else {
+            toast.error("Please Sign in first")
+        }
     }
 
     useEffect(() => {
@@ -52,26 +57,35 @@ const ProductDetails = () => {
 
     const { mutate: addToCartHandler, isPending: addToCartLoading } = useAddToCart()
     function addToCart() {
-        addToCartHandler({
-            productID: product._id,
-            quantity: 1,
-            attributes: product.attributes
-        },
-            { onSuccess: () => navigate("/cart") }
-        )
+        if (isAuthenticated) {
+            addToCartHandler({
+                productID: product._id,
+                quantity: 1,
+                attributes: product.attributes
+            },
+                { onSuccess: () => navigate("/cart") }
+            )
+        } else {
+            toast.error("Please Sign in first")
+        }
     }
 
 
     const { mutate: initCheckout, isPending: onBuyNowLoading } = useInitCheckout();
     function handleBuyNow(productID, quantity, attributes) {
-        initCheckout({
-            source: "buy_now",
-            productID,
-            quantity,
-            attributes,
-        },
-            { onSuccess: () => navigate("/checkout?source=buy_now") }
-        )
+        if (isAuthenticated) {
+
+            initCheckout({
+                source: "buy_now",
+                productID,
+                quantity,
+                attributes,
+            },
+                { onSuccess: () => navigate("/checkout?source=buy_now") }
+            )
+        } else {
+            toast.error("Please Sign in first")
+        }
     }
 
 
