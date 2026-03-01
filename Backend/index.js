@@ -41,6 +41,7 @@ app.use(
     })
 )
 
+//insted of redis i used this local memory of server
 export const viewedCache = new Map()
 
 app.use(cookieParser());
