@@ -114,7 +114,7 @@ const ProductDetails = () => {
                         <span className="hover:text-amber-600 cursor-pointer">{product?.category?.name}</span>
                         <ChevronRight className="w-3 h-3" />
                         <span className="text-gray-900 font-medium truncate max-w-[120px]">
-                            {product?.brand} {product?.name}
+                            {product?.name}
                         </span>
                     </nav>
                 </div>

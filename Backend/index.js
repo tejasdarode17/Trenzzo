@@ -64,7 +64,7 @@ async function startServer() {
     cloudinaryConfig()
 
     await createSuperAdminOnce();
-
+    
     initSocket(server);
 
     server.listen(PORT, () => {

@@ -173,7 +173,7 @@ const Cart = () => {
                       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 text-sm lg:text-sm">
-                            {p.product.brand} {p.product.name}
+                             {p.product.name}
                           </h3>
                           <p className="text-xs text-gray-500 mt-1">
                             Seller: {p.product.seller?.username}

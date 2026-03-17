@@ -336,7 +336,7 @@ const CheckoutSummarySection = ({ visibleSection, setVisibleSection, handlePayme
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-medium text-gray-900 text-xs sm:text-sm line-clamp-2 break-words">
-                                                    {item?.product?.brand} {item?.product?.name}
+                                                     {item?.product?.name}
                                                 </p>
                                                 <div className="flex items-center justify-between py-2">
                                                     <div className="flex items-center space-x-2 text-muted-foreground">
