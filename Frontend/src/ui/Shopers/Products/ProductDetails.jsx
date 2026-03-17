@@ -203,7 +203,7 @@ const ProductDetails = () => {
                                     )}
                                 </div>
                                 <h1 className="text-lg lg:text-xl font-semibold text-gray-900 leading-snug">
-                                    {product?.brand} {product?.name} {product?.attributes?.storage} {product?.attributes?.colour}
+                                     {product?.name} {product?.attributes?.storage} {product?.attributes?.colour}
                                 </h1>
                             </div>
 
