@@ -1,7 +1,7 @@
 import { useWishlist } from "@/hooks/shopper/useWishlist"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Trash2, Star, Truck } from "lucide-react"
+import { Heart, Trash2, Star, Truck, ShoppingCart } from "lucide-react"
 import { useSelector } from "react-redux"
 import { Navigate, useNavigate } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -22,13 +22,6 @@ const Wishlist = () => {
         onSuccess: () => queryClient.invalidateQueries(["wishlist"]),
     })
 
-
-    if (!isAuthenticated) {
-        return <Navigate to="/auth-required" replace></Navigate>
-    }
-
-
-
     const { mutate: addToCart, isPending: addToCartLoading } = useAddToCart()
     function handleAddTocart(product) {
         addToCart({
@@ -40,8 +33,11 @@ const Wishlist = () => {
         )
     }
 
-
     const goToProduct = (slug) => navigate(`/product/${slug}`)
+
+    if (!isAuthenticated) {
+        return <Navigate to="/auth-required" replace></Navigate>
+    }
 
     if (isLoading) return <WishlistSkeleton />
 

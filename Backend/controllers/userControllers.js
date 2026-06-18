@@ -82,7 +82,7 @@ export async function fetchSearchProducts(req, res) {
                 products: [],
                 total: 0,
                 currentPage: Number(page),
-                total   Pages: 0,
+                totalPages: 0,
                 message: "No products found",
             });
         }
