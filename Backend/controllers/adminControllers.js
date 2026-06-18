@@ -168,7 +168,6 @@ export async function getAllCategories(req, res) {
             error: error.message,
         })
     }
-
 }
 
 export async function deleteCatogery(req, res) {

@@ -42,13 +42,6 @@ export async function fetchSearchProducts(req, res) {
         const { search, page = 1, sort = "relevance", category } = req.query;
         const limit = 10
 
-        // const query = {
-        //     active: true,
-        //     $or: [
-        //         { name: { $regex: search, $options: "i" } },
-        //         { brand: { $regex: search, $options: "i" } },
-        //     ],
-        // };
 
         const query = {
             active: true,
@@ -89,7 +82,7 @@ export async function fetchSearchProducts(req, res) {
                 products: [],
                 total: 0,
                 currentPage: Number(page),
-                totalPages: 0,
+                total   Pages: 0,
                 message: "No products found",
             });
         }

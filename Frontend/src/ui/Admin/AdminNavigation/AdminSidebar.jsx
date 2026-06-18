@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { ChartNoAxesCombined, FileText, ImageIcon, LayoutDashboard, LogOut, Menu, Settings2, ShieldAlert, ShowerHeadIcon, Tag, Users } from "lucide-react";
+import { ChartNoAxesCombined, ImageIcon, LayoutDashboard, LogOut, Menu, Tag, Users } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { clearUser } from "@/redux/authSlice";
@@ -103,10 +103,7 @@ const SideBarMenu = ({ setOpenSheet }) => {
                         rounded-md 
                         text-sm font-medium 
                         transition-colors
-                        ${location.pathname === item.path
-                            ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
-                            : "hover:bg-gray-100 text-gray-700"
-                        }
+                        ${location.pathname === item.path ? "bg-blue-100 text-blue-700 hover:bg-blue-100" : "hover:bg-gray-100 text-gray-700"}
                     `}
                 >
                     {item.icon}

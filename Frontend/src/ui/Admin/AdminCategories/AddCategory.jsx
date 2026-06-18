@@ -10,10 +10,10 @@ const AddCategory = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const { mutate: addCategory, isPending: loading } = useMutation({
+    const { mutateAsync: addCategory, isPending: loading } = useMutation({
         mutationFn: addCategoryAPI,
         onSuccess: () => {
-            queryClient.invalidateQueries(["category"]);
+            queryClient.invalidateQueries(["category"])
             navigate("/admin/category");
         },
         onError: (error) => {
@@ -21,8 +21,8 @@ const AddCategory = () => {
         }
     });
 
-    function handleSubmit(formData) {
-        addCategory(formData);
+    async function handleSubmit(formData) {
+        await addCategory(formData);
     }
 
     return (

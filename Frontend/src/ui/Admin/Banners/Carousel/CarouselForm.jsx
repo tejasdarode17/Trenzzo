@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CloudUpload, Loader,  X } from "lucide-react";
+import { CloudUpload, Loader, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import React from "react";
 
@@ -60,7 +60,7 @@ const CarouselForm = ({ initialData = {}, onSubmit, loading, error }) => {
                         accept="image/*"
                         onChange={handleFileChange}
                     />
-
+                    
                     <div className="flex flex-wrap gap-3">
                         {carouselImages.length > 0 ? (
                             carouselImages.map((file, idx) => (

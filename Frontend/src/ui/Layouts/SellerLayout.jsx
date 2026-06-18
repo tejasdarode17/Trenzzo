@@ -24,7 +24,7 @@ const SellerLayout = () => {
                 read: false,
             }))
         })
-
+            
         socket.on("new-return-order", (order) => {
             dispatch(addSellerReturnNotification({
                 type: "NEW_RETURN_ORDER",
@@ -32,7 +32,7 @@ const SellerLayout = () => {
                 read: false,
             }))
         })
-
+        
         return () => {
             socket.off("new-order");
             socket.off("new-return-order");

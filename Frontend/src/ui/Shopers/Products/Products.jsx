@@ -12,7 +12,7 @@ const Products = () => {
     const sort = searchParams.get("sort") || "relevance";
     const page = Number(searchParams.get("page") || 1);
     const category = searchParams.get("catID")
-
+    
     const { data, isLoading } = useProducts({ search, sort, page, category });
 
     const products = data?.products || [];

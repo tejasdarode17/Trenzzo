@@ -48,7 +48,6 @@ const EmailOtp = mongoose.model("EmailOtp", emailOtpSchema);
 export default EmailOtp;
 
 
-
 // that isUsed is required because after 10min monogodb will delete but
 // what if someone somehow manage to send two or three req at one time on /verify-otp within 10 min
 // that isUsed is making sure only One-time consumption of that OTP 

@@ -4,6 +4,7 @@ import ProductForm from './ProductForm';
 import { StepBack } from 'lucide-react';
 import { useSellerEditProduct } from '@/hooks/seller/useSellerEditProduct';
 import { useProductDetail } from '@/hooks/shopper/useProductDetail';
+import { toast } from 'sonner';
 
 const EditProduct = () => {
 

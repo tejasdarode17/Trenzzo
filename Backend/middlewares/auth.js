@@ -3,17 +3,17 @@ import dotenv from "dotenv"
 dotenv.config()
 
 
+//we use verifyUser all over the app just to get the "user" that verifUser should use for protecting routes only :) like verify seller verify admin and all 
 export function verifyUser(req, res, next) {
 
     const token = req.cookies.accessToken
-
     if (!token) {
         return res.status(401).json({
             success: false,
             message: "User is not authenticated"
         })
     }
-
+    
     try {
         let decoded = JWT.verify(token, process.env.JWT_ACCESS_KEY)
         req.user = decoded
@@ -28,25 +28,15 @@ export function verifyUser(req, res, next) {
 }
 
 
-
-//it attaches "user" if token exist if not then it will jump to guestSessionID genration
-//we use verifyUser all over the app just to get the "user" that verifUser should use for protecting routes only :) like verify seller verify admin and all 
-
-
-
-//this middleware will give us a user if user is loggedin no need to write it in between path and controller cuz
-//accessToken is available meaning user is loggedin
-// we use
+//this middleware will give us a user if user is loggedin 
 // app.use(tryAuth)
 // app.use(guestSession) 
 //if user in not loggedin it will go to gentate guestSessionID 
 export function tryAuth(req, res, next) {
-    const token = req.cookies?.accessToken;
-
+    const token = req?.cookies?.accessToken;
     if (!token) {
         return next();
     }
-
     try {
         const decoded = JWT.verify(token, process.env.JWT_ACCESS_KEY);
         req.user = decoded;
@@ -56,6 +46,10 @@ export function tryAuth(req, res, next) {
     next();
 }
 
+
+// !token -> guestSessionID -> genrateGuestSessionID
+// if token is available then it will attach a user to the request and will go to the guestSessionId 
+//after that explaination is written in guestSessionID
 
 
 

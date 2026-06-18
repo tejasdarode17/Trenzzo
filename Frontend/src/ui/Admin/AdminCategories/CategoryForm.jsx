@@ -124,7 +124,7 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
 
                 <Button
                     type="button"
-                    variant="secondary" 
+                    variant="secondary"
                     size="sm"
                     onClick={addAttribute}
                     className="w-fit flex items-center gap-1"
@@ -134,7 +134,7 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
             </div>
 
             {/* Image Upload */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                 <Label>Category Image</Label>
                 <Input
                     type="file"
@@ -147,11 +147,8 @@ const CategoryForm = ({ initialData = {}, onSubmit, loading }) => {
                     {formData.image ? (
                         <img
                             src={
-                                typeof formData.image === "string"
-                                    ? formData.image
-                                    : formData.image?.url
-                                        ? formData.image.url
-                                        : URL.createObjectURL(formData.image)
+                                typeof formData.image === "string" ? formData.image : formData.image?.url ? formData.image.url
+                                    : URL.createObjectURL(formData.image)
                             }
                             alt="Preview"
                             className="h-24 w-30 object-contain border rounded"

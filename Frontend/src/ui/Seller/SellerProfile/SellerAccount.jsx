@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import api from '@/api/axiosInstance'
+import axios from 'axios'
 
 const SellerAccount = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)

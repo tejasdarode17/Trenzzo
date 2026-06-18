@@ -600,7 +600,7 @@ export async function getRefreshToken(req, res) {
 
     const token = req.cookies.refreshToken;
     if (!token) return res.sendStatus(401);
-
+    
     try {
         const decoded = verifyToken(token)
         const newAccessToken = generateAccessToken({
@@ -608,7 +608,7 @@ export async function getRefreshToken(req, res) {
             role: decoded.role,
             email: decoded.email
         });
-
+    
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
             secure: true,
