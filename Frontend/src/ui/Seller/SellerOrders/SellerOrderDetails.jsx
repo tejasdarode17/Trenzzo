@@ -306,7 +306,7 @@ const DeliveryPartnerPicker = ({ order, item, onClose }) => {
                 </p>
 
                 <button
-                    onClick={refetch}
+                    // onClick={refetch}
                     className="text-sm text-red-600 underline"
                 >
                     Try again

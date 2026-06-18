@@ -1,7 +1,7 @@
 import { useWishlist } from "@/hooks/shopper/useWishlist"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Trash2, Star, Truck, ShoppingCart } from "lucide-react"
+import { Heart, Trash2, Star, Truck, ShoppingCart, Loader2 } from "lucide-react"
 import { useSelector } from "react-redux"
 import { Navigate, useNavigate } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"

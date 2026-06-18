@@ -16,7 +16,6 @@ const Orders = () => {
 
     const navigate = useNavigate();
 
-    if (!isAuthenticated) return <Navigate to="/auth-required" replace />;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -52,6 +51,9 @@ const Orders = () => {
             </Badge>
         );
     };
+
+    if (!isAuthenticated) return <Navigate to="/auth-required" replace />;
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-6 sm:py-8">

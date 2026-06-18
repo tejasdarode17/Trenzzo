@@ -223,7 +223,6 @@ const AccountSettings = () => {
                             variant="outline"
                             onClick={() => {
                                 setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-                                setIsSuccess(false)
                             }}
                             className="flex-1 border-gray-300 hover:bg-gray-50"
                         >

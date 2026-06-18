@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2, Trash } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 const DeleteBanner = ({ banner }) => {
 
